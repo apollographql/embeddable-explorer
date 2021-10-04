@@ -20,7 +20,6 @@ type EmbeddableExplorerOptions = {
   persistExplorerState?: boolean; // defaults to 'false'
 
   endpointUrl: string;
-  subscriptionEndpointUrl?: string | undefined;
 
   // optional. defaults to `return fetch(url, fetchOptions)`
   handleRequest?: HandleRequest;
@@ -60,7 +59,6 @@ window.EmbeddedExplorer = class EmbeddedExplorer {
     setupEmbedRelay({
       embeddedExplorerIFrameElement,
       endpointUrl: this.options.endpointUrl,
-      // subscriptionUrl: this.options.subscriptionEndpointUrl,
       handleRequest: this.handleRequest,
     });
   }

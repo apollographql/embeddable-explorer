@@ -3,8 +3,6 @@ import {
   EXPLORER_QUERY_MUTATION_REQUEST,
   EXPLORER_QUERY_MUTATION_RESPONSE,
   EXPLORER_SUBSCRIPTION_REQUEST,
-  // EXPLORER_SUBSCRIPTION_RESPONSE,
-  // EXPLORER_SUBSCRIPTION_TERMINATION,
 } from './constants';
 
 export type HandleRequest = (
@@ -72,83 +70,12 @@ async function executeOperation({
   });
 }
 
-// // Function for executing subscriptions
-// async function executeSubscription({
-//   subscriptionUrl,
-//   operation,
-//   operationName,
-//   variables,
-//   headers,
-//   embeddedExplorerIFrame,
-//   operationId,
-// }: {
-//   subscriptionUrl: string;
-//   operation: string;
-//   operationName?: string;
-//   variables?: Record<string, string>;
-//   headers?: Record<string, string>;
-//   embeddedExplorerIFrame?: HTMLIFrameElement;
-//   operationId: string;
-// }) {
-//   const getClient = () => {
-//     try {
-//       return new SubscriptionClient(subscriptionUrl, {
-//         reconnect: true,
-//         lazy: true,
-//         connectionParams: headers ?? {},
-//       });
-//     } catch {
-//       return undefined;
-//     }
-//   };
-//   const client = getClient();
-
-//   client
-//     ?.request({
-//       query: operation,
-//       operationName,
-//       variables: variables ?? undefined,
-//     })
-//     .subscribe({
-//       next(response) {
-//         // Everytime you get a subscription response,
-//         // post a response message to the iframe that includes the response data
-//         embeddedExplorerIFrame?.contentWindow?.postMessage(
-//           {
-//             // Include the same operation ID in the response message's name
-//             // so the Explorer knows which operation it's associated with
-//             name: EXPLORER_SUBSCRIPTION_RESPONSE,
-//             operationId,
-//             response,
-//           },
-//           EMBEDDABLE_EXPLORER_URL
-//         );
-//       },
-//     });
-
-//   const checkForSubscriptionTermination = (
-//     event: any
-//     // event: MessageEvent<{
-//     //   name?: string;
-//     // }>
-//   ) => {
-//     if (event.data.name === EXPLORER_SUBSCRIPTION_TERMINATION) {
-//       client?.unsubscribeAll();
-//       window.removeEventListener('message', checkForSubscriptionTermination);
-//     }
-//   };
-
-//   window.addEventListener('message', checkForSubscriptionTermination);
-// }
-
 export function setupEmbedRelay({
   endpointUrl,
-  //subscriptionUrl,
   handleRequest,
   embeddedExplorerIFrameElement,
 }: {
   endpointUrl: string;
-  // subscriptionUrl?: string;
   handleRequest: HandleRequest;
   embeddedExplorerIFrameElement: HTMLIFrameElement;
 }) {
@@ -189,21 +116,6 @@ export function setupEmbedRelay({
           operationId,
         });
       }
-      // } else if (!subscriptionUrl) {
-      //   throw new Error(
-      //     `There is no subscription url set on the graph ${graphRef}. You will need to configure a subscription url for your graph before subscriptions will work in the embed.`
-      //   );
-      // } else {
-      //   executeSubscription({
-      //     subscriptionUrl,
-      //     operation,
-      //     operationName,
-      //     variables,
-      //     headers,
-      //     embeddedExplorerIFrame,
-      //     operationId,
-      //   });
-      // }
     }
   };
   // Execute our callback whenever window.postMessage is called
