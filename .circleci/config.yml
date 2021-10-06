@@ -137,9 +137,9 @@ workflows:
       - cdn-upload-latest:
           requires:
             - build-latest-app
-          filters:
-            branches:
-              only: main
+          # filters:
+          #   branches:
+          #     only: main
       - build-versioned-app:
           requires:
             - cdn-upload-latest
