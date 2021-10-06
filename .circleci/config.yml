@@ -81,7 +81,7 @@ jobs:
       - persist_to_workspace:
           root: ~/embeddable-explorer
           paths:
-            - build
+            - dist
             - cdn-lookup-key
 
   build-versioned-app:
@@ -97,7 +97,7 @@ jobs:
       - persist_to_workspace:
           root: ~/embeddable-explorer
           paths:
-            - build
+            - dist
             - cdn-lookup-key
 
   cdn-upload-latest:
@@ -112,7 +112,7 @@ jobs:
       - run:
           name: Upload build artifacts to CDN
           command: |
-            gsutil -m rsync -r ~/embeddable-explorer/build gs://embeddable-explorer/_latest
+            gsutil -m rsync -r ~/embeddable-explorer/dist gs://embeddable-explorer/_latest
 
   cdn-upload-versioned:
     executor: gcp-cli/google
@@ -126,7 +126,7 @@ jobs:
       - run:
           name: Upload build artifacts to CDN
           command: |
-            gsutil -m rsync -r ~/embeddable-explorer/build gs://embeddable-explorer/$CIRCLE_SHA1
+            gsutil -m rsync -r ~/embeddable-explorer/dist gs://embeddable-explorer/$CIRCLE_SHA1
 
 workflows:
   build-test-deploy:
