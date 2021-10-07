@@ -10,7 +10,6 @@ type EmbeddableExplorerOptions = {
     document?: string;
     variables?: Record<string, any>;
     headers?: Record<string, string>;
-    searchQuery?: string;
     displayOptions: {
       docsPanelState?: 'open' | 'closed'; // default to 'open',
       showHeadersAndEnvVars?: boolean; // default to `false`
@@ -23,6 +22,8 @@ type EmbeddableExplorerOptions = {
 
   // optional. defaults to `return fetch(url, fetchOptions)`
   handleRequest?: HandleRequest;
+
+  /** options not included in the public api */
 
   // optional. default to undefined. don't include in public docs yet
   // throws error if graphRef is also provided
@@ -51,7 +52,10 @@ declare global {
 window.EmbeddedExplorer = class EmbeddedExplorer {
   options: EmbeddableExplorerOptions;
   handleRequest: HandleRequest;
-  constructor(options: EmbeddableExplorerOptions) {
+  constructor(
+    options: Omit<EmbeddableExplorerOptions, 'schema' | 'sendRequestsFrom'> &
+      { sendRequestsFrom: 'parent' }
+  ) {
     this.options = options;
     this.validateOptions(options);
     this.handleRequest = this.options.handleRequest ?? defaultRequestHandler;
