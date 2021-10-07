@@ -34,13 +34,7 @@ type EmbeddableExplorerOptions = {
   sendRequestsFrom?: 'parent' | 'embed';
 };
 
-declare global {
-  interface Window {
-    EmbeddedExplorer: any;
-  }
-}
-
-window.EmbeddedExplorer = class EmbeddedExplorer {
+class EmbeddedExplorer {
   options: EmbeddableExplorerOptions;
   handleRequest: HandleRequest;
   embeddedExplorerURL: string;
@@ -119,5 +113,6 @@ window.EmbeddedExplorer = class EmbeddedExplorer {
       .join('&');
     return `${EMBEDDABLE_EXPLORER_URL}?${queryString}`;
   };
-  
 };
+
+export default EmbeddedExplorer;
