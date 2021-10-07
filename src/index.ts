@@ -64,6 +64,7 @@ window.EmbeddedExplorer = class EmbeddedExplorer {
       embeddedExplorerIFrameElement,
       endpointUrl: this.options.endpointUrl,
       handleRequest: this.handleRequest,
+      schema: this.options.schema,
     });
   }
 
