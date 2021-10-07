@@ -26,7 +26,6 @@
         target: '#embeddableExplorer',
         graphRef: undefined,
         endpointUrl: 'https://acephei-gateway.herokuapp.com',
-        showHeadersAndEnvVars: true,
         schema: `
 type Query {
   fieldB: Test
@@ -39,6 +38,9 @@ type Test {
         initialState: {
           variables: {
             test: 'abcxyz',
+          },
+          displayOptions: {
+            showHeadersAndEnvVars: false,
           },
         },
       });

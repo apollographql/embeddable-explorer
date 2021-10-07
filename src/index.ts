@@ -105,14 +105,15 @@ window.EmbeddedExplorer = class EmbeddedExplorer {
         ? encodeURIComponent(JSON.stringify(variables))
         : undefined,
       headers: headers ? encodeURIComponent(JSON.stringify(headers)) : undefined,
-      persistExplorerState,
+      persistExplorerState: persistExplorerState ? true : false,
       sendRequestsFrom: sendRequestsFrom  ?? 'parent',
       docsPanelState: displayOptions?.docsPanelState ?? 'open',
-      showHeadersAndEnvVars: displayOptions?.showHeadersAndEnvVars,
+      showHeadersAndEnvVars: displayOptions?.showHeadersAndEnvVars === false ? false : true,
       theme: displayOptions?.theme ?? 'dark',
     };
+
     const queryString = Object.entries(queryParams)
-      .filter(([_, value]) => value)
+      .filter(([_, value]) => value != undefined)
       .map(([key, value]) => `${key}=${value}`)
       .join('&');
     return `${EMBEDDABLE_EXPLORER_URL}?${queryString}`;

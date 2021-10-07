@@ -26,10 +26,12 @@
         target: '#embeddableExplorer',
         graphRef: 'acephei@current',
         endpointUrl: 'https://acephei-gateway.herokuapp.com',
-        showHeadersAndEnvVars: true,
         initialState: {
           variables: {
             test: 'abcxyz',
+          },
+          displayOptions: {
+            showHeadersAndEnvVars: true,
           },
         },
       });
