@@ -85,8 +85,17 @@ export function setupEmbedRelay({
 }) {
   // Callback definition
   const onPostMessageReceived = (event: MessageEvent) => {
+
+    const data: {
+      name: string;
+      operationName: string;
+      operation: string;
+      operationId: string;
+      variables?: Record<string, string>;
+      headers?: Record<string, string>;
+    } = event.data
     // Embedded Explorer sends us a PM when it is ready for a schema
-    if (event.data.name === EXPLORER_LISTENING_FOR_SCHEMA  && !!schema) {
+    if ('name' in data && data.name === EXPLORER_LISTENING_FOR_SCHEMA  && !!schema) {
       embeddedExplorerIFrameElement.contentWindow?.postMessage(
         {
           name: SCHEMA_RESPONSE,
@@ -99,15 +108,15 @@ export function setupEmbedRelay({
     // Check to see if the posted message indicates that the user is
     // executing a query or mutation or subscription in the Explorer
     const isQueryOrMutation =
-      'name' in event.data &&
-      event.data.name === EXPLORER_QUERY_MUTATION_REQUEST;
+      'name' in data &&
+      data.name === EXPLORER_QUERY_MUTATION_REQUEST;
 
     // If the user is executing a query or mutation or subscription...
     if (
       (isQueryOrMutation) &&
-      event.data.operationName &&
-      event.data.operation &&
-      event.data.operationId
+      data.operationName &&
+      data.operation &&
+      data.operationId
     ) {
       // Extract the operation details from the event.data object
       const {
@@ -116,7 +125,7 @@ export function setupEmbedRelay({
         operationName,
         variables,
         headers,
-      } = event.data;
+      } = data;
       if (isQueryOrMutation) {
         executeOperation({
           endpointUrl,
