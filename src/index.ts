@@ -34,15 +34,6 @@ type EmbeddableExplorerOptions = {
   sendRequestsFrom?: 'parent' | 'embed';
 };
 
-const defaultRequestHandler = (
-  endpointUrl: string,
-  // force headers to just be a Record<string, string> instead of the RequestInit.headers type, 
-  // which is more flexible.
-  options: Omit<RequestInit, 'headers'> & { headers: Record<string, string> }
-) => {
-  return fetch(endpointUrl, options);
-};
-
 declare global {
   interface Window {
     EmbeddedExplorer: any;
@@ -59,7 +50,7 @@ window.EmbeddedExplorer = class EmbeddedExplorer {
   ) {
     this.options = options;
     this.validateOptions();
-    this.handleRequest = this.options.handleRequest ?? defaultRequestHandler;
+    this.handleRequest = this.options.handleRequest ?? fetch;
     this.embeddedExplorerURL = this.getEmbeddedExplorerURL()
     const embeddedExplorerIFrameElement = this.injectEmbed();
     setupEmbedRelay({
