@@ -1,0 +1,150 @@
+# Use the latest 2.1 version of CircleCI pipeline process engine.
+# See: https://circleci.com/docs/2.0/configuration-reference
+version: 2.1
+
+orbs:
+  gcp-cli: circleci/gcp-cli@2.1.0
+
+executors:
+  node:
+    docker:
+      - image: circleci/node:12.16.1-browsers
+    working_directory: ~/embeddable-explorer
+
+commands:
+  npm-install:
+    steps:
+      - run:
+          name: Installs npm version from package.jsons engines field
+          command: |
+            ENGINES_NPM_VERSION=`node -e "console.log(require('./package.json').engines.npm)"`;
+            sudo npm i -g npm@$ENGINES_NPM_VERSION;
+            npm -v;
+
+      - restore_cache:
+          name: Restore npm cache
+          keys:
+            - npm-cache--{{ checksum "package-lock.json" }}--{{ checksum ".circleci/config.yml" }}
+      - run:
+          name: Install npm dependencies with `npm ci`
+          command: npm ci --prefer-offline
+      - save_cache:
+          name: Save npm caches
+          key: npm-cache--{{ checksum "package-lock.json" }}--{{ checksum ".circleci/config.yml" }}
+          paths:
+            - ~/.npm
+jobs:
+  eslint:
+    executor: node
+    steps:
+      - checkout
+      - npm-install
+      - run:
+          name: Ensure output directory exists
+          command: mkdir -p /tmp/test-reports/eslint
+      - restore_cache:
+          name: Restore eslint cache
+          keys:
+            - raw-eslint-cache--{{ checksum ".eslintrc.js" }}--{{ .Branch }}--{{ checksum ".circleci/config.yml" }}
+            - raw-eslint-cache--{{ checksum ".eslintrc.js" }}--main--{{ checksum ".circleci/config.yml" }}
+      - run:
+          name: Linter
+          command: npm run lint -- --quiet --format junit --output-file /tmp/test-reports/eslint/results.xml
+      - save_cache:
+          name: Save eslint cache
+          key: raw-eslint-cache--{{ checksum ".eslintrc.js" }}--{{ .Branch }}--{{ checksum ".circleci/config.yml" }}--{{ epoch }}
+          paths:
+            - .eslintcache
+      - store_test_results:
+          path: /tmp/test-reports
+
+  typescript:
+    executor: node
+    steps:
+      - checkout
+      - npm-install
+      - run:
+          name: TypeScript
+          command: npm run typescript:check
+
+  build-latest-app:
+    executor: node
+    steps:
+      - checkout
+      - npm-install
+      - run:
+          name: Build
+          command: '[ -d build ] || PUBLIC_URL=https://embeddable-explorer.cdn.apollographql.com/_latest npm run build -- --no-progress'
+          environment:
+            BUILD_TO_CDN: 'true'
+      - persist_to_workspace:
+          root: ~/embeddable-explorer
+          paths:
+            - dist
+
+  build-versioned-app:
+    executor: node
+    steps:
+      - checkout
+      - npm-install
+      - run:
+          name: Build
+          command: '[ -d build ] || PUBLIC_URL=https://embeddable-explorer.cdn.apollographql.com/$CIRCLE_SHA1 npm run build -- --no-progress'
+          environment:
+            BUILD_TO_CDN: 'true'
+      - persist_to_workspace:
+          root: ~/embeddable-explorer
+          paths:
+            - dist
+
+  cdn-upload-latest:
+    executor: gcp-cli/google
+    steps:
+      - gcp-cli/initialize:
+          gcloud-service-key: GCLOUD_GCS_SERVICE_KEY
+      - gcp-cli/install
+      - checkout
+      - attach_workspace:
+          at: ~/embeddable-explorer
+      - run:
+          name: Upload build artifacts to CDN
+          command: |
+            gsutil -m rsync -r ~/embeddable-explorer/dist gs://embeddable-explorer/_latest
+
+  cdn-upload-versioned:
+    executor: gcp-cli/google
+    steps:
+      - gcp-cli/initialize:
+          gcloud-service-key: GCLOUD_GCS_SERVICE_KEY
+      - gcp-cli/install
+      - checkout
+      - attach_workspace:
+          at: ~/embeddable-explorer
+      - run:
+          name: Upload build artifacts to CDN
+          command: |
+            gsutil -m rsync -r ~/embeddable-explorer/dist gs://embeddable-explorer/$CIRCLE_SHA1
+
+workflows:
+  build-test-deploy:
+    jobs:
+      - eslint
+      - typescript
+      - build-latest-app
+      - cdn-upload-latest:
+          requires:
+            - build-latest-app
+          filters:
+            branches:
+              only: main
+      - build-versioned-app:
+          requires:
+            - cdn-upload-latest
+      - cdn-upload-versioned:
+          requires:
+            - build-versioned-app
+          filters:
+            branches:
+              only: main
+      # For running simple node tests, you could optionally use the node/test job from the orb to replicate and replace the job above in fewer lines.
+      # - node/test
