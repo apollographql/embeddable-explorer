@@ -4,7 +4,6 @@ import {
   EXPLORER_LISTENING_FOR_SCHEMA,
   EXPLORER_QUERY_MUTATION_REQUEST,
   EXPLORER_QUERY_MUTATION_RESPONSE,
-  EXPLORER_SUBSCRIPTION_REQUEST,
   SCHEMA_RESPONSE,
 } from './constants';
 
@@ -43,10 +42,10 @@ async function executeOperation({
   handleRequest: HandleRequest;
   operation: string;
   operationId: string;
-  operationName?: string;
+  embeddedExplorerIFrameElement: HTMLIFrameElement;
+  operationName: string;
   variables?: Record<string, string>;
   headers?: Record<string, string>;
-  embeddedExplorerIFrameElement?: HTMLIFrameElement;
 }) {
   const response = await handleRequest(endpointUrl, {
     method: 'POST',
@@ -102,13 +101,11 @@ export function setupEmbedRelay({
     const isQueryOrMutation =
       'name' in event.data &&
       event.data.name === EXPLORER_QUERY_MUTATION_REQUEST;
-    const isSubscription =
-      'name' in event.data && event.data.name === EXPLORER_SUBSCRIPTION_REQUEST;
 
     // If the user is executing a query or mutation or subscription...
     if (
-      (isQueryOrMutation || isSubscription) &&
-      event.data.name &&
+      (isQueryOrMutation) &&
+      event.data.operationName &&
       event.data.operation &&
       event.data.operationId
     ) {
