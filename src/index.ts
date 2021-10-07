@@ -68,6 +68,7 @@ window.EmbeddedExplorer = class EmbeddedExplorer {
     if (typeof target === 'string') {
       element = document?.querySelector?.(target);
     } else {
+      if(!target) throw new Error('"target" is required')
       element = target;
     }
     const iframeElement = document.createElement('iframe');
