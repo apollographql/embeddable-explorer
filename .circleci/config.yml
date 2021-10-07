@@ -6,7 +6,6 @@ orbs:
   gcp-cli: circleci/gcp-cli@2.1.0
 
 executors:
-  # cypress requires xvfb to generate screenshots and recordings from browsers
   node:
     docker:
       - image: circleci/node:12.16.1-browsers
@@ -82,7 +81,6 @@ jobs:
           root: ~/embeddable-explorer
           paths:
             - dist
-            - cdn-lookup-key
 
   build-versioned-app:
     executor: node
@@ -98,7 +96,6 @@ jobs:
           root: ~/embeddable-explorer
           paths:
             - dist
-            - cdn-lookup-key
 
   cdn-upload-latest:
     executor: gcp-cli/google
