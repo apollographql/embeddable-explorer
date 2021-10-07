@@ -62,7 +62,6 @@ class EmbeddedExplorer {
     if (typeof target === 'string') {
       element = document?.querySelector?.(target);
     } else {
-      if(!target) throw new Error('"target" is required')
       element = target;
     }
     const iframeElement = document.createElement('iframe');
@@ -77,6 +76,10 @@ class EmbeddedExplorer {
   }
 
   validateOptions() {
+    if(!this.options.target) {
+      throw new Error('"target" is required')
+    }
+
     if(!this.options.handleRequest && !this.options.endpointUrl) {
       throw new Error('`endpointUrl` is required unless you write a custom `handleRequest`')
     }
