@@ -99,7 +99,7 @@ class EmbeddedExplorer {
     }
 
     if(this.options.handleRequest && this.options.sendRequestsFrom === 'embed') {
-      throw new Error('You cannot pass a custom `handleRequest` if you have `sendRequestsFrom` set to \"embed\"')
+      throw new Error('You cannot pass a custom `handleRequest` if you have `sendRequestsFrom` set to "embed"')
     }
 
     if('schema' in this.options && 'graphRef' in this.options) {
@@ -126,7 +126,7 @@ class EmbeddedExplorer {
     };
 
     const queryString = Object.entries(queryParams)
-      .filter(([_, value]) => value != undefined)
+      .filter(([_, value]) => value !== undefined)
       .map(([key, value]) => `${key}=${value}`)
       .join('&');
     return `${EMBEDDABLE_EXPLORER_URL}?${queryString}`;
