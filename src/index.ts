@@ -4,7 +4,28 @@ import { HandleRequest, setupEmbedRelay } from './setupEmbedRelay';
 
 type EmbeddableExplorerOptions = {
   target: string | HTMLElement; // HTMLElement is to accomodate people who might prefer to pass in a ref
-  graphRef: string; // e.g. 'graphId@graphVariant'
+  graphRef: string;
+
+  initialState?: {
+    document?: string;
+    variables?: Record<string, any>;
+    headers?: Record<string, string>;
+    displayOptions: {
+      docsPanelState?: 'open' | 'closed'; // default to 'open',
+      showHeadersAndEnvVars?: boolean; // default to `false`
+      theme?: 'dark' | 'light';
+    };
+  };
+  persistExplorerState?: boolean; // defaults to 'false'
+
+  endpointUrl: string;
+
+  // optional. defaults to `return fetch(url, fetchOptions)`
+  handleRequest?: HandleRequest;
+};
+
+type InternalEmbeddableExplorerOptions = {
+  target: string | HTMLElement; // HTMLElement is to accomodate people who might prefer to pass in a ref
 
   initialState?: {
     document?: string;
@@ -23,26 +44,19 @@ type EmbeddableExplorerOptions = {
   // optional. defaults to `return fetch(url, fetchOptions)`
   handleRequest?: HandleRequest;
 
-  /** options not included in the public api */
-
-  // optional. default to undefined. don't include in public docs yet
-  // throws error if graphRef is also provided
-  schema?: string | IntrospectionQuery | undefined;
-
   // optional. defaults to "parent". don't include in public docs yet
   // throws error if value is 'embed' and `handleRequest` is provided
   sendRequestsFrom?: 'parent' | 'embed';
-};
+} & ({ graphRef: string; schema: never; } | { schema: string | IntrospectionQuery; graphRef: never; });
 
 class EmbeddedExplorer {
-  options: EmbeddableExplorerOptions;
+  options: InternalEmbeddableExplorerOptions;
   handleRequest: HandleRequest;
   embeddedExplorerURL: string;
   constructor(
-    options: Omit<EmbeddableExplorerOptions, 'schema' | 'sendRequestsFrom'> &
-      { sendRequestsFrom: 'parent' }
+    options: EmbeddableExplorerOptions
   ) {
-    this.options = options;
+    this.options = options as InternalEmbeddableExplorerOptions;
     this.validateOptions();
     this.handleRequest = this.options.handleRequest ?? fetch;
     this.embeddedExplorerURL = this.getEmbeddedExplorerURL()
@@ -51,7 +65,7 @@ class EmbeddedExplorer {
       embeddedExplorerIFrameElement,
       endpointUrl: this.options.endpointUrl,
       handleRequest: this.handleRequest,
-      schema: this.options.schema,
+      schema: 'schema' in this.options ? this.options.schema : undefined,
     });
   }
 
@@ -88,14 +102,15 @@ class EmbeddedExplorer {
       throw new Error('You cannot pass a custom `handleRequest` if you have `sendRequestsFrom` set to \"embed\"')
     }
 
-    if(this.options.schema && this.options.graphRef) {
+    if('schema' in this.options && 'graphRef' in this.options) {
       throw new Error('Both `schema` and `graphRef` cannot be set. You can either send your schema as an IntrospectionQuery or string via the `schema` field, or specifiy a public graphRef.')
     }
   }
 
   getEmbeddedExplorerURL = () => {
     const { document, variables, headers, displayOptions } = this.options.initialState || {};
-    const { graphRef, persistExplorerState, sendRequestsFrom } = this.options;
+    const { persistExplorerState, sendRequestsFrom } = this.options;
+    const graphRef = 'graphRef' in this.options ? this.options.graphRef : undefined;
     const queryParams = {
       graphRef,
       document: document ? encodeURIComponent(document) : undefined,
