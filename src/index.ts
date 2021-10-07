@@ -52,13 +52,15 @@ declare global {
 window.EmbeddedExplorer = class EmbeddedExplorer {
   options: EmbeddableExplorerOptions;
   handleRequest: HandleRequest;
+  embeddedExplorerURL: string;
   constructor(
     options: Omit<EmbeddableExplorerOptions, 'schema' | 'sendRequestsFrom'> &
       { sendRequestsFrom: 'parent' }
   ) {
     this.options = options;
-    this.validateOptions(options);
+    this.validateOptions();
     this.handleRequest = this.options.handleRequest ?? defaultRequestHandler;
+    this.embeddedExplorerURL = this.getEmbeddedExplorerURL()
     const embeddedExplorerIFrameElement = this.injectEmbed();
     setupEmbedRelay({
       embeddedExplorerIFrameElement,
@@ -78,59 +80,51 @@ window.EmbeddedExplorer = class EmbeddedExplorer {
       element = target;
     }
     const iframeElement = document.createElement('iframe');
-    iframeElement.src =
-      EMBEDDABLE_EXPLORER_URL +
-      getQueryParamsFromOptions(this.options);
+    iframeElement.src = this.embeddedExplorerURL;
 
-      iframeElement.id = 'apollo-embedded-explorer';
-      iframeElement.setAttribute('style', "height: 100%; width: 100%")
+    iframeElement.id = 'apollo-embedded-explorer';
+    iframeElement.setAttribute('style', "height: 100%; width: 100%")
 
     element?.appendChild(iframeElement);
 
     return iframeElement;
   }
 
-  validateOptions(options: EmbeddableExplorerOptions) {
-    if(!options.handleRequest && !options.endpointUrl) {
+  validateOptions() {
+    if(!this.options.handleRequest && !this.options.endpointUrl) {
       throw new Error('`endpointUrl` is required unless you write a custom `handleRequest`')
     }
 
-    if(options.handleRequest && options.sendRequestsFrom === 'embed') {
+    if(this.options.handleRequest && this.options.sendRequestsFrom === 'embed') {
       throw new Error('You cannot pass a custom `handleRequest` if you have `sendRequestsFrom` set to \"embed\"')
     }
 
-    if(options.schema && options.graphRef) {
+    if(this.options.schema && this.options.graphRef) {
       throw new Error('Both `schema` and `graphRef` cannot be set. You can either send your schema as an IntrospectionQuery or string via the `schema` field, or specifiy a public graphRef.')
     }
   }
-};
 
-const getQueryParamsFromOptions = ({
-  graphRef,
-  persistExplorerState,
-  sendRequestsFrom,
-  initialState,
-}: EmbeddableExplorerOptions) => {
-  const { document, variables, headers, displayOptions } = initialState || {};
-  const queryParams = {
-    graphRef,
-    document: document ? encodeURIComponent(document) : undefined,
-    variables: variables
-      ? encodeURIComponent(JSON.stringify(variables))
-      : undefined,
-    headers: headers ? encodeURIComponent(JSON.stringify(headers)) : undefined,
-    persistExplorerState,
-    sendRequestsFrom: sendRequestsFrom  ?? 'parent',
-    docsPanelState: displayOptions?.docsPanelState ?? 'open',
-    showHeadersAndEnvVars: displayOptions?.showHeadersAndEnvVars,
-    theme: displayOptions?.theme ?? 'dark',
+  getEmbeddedExplorerURL = () => {
+    const { document, variables, headers, displayOptions } = this.options.initialState || {};
+    const { graphRef, persistExplorerState, sendRequestsFrom } = this.options;
+    const queryParams = {
+      graphRef,
+      document: document ? encodeURIComponent(document) : undefined,
+      variables: variables
+        ? encodeURIComponent(JSON.stringify(variables))
+        : undefined,
+      headers: headers ? encodeURIComponent(JSON.stringify(headers)) : undefined,
+      persistExplorerState,
+      sendRequestsFrom: sendRequestsFrom  ?? 'parent',
+      docsPanelState: displayOptions?.docsPanelState ?? 'open',
+      showHeadersAndEnvVars: displayOptions?.showHeadersAndEnvVars,
+      theme: displayOptions?.theme ?? 'dark',
+    };
+    const queryString = Object.entries(queryParams)
+      .filter(([_, value]) => value)
+      .map(([key, value]) => `${key}=${value}`)
+      .join('&');
+    return `${EMBEDDABLE_EXPLORER_URL}?${queryString}`;
   };
-  let queryString = '';
-  Object.entries(queryParams)
-    .filter(([_, value]) => value)
-    .forEach(([key, value]) => {
-      queryString += `&${key}=${value}`;
-    });
-  queryString = "?" + queryString.slice(1)
-  return queryString;
+  
 };
