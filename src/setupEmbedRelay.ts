@@ -43,7 +43,7 @@ async function executeOperation({
   operation: string;
   operationId: string;
   embeddedExplorerIFrameElement: HTMLIFrameElement;
-  operationName?: string;
+  operationName: string | undefined;
   variables?: Record<string, string>;
   headers?: Record<string, string>;
 }) {
