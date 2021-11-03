@@ -43,7 +43,7 @@ async function executeOperation({
   operation: string;
   operationId: string;
   embeddedExplorerIFrameElement: HTMLIFrameElement;
-  operationName: string;
+  operationName?: string;
   variables?: Record<string, string>;
   headers?: Record<string, string>;
 }) {
@@ -88,7 +88,7 @@ export function setupEmbedRelay({
 
     const data: {
       name: string;
-      operationName: string;
+      operationName?: string;
       operation: string;
       operationId: string;
       variables?: Record<string, string>;
@@ -114,7 +114,6 @@ export function setupEmbedRelay({
     // If the user is executing a query or mutation or subscription...
     if (
       (isQueryOrMutation) &&
-      data.operationName &&
       data.operation &&
       data.operationId
     ) {
