@@ -8,7 +8,8 @@
     "src"
   ],
   "engines": {
-    "node": ">=10"
+    "node": ">=10",
+    "npm": ">=6.9"
   },
   "scripts": {
     "start": "tsdx watch",
@@ -17,7 +18,8 @@
     "lint": "tsdx lint",
     "prepare": "tsdx build",
     "size": "size-limit",
-    "analyze": "size-limit --why"
+    "analyze": "size-limit --why",
+    "typescript:check": "tsc --noEmit"
   },
   "husky": {
     "hooks": {

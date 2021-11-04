@@ -27,6 +27,11 @@
         graphRef: 'acephei@current',
         endpointUrl: 'https://acephei-gateway.herokuapp.com',
         initialState: {
+          document: `query Example {
+	me {
+		id
+	}
+}`,
           variables: {
             test: 'abcxyz',
           },
