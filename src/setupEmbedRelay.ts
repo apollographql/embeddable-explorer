@@ -28,7 +28,7 @@ function getHeadersWithContentType(
   return headersWithContentType;
 }
 
-async function executeOperation({
+function executeOperation({
   endpointUrl,
   handleRequest,
   operation,
@@ -47,7 +47,7 @@ async function executeOperation({
   variables?: Record<string, string>;
   headers?: Record<string, string>;
 }) {
-  const response = await handleRequest(endpointUrl, {
+  return handleRequest(endpointUrl, {
     method: 'POST',
     headers: getHeadersWithContentType(headers),
     body: JSON.stringify({
@@ -55,21 +55,22 @@ async function executeOperation({
       variables,
       operationName,
     }),
-  });
-  await response.json().then(response => {
-    // After the operation completes, post a response message to the
-    // iframe that includes the response data
-    embeddedExplorerIFrameElement?.contentWindow?.postMessage(
-      {
-        // Include the same operation ID in the response message's name
-        // so the Explorer knows which operation it's associated with
-        name: EXPLORER_QUERY_MUTATION_RESPONSE,
-        operationId,
-        response,
-      },
-      EMBEDDABLE_EXPLORER_URL
-    );
-  });
+  })
+    .then(response => response.json())
+    .then(response => {
+      // After the operation completes, post a response message to the
+      // iframe that includes the response data
+      embeddedExplorerIFrameElement?.contentWindow?.postMessage(
+        {
+          // Include the same operation ID in the response message's name
+          // so the Explorer knows which operation it's associated with
+          name: EXPLORER_QUERY_MUTATION_RESPONSE,
+          operationId,
+          response,
+        },
+        EMBEDDABLE_EXPLORER_URL
+      );
+    });
 }
 
 export function setupEmbedRelay({
