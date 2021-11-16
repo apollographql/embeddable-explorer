@@ -47,19 +47,20 @@ type InternalEmbeddableExplorerOptions = {
   // optional. defaults to "parent". don't include in public docs yet
   // throws error if value is 'embed' and `handleRequest` is provided
   sendRequestsFrom?: 'parent' | 'embed';
-} & ({ graphRef: string; schema: never; } | { schema: string | IntrospectionQuery; graphRef: never; });
+} & (
+  | { graphRef: string; schema: never }
+  | { schema: string | IntrospectionQuery; graphRef: never }
+);
 
 class EmbeddedExplorer {
   options: InternalEmbeddableExplorerOptions;
   handleRequest: HandleRequest;
   embeddedExplorerURL: string;
-  constructor(
-    options: EmbeddableExplorerOptions
-  ) {
+  constructor(options: EmbeddableExplorerOptions) {
     this.options = options as InternalEmbeddableExplorerOptions;
     this.validateOptions();
     this.handleRequest = this.options.handleRequest ?? fetch;
-    this.embeddedExplorerURL = this.getEmbeddedExplorerURL()
+    this.embeddedExplorerURL = this.getEmbeddedExplorerURL();
     const embeddedExplorerIFrameElement = this.injectEmbed();
     setupEmbedRelay({
       embeddedExplorerIFrameElement,
@@ -82,7 +83,7 @@ class EmbeddedExplorer {
     iframeElement.src = this.embeddedExplorerURL;
 
     iframeElement.id = 'apollo-embedded-explorer';
-    iframeElement.setAttribute('style', "height: 100%; width: 100%")
+    iframeElement.setAttribute('style', 'height: 100%; width: 100%');
 
     element?.appendChild(iframeElement);
 
@@ -90,38 +91,52 @@ class EmbeddedExplorer {
   }
 
   validateOptions() {
-    if(!this.options.target) {
-      throw new Error('"target" is required')
+    if (!this.options.target) {
+      throw new Error('"target" is required');
     }
 
-    if(!this.options.handleRequest && !this.options.endpointUrl) {
-      throw new Error('`endpointUrl` is required unless you write a custom `handleRequest`')
+    if (!this.options.handleRequest && !this.options.endpointUrl) {
+      throw new Error(
+        '`endpointUrl` is required unless you write a custom `handleRequest`'
+      );
     }
 
-    if(this.options.handleRequest && this.options.sendRequestsFrom === 'embed') {
-      throw new Error('You cannot pass a custom `handleRequest` if you have `sendRequestsFrom` set to "embed"')
+    if (
+      this.options.handleRequest &&
+      this.options.sendRequestsFrom === 'embed'
+    ) {
+      throw new Error(
+        'You cannot pass a custom `handleRequest` if you have `sendRequestsFrom` set to "embed"'
+      );
     }
 
-    if('schema' in this.options && 'graphRef' in this.options) {
-      throw new Error('Both `schema` and `graphRef` cannot be set. You can either send your schema as an IntrospectionQuery or string via the `schema` field, or specifiy a public graphRef.')
+    if ('schema' in this.options && 'graphRef' in this.options) {
+      throw new Error(
+        'Both `schema` and `graphRef` cannot be set. You can either send your schema as an IntrospectionQuery or string via the `schema` field, or specifiy a public graphRef.'
+      );
     }
   }
 
   getEmbeddedExplorerURL = () => {
-    const { document, variables, headers, displayOptions } = this.options.initialState || {};
+    const { document, variables, headers, displayOptions } =
+      this.options.initialState || {};
     const { persistExplorerState, sendRequestsFrom } = this.options;
-    const graphRef = 'graphRef' in this.options ? this.options.graphRef : undefined;
+    const graphRef =
+      'graphRef' in this.options ? this.options.graphRef : undefined;
     const queryParams = {
       graphRef,
       document: document ? encodeURIComponent(document) : undefined,
       variables: variables
         ? encodeURIComponent(JSON.stringify(variables))
         : undefined,
-      headers: headers ? encodeURIComponent(JSON.stringify(headers)) : undefined,
+      headers: headers
+        ? encodeURIComponent(JSON.stringify(headers))
+        : undefined,
       persistExplorerState: persistExplorerState ? true : false,
-      sendRequestsFrom: sendRequestsFrom  ?? 'parent',
+      sendRequestsFrom: sendRequestsFrom ?? 'parent',
       docsPanelState: displayOptions?.docsPanelState ?? 'open',
-      showHeadersAndEnvVars: displayOptions?.showHeadersAndEnvVars === false ? false : true,
+      showHeadersAndEnvVars:
+        displayOptions?.showHeadersAndEnvVars === false ? false : true,
       theme: displayOptions?.theme ?? 'dark',
     };
 
@@ -131,6 +146,6 @@ class EmbeddedExplorer {
       .join('&');
     return `${EMBEDDABLE_EXPLORER_URL}?${queryString}`;
   };
-};
+}
 
 export default EmbeddedExplorer;

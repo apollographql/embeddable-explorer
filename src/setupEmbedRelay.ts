@@ -20,7 +20,7 @@ function getHeadersWithContentType(
   const headersWithContentType = headers ?? {};
   if (
     Object.keys(headersWithContentType).every(
-      key => key.toLowerCase() !== 'content-type'
+      (key) => key.toLowerCase() !== 'content-type'
     )
   ) {
     headersWithContentType['content-type'] = 'application/json';
@@ -56,8 +56,8 @@ function executeOperation({
       operationName,
     }),
   })
-    .then(response => response.json())
-    .then(response => {
+    .then((response) => response.json())
+    .then((response) => {
       // After the operation completes, post a response message to the
       // iframe that includes the response data
       embeddedExplorerIFrameElement?.contentWindow?.postMessage(
@@ -86,7 +86,6 @@ export function setupEmbedRelay({
 }) {
   // Callback definition
   const onPostMessageReceived = (event: MessageEvent) => {
-
     const data: {
       name: string;
       operationName?: string;
@@ -94,9 +93,13 @@ export function setupEmbedRelay({
       operationId: string;
       variables?: Record<string, string>;
       headers?: Record<string, string>;
-    } = event.data
+    } = event.data;
     // Embedded Explorer sends us a PM when it is ready for a schema
-    if ('name' in data && data.name === EXPLORER_LISTENING_FOR_SCHEMA  && !!schema) {
+    if (
+      'name' in data &&
+      data.name === EXPLORER_LISTENING_FOR_SCHEMA &&
+      !!schema
+    ) {
       embeddedExplorerIFrameElement.contentWindow?.postMessage(
         {
           name: SCHEMA_RESPONSE,
@@ -109,23 +112,13 @@ export function setupEmbedRelay({
     // Check to see if the posted message indicates that the user is
     // executing a query or mutation or subscription in the Explorer
     const isQueryOrMutation =
-      'name' in data &&
-      data.name === EXPLORER_QUERY_MUTATION_REQUEST;
+      'name' in data && data.name === EXPLORER_QUERY_MUTATION_REQUEST;
 
     // If the user is executing a query or mutation or subscription...
-    if (
-      (isQueryOrMutation) &&
-      data.operation &&
-      data.operationId
-    ) {
+    if (isQueryOrMutation && data.operation && data.operationId) {
       // Extract the operation details from the event.data object
-      const {
-        operation,
-        operationId,
-        operationName,
-        variables,
-        headers,
-      } = data;
+      const { operation, operationId, operationName, variables, headers } =
+        data;
       if (isQueryOrMutation) {
         executeOperation({
           endpointUrl,
