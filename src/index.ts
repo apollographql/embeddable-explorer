@@ -132,7 +132,7 @@ class EmbeddedExplorer {
       headers: headers
         ? encodeURIComponent(JSON.stringify(headers))
         : undefined,
-      persistExplorerState: persistExplorerState ? true : false,
+      shouldPersistState: persistExplorerState ? true : false,
       sendRequestsFrom: sendRequestsFrom ?? 'parent',
       docsPanelState: displayOptions?.docsPanelState ?? 'open',
       showHeadersAndEnvVars:
