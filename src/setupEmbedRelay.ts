@@ -1,10 +1,6 @@
-import type { IntrospectionQuery } from 'graphql';
 import {
   EMBEDDABLE_EXPLORER_URL,
-  EXPLORER_LISTENING_FOR_SCHEMA,
-  EXPLORER_QUERY_MUTATION_REQUEST,
   EXPLORER_QUERY_MUTATION_RESPONSE,
-  SCHEMA_RESPONSE,
 } from './constants';
 
 export type HandleRequest = (
@@ -28,7 +24,7 @@ function getHeadersWithContentType(
   return headersWithContentType;
 }
 
-function executeOperation({
+export function executeOperation({
   endpointUrl,
   handleRequest,
   operation,
@@ -71,68 +67,4 @@ function executeOperation({
         EMBEDDABLE_EXPLORER_URL
       );
     });
-}
-
-export function setupEmbedRelay({
-  endpointUrl,
-  handleRequest,
-  embeddedExplorerIFrameElement,
-  schema,
-}: {
-  endpointUrl: string;
-  handleRequest: HandleRequest;
-  embeddedExplorerIFrameElement: HTMLIFrameElement;
-  schema?: string | IntrospectionQuery | undefined;
-}) {
-  // Callback definition
-  const onPostMessageReceived = (event: MessageEvent) => {
-    const data: {
-      name: string;
-      operationName?: string;
-      operation: string;
-      operationId: string;
-      variables?: Record<string, string>;
-      headers?: Record<string, string>;
-    } = event.data;
-    // Embedded Explorer sends us a PM when it is ready for a schema
-    if (
-      'name' in data &&
-      data.name === EXPLORER_LISTENING_FOR_SCHEMA &&
-      !!schema
-    ) {
-      embeddedExplorerIFrameElement.contentWindow?.postMessage(
-        {
-          name: SCHEMA_RESPONSE,
-          schema,
-        },
-        EMBEDDABLE_EXPLORER_URL
-      );
-    }
-
-    // Check to see if the posted message indicates that the user is
-    // executing a query or mutation or subscription in the Explorer
-    const isQueryOrMutation =
-      'name' in data && data.name === EXPLORER_QUERY_MUTATION_REQUEST;
-
-    // If the user is executing a query or mutation or subscription...
-    if (isQueryOrMutation && data.operation && data.operationId) {
-      // Extract the operation details from the event.data object
-      const { operation, operationId, operationName, variables, headers } =
-        data;
-      if (isQueryOrMutation) {
-        executeOperation({
-          endpointUrl,
-          handleRequest,
-          operation,
-          operationName,
-          variables,
-          headers,
-          embeddedExplorerIFrameElement,
-          operationId,
-        });
-      }
-    }
-  };
-  // Execute our callback whenever window.postMessage is called
-  window.addEventListener('message', onPostMessageReceived);
 }

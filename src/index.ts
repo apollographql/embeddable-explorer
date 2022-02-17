@@ -1,6 +1,11 @@
 import type { IntrospectionQuery } from 'graphql';
-import { EMBEDDABLE_EXPLORER_URL } from './constants';
-import { HandleRequest, setupEmbedRelay } from './setupEmbedRelay';
+import { HandleRequest, executeOperation } from './setupEmbedRelay';
+import {
+  EMBEDDABLE_EXPLORER_URL,
+  EXPLORER_LISTENING_FOR_SCHEMA,
+  EXPLORER_QUERY_MUTATION_REQUEST,
+  SCHEMA_RESPONSE,
+} from './constants';
 
 type EmbeddableExplorerOptions = {
   target: string | HTMLElement; // HTMLElement is to accomodate people who might prefer to pass in a ref
@@ -52,22 +57,24 @@ type InternalEmbeddableExplorerOptions = {
   | { schema: string | IntrospectionQuery; graphRef: never }
 );
 
+let wtf: Function | undefined;
+
 class EmbeddedExplorer {
   options: InternalEmbeddableExplorerOptions;
   handleRequest: HandleRequest;
   embeddedExplorerURL: string;
+  embeddedExplorerIFrameElement: HTMLIFrameElement
+  id: number;
+
   constructor(options: EmbeddableExplorerOptions) {
     this.options = options as InternalEmbeddableExplorerOptions;
     this.validateOptions();
+    this.id = new Date().getTime();
     this.handleRequest = this.options.handleRequest ?? fetch;
     this.embeddedExplorerURL = this.getEmbeddedExplorerURL();
-    const embeddedExplorerIFrameElement = this.injectEmbed();
-    setupEmbedRelay({
-      embeddedExplorerIFrameElement,
-      endpointUrl: this.options.endpointUrl,
-      handleRequest: this.handleRequest,
-      schema: 'schema' in this.options ? this.options.schema : undefined,
-    });
+    this.embeddedExplorerIFrameElement = this.injectEmbed();
+    
+    this.setupEmbedRelay();
   }
 
   injectEmbed() {
@@ -89,6 +96,69 @@ class EmbeddedExplorer {
 
     return iframeElement;
   }
+
+  setupEmbedRelay = () => {
+    // Callback definition
+    
+    // Execute our callback whenever window.postMessage is called
+    if (wtf) {
+      // @ts-ignore
+      window.removeEventListener('message', wtf);
+    }
+    window.addEventListener('message', this.onPostMessageReceived);
+    wtf = this.onPostMessageReceived;
+  }
+
+  onPostMessageReceived = (event: MessageEvent) => {
+    console.log('message received: ', event, this);
+    const data: {
+      name: string;
+      operationName?: string;
+      operation: string;
+      operationId: string;
+      variables?: Record<string, string>;
+      headers?: Record<string, string>;
+    } = event.data;  
+    const schema = 'schema' in this.options ? this.options.schema : undefined;
+    // Embedded Explorer sends us a PM when it is ready for a schema
+    if (
+      'name' in data &&
+      data.name === EXPLORER_LISTENING_FOR_SCHEMA &&
+      !!schema
+    ) {
+      this.embeddedExplorerIFrameElement.contentWindow?.postMessage(
+        {
+          name: SCHEMA_RESPONSE,
+          schema,
+        },
+        EMBEDDABLE_EXPLORER_URL
+      );
+    }
+
+    // Check to see if the posted message indicates that the user is
+    // executing a query or mutation or subscription in the Explorer
+    const isQueryOrMutation =
+      'name' in data && data.name === EXPLORER_QUERY_MUTATION_REQUEST;
+
+    // If the user is executing a query or mutation or subscription...
+    if (isQueryOrMutation && data.operation && data.operationId) {
+      // Extract the operation details from the event.data object
+      const { operation, operationId, operationName, variables, headers } =
+        data;
+      if (isQueryOrMutation) {
+        executeOperation({
+          endpointUrl: this.options.endpointUrl,
+          handleRequest: this.handleRequest,
+          operation,
+          operationName,
+          variables,
+          headers,
+          embeddedExplorerIFrameElement: this.embeddedExplorerIFrameElement,
+          operationId,
+        });
+      }
+    }
+  };
 
   validateOptions() {
     if (!this.options.target) {
