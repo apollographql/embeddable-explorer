@@ -1,5 +1,8 @@
 {
+
+  "name": "@apollo/explorer",
   "version": "0.1.0",
+  "author": "mayakoneval",
   "license": "MIT",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -33,8 +36,6 @@
     "trailingComma": "es5",
     "endOfLine": "auto"
   },
-  "name": "embeddable-explorer",
-  "author": "mayakoneval",
   "module": "dist/embeddable-explorer.esm.js",
   "size-limit": [
     {
