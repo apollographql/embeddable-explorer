@@ -2,7 +2,7 @@
 
   "name": "@apollo/explorer",
   "version": "0.1.0",
-  "author": "mayakoneval",
+  "author": "packages@apollographql.com",
   "license": "MIT",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
