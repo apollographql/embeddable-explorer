@@ -1,5 +1,4 @@
 {
-
   "name": "@apollo/explorer",
   "version": "0.1.0",
   "author": "packages@apollographql.com",
@@ -16,7 +15,7 @@
   },
   "scripts": {
     "start": "tsdx watch",
-    "build": "tsdx build --format cjs,esm,umd",
+    "build": "tsdx build --format cjs,esm,umd --name embeddable-explorer",
     "test": "tsdx test --passWithNoTests",
     "lint": "tsdx lint",
     "prepare": "tsdx build",
