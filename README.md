@@ -39,7 +39,7 @@ me {
       },
     });
   })
-  
+
   return (
     <div
       style={{width: '800px', height: '700px', margin: 'auto'}}
@@ -53,3 +53,7 @@ me {
 
 - [Embedding a registered public graph](./src/examples/graphRef.html)
 - [Usage by directly passing in schema](./src/examples/manualSchema.html)
+
+## Developing
+
+run `npm run build` to build umd, cjs and esm files. Open `examples/localDevelopmentExample.html` to test your changes.
