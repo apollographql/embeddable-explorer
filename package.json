@@ -15,7 +15,8 @@
   },
   "scripts": {
     "start": "tsdx watch",
-    "build": "tsdx build --format cjs,esm,umd --name embeddable-explorer",
+    "build:umd": "tsdx build --entry src/index-umd.ts --format umd --name embeddable-explorer",
+    "build:cjs-esm": "tsdx build --entry src/index.ts --format cjs,esm --name embeddable-explorer",
     "test": "tsdx test --passWithNoTests",
     "lint": "tsdx lint",
     "prepare": "tsdx build",
