@@ -135,4 +135,7 @@ export function setupEmbedRelay({
   };
   // Execute our callback whenever window.postMessage is called
   window.addEventListener('message', onPostMessageReceived);
+  return {
+    dispose: () => window.removeEventListener('message', onPostMessageReceived),
+  };
 }

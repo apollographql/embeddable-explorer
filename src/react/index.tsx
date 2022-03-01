@@ -13,7 +13,9 @@ export const ApolloExplorerReact = (
   }
 ) => {
   useEffect(() => {
-    new EmbeddedExplorer({ ...props, target: props.target ?? `#${DEFAULT_ELEMENT_ID}`});
+    const embed = new EmbeddedExplorer({ ...props, target: props.target ?? `#${DEFAULT_ELEMENT_ID}`});
+
+    return () => embed.dispose();
   }, [props]);
 
   return (

@@ -56,18 +56,23 @@ export class EmbeddedExplorer {
   options: InternalEmbeddableExplorerOptions;
   handleRequest: HandleRequest;
   embeddedExplorerURL: string;
+  private disposable: { dispose: () => void };
   constructor(options: EmbeddableExplorerOptions) {
     this.options = options as InternalEmbeddableExplorerOptions;
     this.validateOptions();
     this.handleRequest = this.options.handleRequest ?? fetch;
     this.embeddedExplorerURL = this.getEmbeddedExplorerURL();
     const embeddedExplorerIFrameElement = this.injectEmbed();
-    setupEmbedRelay({
+    this.disposable = setupEmbedRelay({
       embeddedExplorerIFrameElement,
       endpointUrl: this.options.endpointUrl,
       handleRequest: this.handleRequest,
       schema: 'schema' in this.options ? this.options.schema : undefined,
     });
+  }
+
+  dispose() {
+    this.disposable.dispose();
   }
 
   injectEmbed() {
