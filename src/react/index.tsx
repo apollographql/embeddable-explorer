@@ -1,30 +1,32 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   EmbeddedExplorer,
   EmbeddableExplorerOptions,
 } from '../EmbeddedExplorer';
 
-const DEFAULT_ELEMENT_ID = 'apollo-explorer';
-
 export const ApolloExplorerReact = (
   props: Omit<EmbeddableExplorerOptions, 'target'> & {
     className?: string;
-    target?: string;
   }
 ) => {
+  const [wrapperElement, setWrapperElement] = useState<HTMLDivElement | null>();
+
   useEffect(() => {
+    if (!wrapperElement) return;
     const embed = new EmbeddedExplorer({
       ...props,
-      target: props.target ?? `#${DEFAULT_ELEMENT_ID}`,
+      target: wrapperElement,
     });
 
     return () => embed.dispose();
-  }, [props]);
+  }, [props, wrapperElement]);
 
   return (
     <div
       className={props.className}
-      id={props.target?.substring(1) ?? DEFAULT_ELEMENT_ID}
+      ref={(element) => {
+        setWrapperElement(element);
+      }}
     />
   );
 };
