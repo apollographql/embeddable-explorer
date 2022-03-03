@@ -15,7 +15,8 @@
   },
   "scripts": {
     "start": "tsdx watch",
-    "build": "tsdx build --format cjs,esm,umd --name embeddable-explorer",
+    "build:cjs-esm": "tsdx build --format cjs,esm --name embeddable-explorer",
+    "build:umd": "tsdx build --format umd --entry src/index-umd.ts --name embeddable-explorer",
     "test": "tsdx test --passWithNoTests",
     "lint": "tsdx lint",
     "prepare": "tsdx build",
@@ -48,12 +49,16 @@
   ],
   "devDependencies": {
     "@size-limit/preset-small-lib": "^5.0.5",
+    "@types/react": "^16.9.53",
+    "@types/react-dom": "^17.0.11",
+    "graphql": "^15.6.0",
     "husky": "^7.0.2",
+    "prettier": "^2.4.1",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
     "size-limit": "^5.0.5",
     "tsdx": "^0.14.1",
     "tslib": "^2.3.1",
-    "typescript": "^3.9.10",
-    "graphql": "^15.6.0",
-    "prettier": "^2.4.1"
+    "typescript": "^3.9.10"
   }
 }
