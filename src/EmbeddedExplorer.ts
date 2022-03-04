@@ -84,7 +84,6 @@ export class EmbeddedExplorer {
     } else {
       element = target;
     }
-    console.log('injecting embed', target, element, this.embeddedExplorerURL);
     const iframeElement = document.createElement('iframe');
     iframeElement.src = this.embeddedExplorerURL;
 
