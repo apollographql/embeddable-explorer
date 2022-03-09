@@ -14,7 +14,7 @@ import { ApolloExplorer, ApolloExplorerReact } from '@apollo/explorer';
 
 When you call the EmbeddedExplorer constructor with a `target` of an html div you have in your app, the Explorer will show up in an iframe in that element. Check out all the [configuration options](https://www.apollographql.com/docs/studio/explorer/embed-explorer/#options) for your graph.
 
-####React
+#### React
 
 ```
 import { ApolloExplorerReact } from '@apollo/explorer';
@@ -44,7 +44,7 @@ me {
 }
 ```
 
-####Vanilla JS
+#### Vanilla JS
 
 ```
 import { ApolloExplorer } from '@apollo/explorer';
