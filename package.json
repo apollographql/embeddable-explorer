@@ -10,8 +10,8 @@
     "src"
   ],
   "engines": {
-    "node": ">=10",
-    "npm": ">=6.9"
+    "node": ">=12.0",
+    "npm": ">=7.0"
   },
   "scripts": {
     "start": "tsdx watch",
