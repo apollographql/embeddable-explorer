@@ -3,12 +3,12 @@
 version: 2.1
 
 orbs:
-  gcp-cli: circleci/gcp-cli@2.1.0
+  gcp-cli: circleci/gcp-cli@2.4.0
 
 executors:
   node:
     docker:
-      - image: circleci/node:12.16.1-browsers
+      - image: circleci/node:12.22.7-browsers
     working_directory: ~/embeddable-explorer
 
 commands:
