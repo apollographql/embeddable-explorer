@@ -1,4 +1,4 @@
-import { IntrospectionQuery } from 'graphql';
+import type { IntrospectionQuery } from 'graphql';
 import { EMBEDDABLE_EXPLORER_URL } from './constants';
 import { HandleRequest, setupEmbedRelay } from './setupEmbedRelay';
 
