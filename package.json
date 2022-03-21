@@ -68,5 +68,17 @@
     "tsdx": "0.14.1",
     "tslib": "2.3.1",
     "typescript": "3.9.10"
+  },
+  "peerDependencies": {
+    "react": "^16.8.0 || ^17.0.0",
+    "react-dom": "^16.8.0 || ^17.0.0"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    },
+    "react-dom": {
+      "optional": true
+    }
   }
 }
