@@ -5,8 +5,9 @@ import * as ReactDOM from 'react-dom';
 import { ApolloExplorerReact } from '../../index';
 import { useState } from 'react';
 
-const App = () => {
+function App() {
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
+
   return (
     <div>
       <button
@@ -38,6 +39,6 @@ const App = () => {
       />
     </div>
   );
-};
+}
 
 ReactDOM.render(<App />, document.getElementById('root'));
