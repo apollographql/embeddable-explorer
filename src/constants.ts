@@ -18,3 +18,4 @@ export const EXPLORER_SUBSCRIPTION_REQUEST = 'ExplorerSubscriptionRequest';
 export const EXPLORER_SUBSCRIPTION_RESPONSE = 'ExplorerSubscriptionResponse';
 export const EXPLORER_SUBSCRIPTION_TERMINATION =
   'ExplorerSubscriptionTermination';
+export const IFRAME_DOM_ID = 'apollo-embedded-explorer';

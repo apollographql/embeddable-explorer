@@ -1,5 +1,5 @@
 import type { IntrospectionQuery } from 'graphql';
-import { EMBEDDABLE_EXPLORER_URL } from './constants';
+import { EMBEDDABLE_EXPLORER_URL, IFRAME_DOM_ID } from './constants';
 import { HandleRequest, setupEmbedRelay } from './setupEmbedRelay';
 
 export type EmbeddableExplorerOptions = {
@@ -72,6 +72,9 @@ export class EmbeddedExplorer {
   }
 
   dispose() {
+    // remove the dom element
+    document.getElementById(IFRAME_DOM_ID)?.remove();
+    // remove the listener
     this.disposable.dispose();
   }
 
@@ -87,7 +90,7 @@ export class EmbeddedExplorer {
     const iframeElement = document.createElement('iframe');
     iframeElement.src = this.embeddedExplorerURL;
 
-    iframeElement.id = 'apollo-embedded-explorer';
+    iframeElement.id = IFRAME_DOM_ID;
     iframeElement.setAttribute('style', 'height: 100%; width: 100%');
 
     element?.appendChild(iframeElement);
