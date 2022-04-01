@@ -11,14 +11,21 @@ export const ApolloExplorerReact = (
 ) => {
   const [wrapperElement, setWrapperElement] = useState<HTMLDivElement | null>();
 
+  const [currentEmbed, setCurrentEmbed] = useState<EmbeddedExplorer>();
+
   useEffect(() => {
     if (!wrapperElement) return;
-    const embed = new EmbeddedExplorer({
-      ...props,
-      target: wrapperElement,
+
+    setCurrentEmbed((prevEmbed) => {
+      prevEmbed?.dispose();
+
+      return new EmbeddedExplorer({
+        ...props,
+        target: wrapperElement,
+      });
     });
 
-    return () => embed.dispose();
+    return () => currentEmbed?.dispose();
   }, [props, wrapperElement]);
 
   return (
