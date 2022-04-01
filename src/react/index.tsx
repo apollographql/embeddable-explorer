@@ -4,11 +4,11 @@ import {
   EmbeddableExplorerOptions,
 } from '../EmbeddedExplorer';
 
-export const ApolloExplorerReact = (
+export function ApolloExplorerReact(
   props: Omit<EmbeddableExplorerOptions, 'target'> & {
     className?: string;
   }
-) => {
+) {
   const [wrapperElement, setWrapperElement] = useState<HTMLDivElement | null>();
 
   const [currentEmbed, setCurrentEmbed] = useState<EmbeddedExplorer>();
@@ -36,4 +36,4 @@ export const ApolloExplorerReact = (
       }}
     />
   );
-};
+}

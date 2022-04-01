@@ -140,11 +140,10 @@ export class EmbeddedExplorer {
       headers: headers
         ? encodeURIComponent(JSON.stringify(headers))
         : undefined,
-      shouldPersistState: persistExplorerState ? true : false,
+      shouldPersistState: !!persistExplorerState,
       sendRequestsFrom: sendRequestsFrom ?? 'parent',
       docsPanelState: displayOptions?.docsPanelState ?? 'open',
-      showHeadersAndEnvVars:
-        displayOptions?.showHeadersAndEnvVars === false ? false : true,
+      showHeadersAndEnvVars: displayOptions?.showHeadersAndEnvVars !== false,
       theme: displayOptions?.theme ?? 'dark',
     };
 
