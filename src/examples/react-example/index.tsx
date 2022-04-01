@@ -1,6 +1,9 @@
 import 'react-app-polyfill/ie11';
 import './index.css';
+// we alias react & react-dom to the same version in the main package.json
+// eslint-disable-next-line import/no-extraneous-dependencies
 import * as React from 'react';
+// eslint-disable-next-line import/no-extraneous-dependencies
 import * as ReactDOM from 'react-dom';
 import { ApolloExplorerReact } from '../../index';
 import { useState } from 'react';
