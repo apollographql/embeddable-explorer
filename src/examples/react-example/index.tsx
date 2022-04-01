@@ -1,4 +1,3 @@
-import 'react-app-polyfill/ie11';
 import './index.css';
 // we alias react & react-dom to the same version in the main package.json
 // eslint-disable-next-line import/no-extraneous-dependencies
