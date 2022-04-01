@@ -57,6 +57,14 @@ jobs:
             - .eslintcache
       - store_test_results:
           path: /tmp/test-reports
+  prettier:
+    executor: node
+    steps:
+      - checkout
+      - npm-install
+      - run: 
+          name: Prettier
+          command: npm run prettier:check
 
   typescript:
     executor: node
@@ -129,6 +137,7 @@ workflows:
   build-test-deploy:
     jobs:
       - eslint
+      - prettier
       - typescript
       - build-latest-umd-app
       - cdn-upload-latest:
