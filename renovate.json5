@@ -17,5 +17,9 @@
       matchUpdateTypes: ['patch', 'minor'],
       groupSlug: 'all-minor-patch',
     },
+    {
+      groupName: 'size-limit',
+      matchPackagePatterns: ['size-limit']
+    },
   ],
 }
