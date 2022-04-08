@@ -1,5 +1,11 @@
 # @apollo/explorer
 
+## 0.3.1
+
+### Patch Changes
+
+- [#58](https://github.com/apollographql/embeddable-explorer/pull/58) [`5445b82`](https://github.com/apollographql/embeddable-explorer/commit/5445b82b495eff87490861a97529b6539ff381cd) Thanks [@mayakoneval](https://github.com/mayakoneval)! - Fix a react bug where there might be two embeds showing up instead of one.
+
 ## 0.3.0
 
 ### Minor Changes
