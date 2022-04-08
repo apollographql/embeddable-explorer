@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   EmbeddedExplorer,
   EmbeddableExplorerOptions,
@@ -11,21 +11,18 @@ export function ApolloExplorerReact(
 ) {
   const [wrapperElement, setWrapperElement] = useState<HTMLDivElement | null>();
 
-  const [currentEmbed, setCurrentEmbed] = useState<EmbeddedExplorer>();
+  const currentEmbedRef = useRef<EmbeddedExplorer>();
 
   useEffect(() => {
     if (!wrapperElement) return;
+    currentEmbedRef.current?.dispose();
 
-    setCurrentEmbed((prevEmbed) => {
-      prevEmbed?.dispose();
-
-      return new EmbeddedExplorer({
-        ...props,
-        target: wrapperElement,
-      });
+    currentEmbedRef.current = new EmbeddedExplorer({
+      ...props,
+      target: wrapperElement,
     });
 
-    return () => currentEmbed?.dispose();
+    return () => currentEmbedRef.current?.dispose();
   }, [props, wrapperElement]);
 
   return (
