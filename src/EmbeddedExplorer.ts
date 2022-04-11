@@ -4,28 +4,6 @@ import { HandleRequest, setupEmbedRelay } from './setupEmbedRelay';
 
 export type EmbeddableExplorerOptions = {
   target: string | HTMLElement; // HTMLElement is to accomodate people who might prefer to pass in a ref
-  graphRef: string;
-
-  initialState?: {
-    document?: string;
-    variables?: Record<string, any>;
-    headers?: Record<string, string>;
-    displayOptions: {
-      docsPanelState?: 'open' | 'closed'; // default to 'open',
-      showHeadersAndEnvVars?: boolean; // default to `false`
-      theme?: 'dark' | 'light';
-    };
-  };
-  persistExplorerState?: boolean; // defaults to 'false'
-
-  endpointUrl: string;
-
-  // optional. defaults to `return fetch(url, fetchOptions)`
-  handleRequest?: HandleRequest;
-};
-
-type InternalEmbeddableExplorerOptions = {
-  target: string | HTMLElement; // HTMLElement is to accomodate people who might prefer to pass in a ref
 
   initialState?: {
     document?: string;
@@ -53,12 +31,12 @@ type InternalEmbeddableExplorerOptions = {
 );
 
 export class EmbeddedExplorer {
-  options: InternalEmbeddableExplorerOptions;
+  options: EmbeddableExplorerOptions;
   handleRequest: HandleRequest;
   embeddedExplorerURL: string;
   private disposable: { dispose: () => void };
   constructor(options: EmbeddableExplorerOptions) {
-    this.options = options as InternalEmbeddableExplorerOptions;
+    this.options = options as EmbeddableExplorerOptions;
     this.validateOptions();
     this.handleRequest = this.options.handleRequest ?? fetch;
     this.embeddedExplorerURL = this.getEmbeddedExplorerURL();
