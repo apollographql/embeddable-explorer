@@ -21,10 +21,6 @@ export type EmbeddableExplorerOptions = {
 
   // optional. defaults to `return fetch(url, fetchOptions)`
   handleRequest?: HandleRequest;
-
-  // optional. defaults to "parent". don't include in public docs yet
-  // throws error if value is 'embed' and `handleRequest` is provided
-  sendRequestsFrom?: 'parent' | 'embed';
 } & (
   | { graphRef: string; schema: never }
   | { schema: string | IntrospectionQuery; graphRef: never }
@@ -87,15 +83,6 @@ export class EmbeddedExplorer {
       );
     }
 
-    if (
-      this.options.handleRequest &&
-      this.options.sendRequestsFrom === 'embed'
-    ) {
-      throw new Error(
-        'You cannot pass a custom `handleRequest` if you have `sendRequestsFrom` set to "embed"'
-      );
-    }
-
     if ('schema' in this.options && 'graphRef' in this.options) {
       throw new Error(
         'Both `schema` and `graphRef` cannot be set. You can either send your schema as an IntrospectionQuery or string via the `schema` field, or specifiy a public graphRef.'
@@ -106,7 +93,7 @@ export class EmbeddedExplorer {
   getEmbeddedExplorerURL = () => {
     const { document, variables, headers, displayOptions } =
       this.options.initialState || {};
-    const { persistExplorerState, sendRequestsFrom } = this.options;
+    const { persistExplorerState } = this.options;
     const graphRef =
       'graphRef' in this.options ? this.options.graphRef : undefined;
     const queryParams = {
@@ -119,7 +106,7 @@ export class EmbeddedExplorer {
         ? encodeURIComponent(JSON.stringify(headers))
         : undefined,
       shouldPersistState: !!persistExplorerState,
-      sendRequestsFrom: sendRequestsFrom ?? 'parent',
+      sendRequestsFrom: 'parent',
       docsPanelState: displayOptions?.docsPanelState ?? 'open',
       showHeadersAndEnvVars: displayOptions?.showHeadersAndEnvVars !== false,
       theme: displayOptions?.theme ?? 'dark',
