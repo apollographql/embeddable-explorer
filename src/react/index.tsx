@@ -1,13 +1,30 @@
+import type { IntrospectionQuery } from 'graphql';
 import React, { useEffect, useRef, useState } from 'react';
 import {
+  BaseEmbeddableExplorerOptions,
   EmbeddedExplorer,
-  EmbeddableExplorerOptions,
 } from '../EmbeddedExplorer';
 
+// Need to extend from the base, b/c Omit<UnionType> doesn't carry over
+// the conditional never's established here
+interface EmbeddableExplorerOptionsWithSchema
+  extends Omit<BaseEmbeddableExplorerOptions, 'target'> {
+  schema: string | IntrospectionQuery;
+  graphRef?: never;
+}
+
+interface EmbeddableExplorerOptionsWithGraphRef
+  extends Omit<BaseEmbeddableExplorerOptions, 'target'> {
+  graphRef: string;
+  schema?: never;
+}
+
+export type EmbeddableExplorerOptions =
+  | EmbeddableExplorerOptionsWithSchema
+  | EmbeddableExplorerOptionsWithGraphRef;
+
 export function ApolloExplorerReact(
-  props: Omit<EmbeddableExplorerOptions, 'target'> & {
-    className?: string;
-  }
+  props: EmbeddableExplorerOptions & { className?: string }
 ) {
   const [wrapperElement, setWrapperElement] = useState<HTMLDivElement | null>();
 
