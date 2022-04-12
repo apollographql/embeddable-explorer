@@ -156,7 +156,6 @@ export class EmbeddedExplorer {
         ? encodeURIComponent(JSON.stringify(headers))
         : undefined,
       shouldPersistState: !!persistExplorerState,
-      sendRequestsFrom: 'parent',
       docsPanelState: displayOptions?.docsPanelState ?? 'open',
       showHeadersAndEnvVars: displayOptions?.showHeadersAndEnvVars !== false,
       theme: displayOptions?.theme ?? 'dark',
