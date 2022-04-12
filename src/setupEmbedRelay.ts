@@ -4,7 +4,6 @@ import {
   EXPLORER_LISTENING_FOR_SCHEMA,
   EXPLORER_QUERY_MUTATION_REQUEST,
   EXPLORER_QUERY_MUTATION_RESPONSE,
-  SCHEMA_RESPONSE,
 } from './constants';
 
 export type HandleRequest = (
@@ -77,11 +76,17 @@ export function setupEmbedRelay({
   endpointUrl,
   handleRequest,
   embeddedExplorerIFrameElement,
+  updateSchemaInEmbed,
   schema,
 }: {
   endpointUrl: string;
   handleRequest: HandleRequest;
   embeddedExplorerIFrameElement: HTMLIFrameElement;
+  updateSchemaInEmbed: ({
+    schema,
+  }: {
+    schema: string | IntrospectionQuery | undefined;
+  }) => void;
   schema?: string | IntrospectionQuery | undefined;
 }) {
   // Callback definition
@@ -100,13 +105,7 @@ export function setupEmbedRelay({
       data.name === EXPLORER_LISTENING_FOR_SCHEMA &&
       !!schema
     ) {
-      embeddedExplorerIFrameElement.contentWindow?.postMessage(
-        {
-          name: SCHEMA_RESPONSE,
-          schema,
-        },
-        EMBEDDABLE_EXPLORER_URL
-      );
+      updateSchemaInEmbed({ schema });
     }
 
     // Check to see if the posted message indicates that the user is

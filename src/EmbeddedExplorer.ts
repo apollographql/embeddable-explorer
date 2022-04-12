@@ -1,5 +1,9 @@
 import type { IntrospectionQuery } from 'graphql';
-import { EMBEDDABLE_EXPLORER_URL, IFRAME_DOM_ID } from './constants';
+import {
+  EMBEDDABLE_EXPLORER_URL,
+  IFRAME_DOM_ID,
+  SCHEMA_RESPONSE,
+} from './constants';
 import { HandleRequest, setupEmbedRelay } from './setupEmbedRelay';
 
 export interface BaseEmbeddableExplorerOptions {
@@ -43,17 +47,19 @@ export class EmbeddedExplorer {
   options: EmbeddableExplorerOptions;
   handleRequest: HandleRequest;
   embeddedExplorerURL: string;
+  embeddedExplorerIFrameElement: HTMLIFrameElement;
   private disposable: { dispose: () => void };
   constructor(options: EmbeddableExplorerOptions) {
     this.options = options;
     this.validateOptions();
     this.handleRequest = this.options.handleRequest ?? fetch;
     this.embeddedExplorerURL = this.getEmbeddedExplorerURL();
-    const embeddedExplorerIFrameElement = this.injectEmbed();
+    this.embeddedExplorerIFrameElement = this.injectEmbed();
     this.disposable = setupEmbedRelay({
-      embeddedExplorerIFrameElement,
+      embeddedExplorerIFrameElement: this.embeddedExplorerIFrameElement,
       endpointUrl: this.options.endpointUrl,
       handleRequest: this.handleRequest,
+      updateSchemaInEmbed: this.updateSchemaInEmbed,
       schema: 'schema' in this.options ? this.options.schema : undefined,
     });
   }
@@ -135,4 +141,18 @@ export class EmbeddedExplorer {
       .join('&');
     return `${EMBEDDABLE_EXPLORER_URL}?${queryString}`;
   };
+
+  updateSchemaInEmbed({
+    schema,
+  }: {
+    schema?: string | IntrospectionQuery | undefined;
+  }) {
+    this.embeddedExplorerIFrameElement.contentWindow?.postMessage(
+      {
+        name: SCHEMA_RESPONSE,
+        schema,
+      },
+      EMBEDDABLE_EXPLORER_URL
+    );
+  }
 }
