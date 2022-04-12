@@ -2,7 +2,7 @@ import type { IntrospectionQuery } from 'graphql';
 import { EMBEDDABLE_EXPLORER_URL, IFRAME_DOM_ID } from './constants';
 import { HandleRequest, setupEmbedRelay } from './setupEmbedRelay';
 
-export type EmbeddableExplorerOptions = {
+export interface BaseEmbeddableExplorerOptions {
   target: string | HTMLElement; // HTMLElement is to accomodate people who might prefer to pass in a ref
 
   initialState?: {
@@ -21,10 +21,23 @@ export type EmbeddableExplorerOptions = {
 
   // optional. defaults to `return fetch(url, fetchOptions)`
   handleRequest?: HandleRequest;
-} & (
-  | { graphRef: string; schema: never }
-  | { schema: string | IntrospectionQuery; graphRef: never }
-);
+}
+
+interface EmbeddableExplorerOptionsWithSchema
+  extends BaseEmbeddableExplorerOptions {
+  schema: string | IntrospectionQuery;
+  graphRef?: never;
+}
+
+interface EmbeddableExplorerOptionsWithGraphRef
+  extends BaseEmbeddableExplorerOptions {
+  graphRef: string;
+  schema?: never;
+}
+
+export type EmbeddableExplorerOptions =
+  | EmbeddableExplorerOptionsWithSchema
+  | EmbeddableExplorerOptionsWithGraphRef;
 
 export class EmbeddedExplorer {
   options: EmbeddableExplorerOptions;
@@ -32,7 +45,7 @@ export class EmbeddedExplorer {
   embeddedExplorerURL: string;
   private disposable: { dispose: () => void };
   constructor(options: EmbeddableExplorerOptions) {
-    this.options = options as EmbeddableExplorerOptions;
+    this.options = options;
     this.validateOptions();
     this.handleRequest = this.options.handleRequest ?? fetch;
     this.embeddedExplorerURL = this.getEmbeddedExplorerURL();
@@ -87,6 +100,10 @@ export class EmbeddedExplorer {
       throw new Error(
         'Both `schema` and `graphRef` cannot be set. You can either send your schema as an IntrospectionQuery or string via the `schema` field, or specifiy a public graphRef.'
       );
+    }
+
+    if (!('schema' in this.options || 'graphRef' in this.options)) {
+      throw new Error('You must set either `schema` or `graphRef`.');
     }
   }
 
