@@ -5,6 +5,7 @@ import {
   SCHEMA_RESPONSE,
 } from './constants';
 import { HandleRequest, setupEmbedRelay } from './setupEmbedRelay';
+import { v4 as uuid } from 'uuid';
 
 export interface BaseEmbeddableExplorerOptions {
   target: string | HTMLElement; // HTMLElement is to accomodate people who might prefer to pass in a ref
@@ -48,25 +49,29 @@ export class EmbeddedExplorer {
   handleRequest: HandleRequest;
   embeddedExplorerURL: string;
   embeddedExplorerIFrameElement: HTMLIFrameElement;
+  uniqueEmbedInstanceId: string;
   private disposable: { dispose: () => void };
   constructor(options: EmbeddableExplorerOptions) {
     this.options = options;
     this.validateOptions();
     this.handleRequest = this.options.handleRequest ?? fetch;
+    this.uniqueEmbedInstanceId = uuid();
     this.embeddedExplorerURL = this.getEmbeddedExplorerURL();
     this.embeddedExplorerIFrameElement = this.injectEmbed();
     this.disposable = setupEmbedRelay({
       embeddedExplorerIFrameElement: this.embeddedExplorerIFrameElement,
       endpointUrl: this.options.endpointUrl,
       handleRequest: this.handleRequest,
-      updateSchemaInEmbed: this.updateSchemaInEmbed,
+      updateSchemaInEmbed: this.updateSchemaInEmbed.bind(this),
       schema: 'schema' in this.options ? this.options.schema : undefined,
     });
   }
 
   dispose() {
     // remove the dom element
-    document.getElementById(IFRAME_DOM_ID)?.remove();
+    document
+      .getElementById(IFRAME_DOM_ID(this.uniqueEmbedInstanceId))
+      ?.remove();
     // remove the listener
     this.disposable.dispose();
   }
@@ -83,7 +88,7 @@ export class EmbeddedExplorer {
     const iframeElement = document.createElement('iframe');
     iframeElement.src = this.embeddedExplorerURL;
 
-    iframeElement.id = IFRAME_DOM_ID;
+    iframeElement.id = IFRAME_DOM_ID(this.uniqueEmbedInstanceId);
     iframeElement.setAttribute('style', 'height: 100%; width: 100%');
 
     element?.appendChild(iframeElement);
