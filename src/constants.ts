@@ -18,5 +18,5 @@ export const EXPLORER_SUBSCRIPTION_REQUEST = 'ExplorerSubscriptionRequest';
 export const EXPLORER_SUBSCRIPTION_RESPONSE = 'ExplorerSubscriptionResponse';
 export const EXPLORER_SUBSCRIPTION_TERMINATION =
   'ExplorerSubscriptionTermination';
-export const IFRAME_DOM_ID = (uniqueId: string) =>
+export const IFRAME_DOM_ID = (uniqueId: number) =>
   `apollo-embedded-explorer-${uniqueId}`;

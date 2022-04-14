@@ -65,7 +65,7 @@ function App() {
           },
           displayOptions: {
             showHeadersAndEnvVars: true,
-            theme,
+            theme: 'light',
           },
         }}
       />

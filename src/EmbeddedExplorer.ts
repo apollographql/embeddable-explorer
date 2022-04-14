@@ -5,7 +5,6 @@ import {
   SCHEMA_RESPONSE,
 } from './constants';
 import { HandleRequest, setupEmbedRelay } from './setupEmbedRelay';
-import { v4 as uuid } from 'uuid';
 
 export interface BaseEmbeddableExplorerOptions {
   target: string | HTMLElement; // HTMLElement is to accomodate people who might prefer to pass in a ref
@@ -44,18 +43,20 @@ export type EmbeddableExplorerOptions =
   | EmbeddableExplorerOptionsWithSchema
   | EmbeddableExplorerOptionsWithGraphRef;
 
+let idCounter = 0;
+
 export class EmbeddedExplorer {
   options: EmbeddableExplorerOptions;
   handleRequest: HandleRequest;
   embeddedExplorerURL: string;
   embeddedExplorerIFrameElement: HTMLIFrameElement;
-  uniqueEmbedInstanceId: string;
+  uniqueEmbedInstanceId: number;
   private disposable: { dispose: () => void };
   constructor(options: EmbeddableExplorerOptions) {
     this.options = options;
     this.validateOptions();
     this.handleRequest = this.options.handleRequest ?? fetch;
-    this.uniqueEmbedInstanceId = uuid();
+    this.uniqueEmbedInstanceId = idCounter++;
     this.embeddedExplorerURL = this.getEmbeddedExplorerURL();
     this.embeddedExplorerIFrameElement = this.injectEmbed();
     this.disposable = setupEmbedRelay({
