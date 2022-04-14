@@ -1,7 +1,7 @@
 import './index.css';
 // we alias react & react-dom to the same version in the main package.json
 import * as React from 'react';
-import * as ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { ApolloExplorerReact } from '../../index';
 import { useState } from 'react';
 import { exampleSchema } from './exampleSchema';
@@ -73,4 +73,6 @@ function App() {
   );
 }
 
-ReactDOM.render(<App />, document.getElementById('root'));
+const container = document.getElementById('root');
+const root = container ? createRoot(container) : undefined;
+root?.render(<App />);
