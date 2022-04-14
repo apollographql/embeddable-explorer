@@ -1,5 +1,9 @@
 import type { IntrospectionQuery } from 'graphql';
-import { EMBEDDABLE_EXPLORER_URL, IFRAME_DOM_ID } from './constants';
+import {
+  EMBEDDABLE_EXPLORER_URL,
+  IFRAME_DOM_ID,
+  SCHEMA_RESPONSE,
+} from './constants';
 import { HandleRequest, setupEmbedRelay } from './setupEmbedRelay';
 
 export interface BaseEmbeddableExplorerOptions {
@@ -39,28 +43,36 @@ export type EmbeddableExplorerOptions =
   | EmbeddableExplorerOptionsWithSchema
   | EmbeddableExplorerOptionsWithGraphRef;
 
+let idCounter = 0;
+
 export class EmbeddedExplorer {
   options: EmbeddableExplorerOptions;
   handleRequest: HandleRequest;
   embeddedExplorerURL: string;
+  embeddedExplorerIFrameElement: HTMLIFrameElement;
+  uniqueEmbedInstanceId: number;
   private disposable: { dispose: () => void };
   constructor(options: EmbeddableExplorerOptions) {
     this.options = options;
     this.validateOptions();
     this.handleRequest = this.options.handleRequest ?? fetch;
+    this.uniqueEmbedInstanceId = idCounter++;
     this.embeddedExplorerURL = this.getEmbeddedExplorerURL();
-    const embeddedExplorerIFrameElement = this.injectEmbed();
+    this.embeddedExplorerIFrameElement = this.injectEmbed();
     this.disposable = setupEmbedRelay({
-      embeddedExplorerIFrameElement,
+      embeddedExplorerIFrameElement: this.embeddedExplorerIFrameElement,
       endpointUrl: this.options.endpointUrl,
       handleRequest: this.handleRequest,
+      updateSchemaInEmbed: this.updateSchemaInEmbed.bind(this),
       schema: 'schema' in this.options ? this.options.schema : undefined,
     });
   }
 
   dispose() {
     // remove the dom element
-    document.getElementById(IFRAME_DOM_ID)?.remove();
+    document
+      .getElementById(IFRAME_DOM_ID(this.uniqueEmbedInstanceId))
+      ?.remove();
     // remove the listener
     this.disposable.dispose();
   }
@@ -77,7 +89,7 @@ export class EmbeddedExplorer {
     const iframeElement = document.createElement('iframe');
     iframeElement.src = this.embeddedExplorerURL;
 
-    iframeElement.id = IFRAME_DOM_ID;
+    iframeElement.id = IFRAME_DOM_ID(this.uniqueEmbedInstanceId);
     iframeElement.setAttribute('style', 'height: 100%; width: 100%');
 
     element?.appendChild(iframeElement);
@@ -135,4 +147,18 @@ export class EmbeddedExplorer {
       .join('&');
     return `${EMBEDDABLE_EXPLORER_URL}?${queryString}`;
   };
+
+  updateSchemaInEmbed({
+    schema,
+  }: {
+    schema?: string | IntrospectionQuery | undefined;
+  }) {
+    this.embeddedExplorerIFrameElement.contentWindow?.postMessage(
+      {
+        name: SCHEMA_RESPONSE,
+        schema,
+      },
+      EMBEDDABLE_EXPLORER_URL
+    );
+  }
 }

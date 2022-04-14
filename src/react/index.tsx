@@ -4,6 +4,7 @@ import {
   BaseEmbeddableExplorerOptions,
   EmbeddedExplorer,
 } from '../EmbeddedExplorer';
+import useDeepCompareEffect from 'use-deep-compare-effect';
 
 // Need to extend from the base, b/c Omit<UnionType> doesn't carry over
 // the conditional never's established here
@@ -30,17 +31,35 @@ export function ApolloExplorerReact(
 
   const currentEmbedRef = useRef<EmbeddedExplorer>();
 
+  useDeepCompareEffect(
+    () => {
+      if (!wrapperElement) return;
+      currentEmbedRef.current?.dispose();
+
+      currentEmbedRef.current = new EmbeddedExplorer({
+        ...props,
+        target: wrapperElement,
+      });
+
+      return () => currentEmbedRef.current?.dispose();
+    },
+    // we purposely exclude schema here
+    // when the schema changes we don't want to tear down and render a new embed,
+    // we just want to pm the new schema to the embed in the above useEffect
+    [
+      props.endpointUrl,
+      props.handleRequest,
+      props.initialState,
+      props.persistExplorerState,
+      props.graphRef,
+      wrapperElement,
+    ]
+  );
+
   useEffect(() => {
-    if (!wrapperElement) return;
-    currentEmbedRef.current?.dispose();
-
-    currentEmbedRef.current = new EmbeddedExplorer({
-      ...props,
-      target: wrapperElement,
-    });
-
-    return () => currentEmbedRef.current?.dispose();
-  }, [props, wrapperElement]);
+    if (props.schema)
+      currentEmbedRef.current?.updateSchemaInEmbed({ schema: props.schema });
+  }, [props.schema, currentEmbedRef.current]);
 
   return (
     <div

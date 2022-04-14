@@ -20,6 +20,7 @@
   },
   "scripts": {
     "start": "tsdx watch",
+    "build": "npm run build:cjs-esm",
     "build:cjs-esm": "tsdx build --format cjs,esm --name embeddable-explorer",
     "build:umd": "tsdx build --format umd --entry src/index-umd.ts --name embeddable-explorer",
     "test": "tsdx test --passWithNoTests",
@@ -90,5 +91,8 @@
     "react-dom": {
       "optional": true
     }
+  },
+  "dependencies": {
+    "use-deep-compare-effect": "^1.8.1"
   }
 }
