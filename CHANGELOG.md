@@ -1,5 +1,15 @@
 # @apollo/explorer
 
+## 0.3.2
+
+### Patch Changes
+
+- [#62](https://github.com/apollographql/embeddable-explorer/pull/62) [`94b3a78`](https://github.com/apollographql/embeddable-explorer/commit/94b3a783b2955d952cce63bd846a1de1b658af91) Thanks [@mayakoneval](https://github.com/mayakoneval)! - Expose hidden field schema on ApolloExplorerReact
+
+* [#63](https://github.com/apollographql/embeddable-explorer/pull/63) [`ad65bf8`](https://github.com/apollographql/embeddable-explorer/commit/ad65bf8acf8359bf485f29c0188d34206a2981a7) Thanks [@mayakoneval](https://github.com/mayakoneval)! - PM schema to embed instead of rerendering
+
+- [#44](https://github.com/apollographql/embeddable-explorer/pull/44) [`5eed697`](https://github.com/apollographql/embeddable-explorer/commit/5eed6970bb227c7a0f9580dac926f1c30919a865) Thanks [@renovate](https://github.com/apps/renovate)! - upgrade react to v18
+
 ## 0.3.1
 
 ### Patch Changes
