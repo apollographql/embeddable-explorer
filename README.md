@@ -84,6 +84,8 @@ me {
 ## Developing
 
 run `npm run build:umd` to build umd files where EmbeddedExplorer is exposed on window.
-run `npm run build:cjs-esm` to build cjs & esm files where ApolloExplorer & ApolloExplorerReact are named exports.
 
 Open `examples/localDevelopmentExample.html` to test your changes.
+
+
+run `npm run build:cjs-esm` to build cjs & esm files where ApolloExplorer & ApolloExplorerReact are named exports.
