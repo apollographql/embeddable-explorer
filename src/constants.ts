@@ -20,3 +20,7 @@ export const EXPLORER_SUBSCRIPTION_TERMINATION =
   'ExplorerSubscriptionTermination';
 export const IFRAME_DOM_ID = (uniqueId: number) =>
   `apollo-embedded-explorer-${uniqueId}`;
+
+// Message types for authentication
+export const EXPLORER_LISTENING_FOR_HANDSHAKE = 'ExplorerListeningForHandshake';
+export const HANDSHAKE_REQUEST = 'HandshakeRequest';
