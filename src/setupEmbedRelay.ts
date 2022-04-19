@@ -1,6 +1,7 @@
 import type { IntrospectionQuery } from 'graphql';
 import {
   EMBEDDABLE_EXPLORER_URL,
+  EXPLORER_LISTENING_FOR_HANDSHAKE,
   EXPLORER_LISTENING_FOR_SCHEMA,
   EXPLORER_QUERY_MUTATION_REQUEST,
   EXPLORER_QUERY_MUTATION_RESPONSE,
@@ -76,12 +77,14 @@ export function setupEmbedRelay({
   endpointUrl,
   handleRequest,
   embeddedExplorerIFrameElement,
+  sendHandshakeToEmbed,
   updateSchemaInEmbed,
   schema,
 }: {
   endpointUrl: string;
   handleRequest: HandleRequest;
   embeddedExplorerIFrameElement: HTMLIFrameElement;
+  sendHandshakeToEmbed: (message: string) => void;
   updateSchemaInEmbed: ({
     schema,
   }: {
@@ -99,6 +102,11 @@ export function setupEmbedRelay({
       variables?: Record<string, string>;
       headers?: Record<string, string>;
     } = event.data;
+    // When embed connects, send a handshake message
+    if (data.name === EXPLORER_LISTENING_FOR_HANDSHAKE) {
+      sendHandshakeToEmbed(!schema ? 'graphRef' : 'schema');
+    }
+
     // Embedded Explorer sends us a PM when it is ready for a schema
     if (
       'name' in data &&
