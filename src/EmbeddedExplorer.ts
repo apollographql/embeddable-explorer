@@ -2,6 +2,7 @@ import type { IntrospectionQuery } from 'graphql';
 import {
   EMBEDDABLE_EXPLORER_URL,
   IFRAME_DOM_ID,
+  HANDSHAKE_REQUEST,
   SCHEMA_RESPONSE,
 } from './constants';
 import { HandleRequest, setupEmbedRelay } from './setupEmbedRelay';
@@ -63,6 +64,7 @@ export class EmbeddedExplorer {
       embeddedExplorerIFrameElement: this.embeddedExplorerIFrameElement,
       endpointUrl: this.options.endpointUrl,
       handleRequest: this.handleRequest,
+      sendHandshakeToEmbed: this.sendHandshakeToEmbed.bind(this),
       updateSchemaInEmbed: this.updateSchemaInEmbed.bind(this),
       schema: 'schema' in this.options ? this.options.schema : undefined,
     });
@@ -147,6 +149,16 @@ export class EmbeddedExplorer {
       .join('&');
     return `${EMBEDDABLE_EXPLORER_URL}?${queryString}`;
   };
+
+  sendHandshakeToEmbed(message: string) {
+    this.embeddedExplorerIFrameElement.contentWindow?.postMessage(
+      {
+        name: HANDSHAKE_REQUEST,
+        message,
+      },
+      EMBEDDABLE_EXPLORER_URL
+    );
+  }
 
   updateSchemaInEmbed({
     schema,
