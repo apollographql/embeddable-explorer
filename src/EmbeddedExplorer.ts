@@ -2,7 +2,7 @@ import type { IntrospectionQuery } from 'graphql';
 import {
   EMBEDDABLE_EXPLORER_URL,
   IFRAME_DOM_ID,
-  HANDSHAKE_REQUEST,
+  OutgoingEmbedMessage,
   SCHEMA_RESPONSE,
 } from './constants';
 import { HandleRequest, setupEmbedRelay } from './setupEmbedRelay';
@@ -64,9 +64,9 @@ export class EmbeddedExplorer {
       embeddedExplorerIFrameElement: this.embeddedExplorerIFrameElement,
       endpointUrl: this.options.endpointUrl,
       handleRequest: this.handleRequest,
-      sendHandshakeToEmbed: this.sendHandshakeToEmbed.bind(this),
       updateSchemaInEmbed: this.updateSchemaInEmbed.bind(this),
       schema: 'schema' in this.options ? this.options.schema : undefined,
+      graphRef: 'graphRef' in this.options ? this.options.graphRef : undefined,
     });
   }
 
@@ -150,26 +150,17 @@ export class EmbeddedExplorer {
     return `${EMBEDDABLE_EXPLORER_URL}?${queryString}`;
   };
 
-  sendHandshakeToEmbed(message: string) {
-    this.embeddedExplorerIFrameElement.contentWindow?.postMessage(
-      {
-        name: HANDSHAKE_REQUEST,
-        message,
-      },
-      EMBEDDABLE_EXPLORER_URL
-    );
-  }
-
   updateSchemaInEmbed({
     schema,
   }: {
     schema?: string | IntrospectionQuery | undefined;
   }) {
+    const outgoingMessage: OutgoingEmbedMessage = {
+      name: SCHEMA_RESPONSE,
+      schema,
+    };
     this.embeddedExplorerIFrameElement.contentWindow?.postMessage(
-      {
-        name: SCHEMA_RESPONSE,
-        schema,
-      },
+      outgoingMessage,
       EMBEDDABLE_EXPLORER_URL
     );
   }

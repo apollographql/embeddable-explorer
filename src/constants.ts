@@ -1,3 +1,7 @@
+import type { ApolloQueryResult } from '@apollo/client';
+import type { IntrospectionQuery } from 'graphql';
+import type { JSONValue } from './types';
+
 // URL for any embedded Explorer iframe
 export const EMBEDDABLE_EXPLORER_URL =
   'https://explorer.embed.apollographql.com';
@@ -23,4 +27,19 @@ export const IFRAME_DOM_ID = (uniqueId: number) =>
 
 // Message types for authentication
 export const EXPLORER_LISTENING_FOR_HANDSHAKE = 'ExplorerListeningForHandshake';
-export const HANDSHAKE_REQUEST = 'HandshakeRequest';
+export const HANDSHAKE_RESPONSE = 'HandshakeResponse';
+
+export type OutgoingEmbedMessage =
+  | {
+      name: 'SchemaResponse';
+      schema: IntrospectionQuery | string | undefined;
+    }
+  | {
+      name: 'HandshakeResponse';
+      graphRef: string | undefined;
+    }
+  | {
+      name: 'ExplorerResponse';
+      operationId: string;
+      response: ApolloQueryResult<JSONValue>;
+    };
