@@ -1,4 +1,3 @@
-import type { ApolloQueryResult } from '@apollo/client';
 import type { IntrospectionQuery } from 'graphql';
 import type { JSONValue } from './types';
 
@@ -29,17 +28,25 @@ export const IFRAME_DOM_ID = (uniqueId: number) =>
 export const EXPLORER_LISTENING_FOR_HANDSHAKE = 'ExplorerListeningForHandshake';
 export const HANDSHAKE_RESPONSE = 'HandshakeResponse';
 
+type Error = {
+  message: string;
+};
+
 export type OutgoingEmbedMessage =
   | {
-      name: 'SchemaResponse';
+      name: typeof SCHEMA_RESPONSE;
       schema: IntrospectionQuery | string | undefined;
     }
   | {
-      name: 'HandshakeResponse';
+      name: typeof HANDSHAKE_RESPONSE;
       graphRef: string | undefined;
     }
   | {
-      name: 'ExplorerResponse';
+      name: typeof EXPLORER_QUERY_MUTATION_RESPONSE;
       operationId: string;
-      response: ApolloQueryResult<JSONValue>;
+      response: {
+        data?: JSONValue;
+        error?: Error;
+        errors?: [Error];
+      };
     };
