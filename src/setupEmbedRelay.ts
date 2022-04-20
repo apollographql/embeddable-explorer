@@ -5,6 +5,8 @@ import {
   EXPLORER_LISTENING_FOR_SCHEMA,
   EXPLORER_QUERY_MUTATION_REQUEST,
   EXPLORER_QUERY_MUTATION_RESPONSE,
+  HANDSHAKE_RESPONSE,
+  OutgoingEmbedMessage,
 } from './constants';
 
 export type HandleRequest = (
@@ -58,16 +60,17 @@ function executeOperation({
   })
     .then((response) => response.json())
     .then((response) => {
+      const message: OutgoingEmbedMessage = {
+        // Include the same operation ID in the response message's name
+        // so the Explorer knows which operation it's associated with
+        name: EXPLORER_QUERY_MUTATION_RESPONSE,
+        operationId,
+        response,
+      };
       // After the operation completes, post a response message to the
       // iframe that includes the response data
       embeddedExplorerIFrameElement?.contentWindow?.postMessage(
-        {
-          // Include the same operation ID in the response message's name
-          // so the Explorer knows which operation it's associated with
-          name: EXPLORER_QUERY_MUTATION_RESPONSE,
-          operationId,
-          response,
-        },
+        message,
         EMBEDDABLE_EXPLORER_URL
       );
     });
@@ -77,20 +80,20 @@ export function setupEmbedRelay({
   endpointUrl,
   handleRequest,
   embeddedExplorerIFrameElement,
-  sendHandshakeToEmbed,
   updateSchemaInEmbed,
   schema,
+  graphRef,
 }: {
   endpointUrl: string;
   handleRequest: HandleRequest;
   embeddedExplorerIFrameElement: HTMLIFrameElement;
-  sendHandshakeToEmbed: (message: string) => void;
   updateSchemaInEmbed: ({
     schema,
   }: {
     schema: string | IntrospectionQuery | undefined;
   }) => void;
   schema?: string | IntrospectionQuery | undefined;
+  graphRef?: string | undefined;
 }) {
   // Callback definition
   const onPostMessageReceived = (event: MessageEvent) => {
@@ -104,7 +107,14 @@ export function setupEmbedRelay({
     } = event.data;
     // When embed connects, send a handshake message
     if (data.name === EXPLORER_LISTENING_FOR_HANDSHAKE) {
-      sendHandshakeToEmbed(!schema ? 'graphRef' : 'schema');
+      const message: OutgoingEmbedMessage = {
+        name: HANDSHAKE_RESPONSE,
+        graphRef,
+      };
+      embeddedExplorerIFrameElement.contentWindow?.postMessage(
+        message,
+        EMBEDDABLE_EXPLORER_URL
+      );
     }
 
     // Embedded Explorer sends us a PM when it is ready for a schema
