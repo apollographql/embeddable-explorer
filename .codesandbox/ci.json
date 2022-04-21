@@ -1,0 +1,4 @@
+{
+    "sandboxes": ["npm-embeddable-explorer-zotwkv"],
+    "buildCommand": "build:cjs-esm"
+  }
