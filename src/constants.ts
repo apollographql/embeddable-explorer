@@ -50,3 +50,19 @@ export type OutgoingEmbedMessage =
         errors?: [Error];
       };
     };
+
+export type IncomingEmbedMessage =
+  | MessageEvent<{
+      name: typeof EXPLORER_LISTENING_FOR_HANDSHAKE;
+    }>
+  | MessageEvent<{
+      name: typeof EXPLORER_QUERY_MUTATION_REQUEST;
+      operationName?: string;
+      operation: string;
+      operationId: string;
+      variables?: Record<string, string>;
+      headers?: Record<string, string>;
+    }>
+  | MessageEvent<{
+      name: typeof EXPLORER_LISTENING_FOR_SCHEMA;
+    }>;

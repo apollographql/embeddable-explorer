@@ -2,10 +2,13 @@ import type { IntrospectionQuery } from 'graphql';
 import {
   EMBEDDABLE_EXPLORER_URL,
   IFRAME_DOM_ID,
-  OutgoingEmbedMessage,
   SCHEMA_RESPONSE,
 } from './constants';
-import { HandleRequest, setupEmbedRelay } from './setupEmbedRelay';
+import {
+  HandleRequest,
+  sendPostMessageToEmbed,
+  setupEmbedRelay,
+} from './setupEmbedRelay';
 
 export interface BaseEmbeddableExplorerOptions {
   target: string | HTMLElement; // HTMLElement is to accomodate people who might prefer to pass in a ref
@@ -155,13 +158,12 @@ export class EmbeddedExplorer {
   }: {
     schema?: string | IntrospectionQuery | undefined;
   }) {
-    const outgoingMessage: OutgoingEmbedMessage = {
-      name: SCHEMA_RESPONSE,
-      schema,
-    };
-    this.embeddedExplorerIFrameElement.contentWindow?.postMessage(
-      outgoingMessage,
-      EMBEDDABLE_EXPLORER_URL
-    );
+    sendPostMessageToEmbed({
+      message: {
+        name: SCHEMA_RESPONSE,
+        schema,
+      },
+      embeddedExplorerIFrameElement: this.embeddedExplorerIFrameElement,
+    });
   }
 }
