@@ -85,7 +85,11 @@ me {
 
 run `npm run build:umd` to build umd files where EmbeddedExplorer is exposed on window.
 
-Open `examples/localDevelopmentExample.html` to test your changes.
+Open `examples/localDevelopmentExample.html` to test your changes. (if origin is not set, run localDevelopmentExample.html from `Live Server`)
+
+Install the `Live Server` extension on VSCode, then go to `localDevelopmentExample.html` and click 'Go Live'
+<img width="279" alt="Screen Shot 2022-04-27 at 4 34 53 PM" src="https://user-images.githubusercontent.com/16390269/165626464-8252abcd-2577-4d97-90a8-f487da807a64.png">
+
 
 
 run `npm run build:cjs-esm` to build cjs & esm files where ApolloExplorer & ApolloExplorerReact are named exports.
