@@ -1,12 +1,8 @@
 import type { GraphQLError, IntrospectionQuery } from 'graphql';
 import {
   EMBEDDABLE_EXPLORER_URL,
-  EXPLORER_LISTENING_FOR_HANDSHAKE,
-  EXPLORER_LISTENING_FOR_SCHEMA,
-  EXPLORER_QUERY_MUTATION_REQUEST,
   EXPLORER_QUERY_MUTATION_RESPONSE,
   HANDSHAKE_RESPONSE,
-  INTROSPECTION_QUERY_WITH_HEADERS,
   SCHEMA_ERROR,
   SCHEMA_RESPONSE,
 } from './constants';
@@ -74,28 +70,30 @@ export type OutgoingEmbedMessage =
       };
     };
 
-export type IncomingEmbedMessage =
-  | MessageEvent<{
-      name: typeof EXPLORER_LISTENING_FOR_HANDSHAKE;
-    }>
-  | MessageEvent<{
-      name: typeof EXPLORER_QUERY_MUTATION_REQUEST;
-      operationName?: string;
-      operation: string;
-      operationId: string;
-      variables?: Record<string, string>;
-      headers?: Record<string, string>;
-      sandboxEndpointUrl?: string;
-    }>
-  | MessageEvent<{
-      name: typeof EXPLORER_LISTENING_FOR_SCHEMA;
-    }>
-  | MessageEvent<{
-      name: typeof INTROSPECTION_QUERY_WITH_HEADERS;
-      introspectionRequestBody: string;
-      introspectionRequestHeaders: Record<string, string>;
-      sandboxEndpointUrl?: string;
-    }>;
+// TODO(Maya) uncomment and switch to MessageEvent as a generic when tsdx supports Typescript V4.
+// https://github.com/jaredpalmer/tsdx/issues/926
+export type IncomingEmbedMessage = MessageEvent;
+// | MessageEvent<{
+//     name: typeof EXPLORER_LISTENING_FOR_HANDSHAKE;
+//   }>
+// | MessageEvent<{
+//     name: typeof EXPLORER_QUERY_MUTATION_REQUEST;
+//     operationName?: string;
+//     operation: string;
+//     operationId: string;
+//     variables?: Record<string, string>;
+//     headers?: Record<string, string>;
+//     sandboxEndpointUrl?: string;
+//   }>
+// | MessageEvent<{
+//     name: typeof EXPLORER_LISTENING_FOR_SCHEMA;
+//   }>
+// | MessageEvent<{
+//     name: typeof INTROSPECTION_QUERY_WITH_HEADERS;
+//     introspectionRequestBody: string;
+//     introspectionRequestHeaders: Record<string, string>;
+//     sandboxEndpointUrl?: string;
+//   }>;
 
 export function executeOperation({
   endpointUrl,
