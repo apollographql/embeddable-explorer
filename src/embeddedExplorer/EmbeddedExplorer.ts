@@ -3,12 +3,12 @@ import {
   EMBEDDABLE_EXPLORER_URL,
   IFRAME_DOM_ID,
   SCHEMA_RESPONSE,
-} from './constants';
+} from '../helpers/constants';
 import {
   HandleRequest,
   sendPostMessageToEmbed,
-  setupEmbedRelay,
-} from './setupEmbedRelay';
+} from '../helpers/postMessageRelayHelpers';
+import { setupEmbedRelay } from './setupEmbedRelay';
 
 export interface BaseEmbeddableExplorerOptions {
   target: string | HTMLElement; // HTMLElement is to accomodate people who might prefer to pass in a ref
@@ -163,7 +163,7 @@ export class EmbeddedExplorer {
         name: SCHEMA_RESPONSE,
         schema,
       },
-      embeddedExplorerIFrameElement: this.embeddedExplorerIFrameElement,
+      embeddedIFrameElement: this.embeddedExplorerIFrameElement,
     });
   }
 }
