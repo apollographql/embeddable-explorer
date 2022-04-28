@@ -1,6 +1,6 @@
-# Apollo Studio Embeddable Explorer
+# Apollo Studio Embeddable Explorer & Embeddable Sandbox
 
-This repo hosts the source for Apollo Studio's Embeddable Explorer
+This repo hosts the source for Apollo Studio's Embeddable Explorer & the Embeddable Sandbox
 
 [See docs for usage details](https://www.apollographql.com/docs/studio/embed-explorer/)
 
@@ -23,7 +23,6 @@ function App() {
 
   return (
     <ApolloExplorerReact
-      target='#embeddableExplorer',
       graphRef='acephei@current',
       endpointUrl='https://acephei-gateway.herokuapp.com',
       initialState={{
@@ -78,14 +77,21 @@ me {
 
 ### Examples from the raw cdn hosted umd file
 
-- [Embedding a registered public graph](./src/examples/graphRef.html)
-- [Usage by directly passing in schema](./src/examples/manualSchema.html)
+- [Embedding a registered public graph](./src/embeddableExplorer/examples/graphRef.html)
+- [Usage by directly passing in schema](./src/embeddableExplorer/examples/manualSchema.html)
 
 ## Developing
 
-run `npm run build:umd` to build umd files where EmbeddedExplorer is exposed on window.
+run `npm run build-explorer:umd` to build umd files where EmbeddedExplorer is exposed on window.
 
-Open `examples/localDevelopmentExample.html` to test your changes.
+Open `examples/embeddedExplorer/localDevelopmentExample.html` to test your changes.
 
 
-run `npm run build:cjs-esm` to build cjs & esm files where ApolloExplorer & ApolloExplorerReact are named exports.
+run `npm run build-explorer:cjs-esm` to build cjs & esm files where ApolloExplorer & ApolloExplorerReact are named exports.
+
+## Developing Embedded Sandbox
+
+run `npm run build-sandbox:umd` to build umd files where EmbeddedExplorer is exposed on window.
+
+Open `examples/embeddedSandbox/localDevelopmentExample.html` to test your changes.
+
