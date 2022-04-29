@@ -199,7 +199,6 @@ workflows:
       - prettier
       - typescript
       - build-latest-umd-explorer
-      - build-latest-umd-sandbox
       - cdn-upload-latest-explorer:
           requires:
             - build-latest-umd-explorer
@@ -215,6 +214,9 @@ workflows:
           filters:
             branches:
               only: main
+      - build-latest-umd-sandbox:
+          requires:
+            - cdn-upload-versioned-explorer
       - cdn-upload-latest-sandbox:
           requires:
             - build-latest-umd-sandbox
