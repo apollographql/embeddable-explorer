@@ -1,4 +1,5 @@
 import {
+  EMBEDDABLE_SANDBOX_URL,
   EXPLORER_LISTENING_FOR_HANDSHAKE,
   EXPLORER_QUERY_MUTATION_REQUEST,
   HANDSHAKE_RESPONSE,
@@ -29,6 +30,7 @@ export function setupSandboxEmbedRelay({
           name: HANDSHAKE_RESPONSE,
         },
         embeddedIFrameElement: embeddedSandboxIFrameElement,
+        embedUrl: EMBEDDABLE_SANDBOX_URL,
       });
     }
 
@@ -74,6 +76,7 @@ export function setupSandboxEmbedRelay({
           headers,
           embeddedIFrameElement: embeddedSandboxIFrameElement,
           operationId,
+          embedUrl: EMBEDDABLE_SANDBOX_URL,
         });
       }
     }

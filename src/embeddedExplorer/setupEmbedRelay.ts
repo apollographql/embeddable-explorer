@@ -1,5 +1,6 @@
 import type { IntrospectionQuery } from 'graphql';
 import {
+  EMBEDDABLE_EXPLORER_URL,
   EXPLORER_LISTENING_FOR_HANDSHAKE,
   EXPLORER_LISTENING_FOR_SCHEMA,
   EXPLORER_QUERY_MUTATION_REQUEST,
@@ -42,6 +43,7 @@ export function setupEmbedRelay({
           graphRef,
         },
         embeddedIFrameElement: embeddedExplorerIFrameElement,
+        embedUrl: EMBEDDABLE_EXPLORER_URL,
       });
     }
 
@@ -74,6 +76,7 @@ export function setupEmbedRelay({
           headers,
           embeddedIFrameElement: embeddedExplorerIFrameElement,
           operationId,
+          embedUrl: EMBEDDABLE_EXPLORER_URL,
         });
       }
     }

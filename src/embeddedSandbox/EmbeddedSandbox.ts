@@ -83,6 +83,7 @@ export class EmbeddedSandbox {
         schema,
       },
       embeddedIFrameElement: this.embeddedSandboxIFrameElement,
+      embedUrl: EMBEDDABLE_SANDBOX_URL,
     });
   }
 }

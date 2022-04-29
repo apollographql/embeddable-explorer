@@ -1,6 +1,6 @@
 import type { GraphQLError, IntrospectionQuery } from 'graphql';
 import {
-  EMBEDDABLE_EXPLORER_URL,
+  EMBEDDABLE_SANDBOX_URL,
   EXPLORER_QUERY_MUTATION_RESPONSE,
   HANDSHAKE_RESPONSE,
   SCHEMA_ERROR,
@@ -32,14 +32,13 @@ function getHeadersWithContentType(
 export function sendPostMessageToEmbed({
   message,
   embeddedIFrameElement,
+  embedUrl,
 }: {
   message: OutgoingEmbedMessage;
   embeddedIFrameElement: HTMLIFrameElement;
+  embedUrl: string;
 }) {
-  embeddedIFrameElement?.contentWindow?.postMessage(
-    message,
-    EMBEDDABLE_EXPLORER_URL
-  );
+  embeddedIFrameElement?.contentWindow?.postMessage(message, embedUrl);
 }
 
 type Error = {
@@ -104,6 +103,7 @@ export function executeOperation({
   headers,
   embeddedIFrameElement,
   operationId,
+  embedUrl,
 }: {
   endpointUrl: string;
   handleRequest: HandleRequest;
@@ -113,6 +113,7 @@ export function executeOperation({
   operationName: string | undefined;
   variables?: Record<string, string>;
   headers?: Record<string, string>;
+  embedUrl: string;
 }) {
   return handleRequest(endpointUrl, {
     method: 'POST',
@@ -134,6 +135,7 @@ export function executeOperation({
           response,
         },
         embeddedIFrameElement,
+        embedUrl,
       });
     })
     .catch((error) => {
@@ -148,6 +150,7 @@ export function executeOperation({
           },
         },
         embeddedIFrameElement,
+        embedUrl,
       });
     });
 }
@@ -177,16 +180,16 @@ export function executeIntrospectionRequest({
   })
     .then((response) => response.json())
     .then((response) => {
-      if (response.error && response.errors.length) {
+      if (response.errors && response.errors.length) {
         sendPostMessageToEmbed({
           message: {
             // Include the same operation ID in the response message's name
             // so the Explorer knows which operation it's associated with
             name: SCHEMA_ERROR,
-            error: response.error,
             errors: response.errors,
           },
           embeddedIFrameElement,
+          embedUrl: EMBEDDABLE_SANDBOX_URL,
         });
       }
       sendPostMessageToEmbed({
@@ -197,6 +200,7 @@ export function executeIntrospectionRequest({
           schema: response.data,
         },
         embeddedIFrameElement,
+        embedUrl: EMBEDDABLE_SANDBOX_URL,
       });
     })
     .catch((error) => {
@@ -208,6 +212,7 @@ export function executeIntrospectionRequest({
           error: error,
         },
         embeddedIFrameElement,
+        embedUrl: EMBEDDABLE_SANDBOX_URL,
       });
     });
 }

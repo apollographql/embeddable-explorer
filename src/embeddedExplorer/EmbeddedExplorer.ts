@@ -164,6 +164,7 @@ export class EmbeddedExplorer {
         schema,
       },
       embeddedIFrameElement: this.embeddedExplorerIFrameElement,
+      embedUrl: EMBEDDABLE_EXPLORER_URL,
     });
   }
 }
