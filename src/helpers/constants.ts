@@ -1,6 +1,8 @@
 // URL for any embedded Explorer iframe
 export const EMBEDDABLE_EXPLORER_URL =
   'https://explorer.embed.apollographql.com';
+export const EMBEDDABLE_SANDBOX_URL =
+  'https://sandbox.embed.apollographql.com/sandbox';
 
 // Message types for Explorer state
 export const EXPLORER_LISTENING_FOR_SCHEMA = 'ExplorerListeningForSchema';
@@ -18,5 +20,9 @@ export const EXPLORER_SUBSCRIPTION_REQUEST = 'ExplorerSubscriptionRequest';
 export const EXPLORER_SUBSCRIPTION_RESPONSE = 'ExplorerSubscriptionResponse';
 export const EXPLORER_SUBSCRIPTION_TERMINATION =
   'ExplorerSubscriptionTermination';
-export const IFRAME_DOM_ID = (uniqueId: number) =>
-  `apollo-embedded-explorer-${uniqueId}`;
+export const IFRAME_DOM_ID = (uniqueId: number) => `apollo-embed-${uniqueId}`;
+
+// Message types for authentication
+export const EXPLORER_LISTENING_FOR_HANDSHAKE = 'ExplorerListeningForHandshake';
+export const HANDSHAKE_RESPONSE = 'HandshakeResponse';
+export const INTROSPECTION_QUERY_WITH_HEADERS = 'IntrospectionQueryWithHeaders';

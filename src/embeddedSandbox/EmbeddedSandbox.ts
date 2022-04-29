@@ -1,0 +1,89 @@
+import type { IntrospectionQuery } from 'graphql';
+import {
+  EMBEDDABLE_SANDBOX_URL,
+  IFRAME_DOM_ID,
+  SCHEMA_RESPONSE,
+} from '../helpers/constants';
+import {
+  HandleRequest,
+  sendPostMessageToEmbed,
+} from '../helpers/postMessageRelayHelpers';
+import { setupSandboxEmbedRelay } from './setupSandboxEmbedRelay';
+
+export interface EmbeddableSandboxOptions {
+  target: string | HTMLElement; // HTMLElement is to accomodate people who might prefer to pass in a ref
+
+  // optional. defaults to `return fetch(url, fetchOptions)`
+  handleRequest?: HandleRequest;
+}
+
+let idCounter = 0;
+
+export class EmbeddedSandbox {
+  options: EmbeddableSandboxOptions;
+  handleRequest: HandleRequest;
+  embeddedSandboxIFrameElement: HTMLIFrameElement;
+  uniqueEmbedInstanceId: number;
+  private disposable: { dispose: () => void };
+  constructor(options: EmbeddableSandboxOptions) {
+    this.options = options;
+    this.validateOptions();
+    this.handleRequest = this.options.handleRequest ?? fetch;
+    this.uniqueEmbedInstanceId = idCounter++;
+    this.embeddedSandboxIFrameElement = this.injectEmbed();
+    this.disposable = setupSandboxEmbedRelay({
+      embeddedSandboxIFrameElement: this.embeddedSandboxIFrameElement,
+      handleRequest: this.handleRequest,
+    });
+  }
+
+  dispose() {
+    // remove the dom element
+    document
+      .getElementById(IFRAME_DOM_ID(this.uniqueEmbedInstanceId))
+      ?.remove();
+    // remove the listener
+    this.disposable.dispose();
+  }
+
+  injectEmbed() {
+    let element;
+    const { target } = this.options;
+
+    if (typeof target === 'string') {
+      element = document?.querySelector?.(target);
+    } else {
+      element = target;
+    }
+    const iframeElement = document.createElement('iframe');
+    iframeElement.src = EMBEDDABLE_SANDBOX_URL;
+
+    iframeElement.id = IFRAME_DOM_ID(this.uniqueEmbedInstanceId);
+    iframeElement.setAttribute('style', 'height: 100%; width: 100%');
+
+    element?.appendChild(iframeElement);
+
+    return iframeElement;
+  }
+
+  validateOptions() {
+    if (!this.options.target) {
+      throw new Error('"target" is required');
+    }
+  }
+
+  updateSchemaInEmbed({
+    schema,
+  }: {
+    schema?: string | IntrospectionQuery | undefined;
+  }) {
+    sendPostMessageToEmbed({
+      message: {
+        name: SCHEMA_RESPONSE,
+        schema,
+      },
+      embeddedIFrameElement: this.embeddedSandboxIFrameElement,
+      embedUrl: EMBEDDABLE_SANDBOX_URL,
+    });
+  }
+}

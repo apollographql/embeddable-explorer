@@ -3,8 +3,12 @@ import {
   EMBEDDABLE_EXPLORER_URL,
   IFRAME_DOM_ID,
   SCHEMA_RESPONSE,
-} from './constants';
-import { HandleRequest, setupEmbedRelay } from './setupEmbedRelay';
+} from '../helpers/constants';
+import {
+  HandleRequest,
+  sendPostMessageToEmbed,
+} from '../helpers/postMessageRelayHelpers';
+import { setupEmbedRelay } from './setupEmbedRelay';
 
 export interface BaseEmbeddableExplorerOptions {
   target: string | HTMLElement; // HTMLElement is to accomodate people who might prefer to pass in a ref
@@ -65,6 +69,7 @@ export class EmbeddedExplorer {
       handleRequest: this.handleRequest,
       updateSchemaInEmbed: this.updateSchemaInEmbed.bind(this),
       schema: 'schema' in this.options ? this.options.schema : undefined,
+      graphRef: 'graphRef' in this.options ? this.options.graphRef : undefined,
     });
   }
 
@@ -153,12 +158,13 @@ export class EmbeddedExplorer {
   }: {
     schema?: string | IntrospectionQuery | undefined;
   }) {
-    this.embeddedExplorerIFrameElement.contentWindow?.postMessage(
-      {
+    sendPostMessageToEmbed({
+      message: {
         name: SCHEMA_RESPONSE,
         schema,
       },
-      EMBEDDABLE_EXPLORER_URL
-    );
+      embeddedIFrameElement: this.embeddedExplorerIFrameElement,
+      embedUrl: EMBEDDABLE_EXPLORER_URL,
+    });
   }
 }
