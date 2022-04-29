@@ -21,8 +21,9 @@
   "scripts": {
     "start": "tsdx watch",
     "build": "npm run build:cjs-esm",
-    "build:cjs-esm": "tsdx build --format cjs,esm --name embeddable-explorer",
-    "build:umd": "tsdx build --format umd --entry src/index-umd.ts --name embeddable-explorer",
+    "build-explorer:cjs-esm": "tsdx build --format cjs,esm --name embeddable-explorer",
+    "build-explorer:umd": "tsdx build --format umd --entry src/embeddedExplorer/index-umd.ts --name embeddable-explorer",
+    "build-sandbox:umd": "tsdx build --format umd --entry src/embeddedSandbox/index-umd.ts --name embeddable-sandbox",
     "test": "tsdx test --passWithNoTests",
     "lint": "eslint --ext .js,.jsx,.ts,.tsx .",
     "prepare": "tsdx build",
@@ -77,8 +78,8 @@
     "react-dom": "18.1.0",
     "size-limit": "5.0.5",
     "tsdx": "0.14.1",
-    "tslib": "2.4.0",
-    "typescript": "4.6.4"
+    "tslib": "2.3.1",
+    "typescript": "3.9.10"
   },
   "peerDependencies": {
     "react": "^16.8.0 || ^17.0.0 || ^18.0.0",

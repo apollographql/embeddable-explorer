@@ -28,8 +28,11 @@ jobs:
       - name: Test
         run: yarn test --ci --coverage --maxWorkers=2
 
-      - name: Build UMD
-        run: yarn build:umd
+      - name: Build Explorer UMD
+        run: yarn build-explorer:umd
 
-      - name: Build CJS / ESM
-        run: yarn build:cjs-esm
+      - name: Build Explorer CJS / ESM
+        run: yarn build-explorer:cjs-esm
+
+      - name: Build Sandbox UMD
+        run: yarn build-sandbox:umd

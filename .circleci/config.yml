@@ -75,14 +75,14 @@ jobs:
           name: TypeScript
           command: npm run typescript:check
 
-  build-latest-umd-app:
+  build-latest-umd-explorer:
     executor: node
     steps:
       - checkout
       - npm-install
       - run:
           name: Build
-          command: '[ -d build ] || PUBLIC_URL=https://embeddable-explorer.cdn.apollographql.com/_latest npm run build:umd -- --no-progress'
+          command: '[ -d build ] || PUBLIC_URL=https://embeddable-explorer.cdn.apollographql.com/_latest npm run build-explorer:umd -- --no-progress'
           environment:
             BUILD_TO_CDN: 'true'
       - persist_to_workspace:
@@ -90,14 +90,14 @@ jobs:
           paths:
             - dist
 
-  build-versioned-umd-app:
+  build-versioned-umd-explorer:
     executor: node
     steps:
       - checkout
       - npm-install
       - run:
           name: Build
-          command: '[ -d build ] || PUBLIC_URL=https://embeddable-explorer.cdn.apollographql.com/$CIRCLE_SHA1 npm run build:umd -- --no-progress'
+          command: '[ -d build ] || PUBLIC_URL=https://embeddable-explorer.cdn.apollographql.com/$CIRCLE_SHA1 npm run build-explorer:umd -- --no-progress'
           environment:
             BUILD_TO_CDN: 'true'
       - persist_to_workspace:
@@ -105,7 +105,7 @@ jobs:
           paths:
             - dist
 
-  cdn-upload-latest:
+  cdn-upload-latest-explorer:
     executor: gcp-cli/google
     steps:
       - gcp-cli/initialize:
@@ -119,7 +119,7 @@ jobs:
           command: |
             gsutil -m rsync -r ~/embeddable-explorer/dist gs://embeddable-explorer/_latest
 
-  cdn-upload-versioned:
+  cdn-upload-versioned-explorer:
     executor: gcp-cli/google
     steps:
       - gcp-cli/initialize:
@@ -133,25 +133,100 @@ jobs:
           command: |
             gsutil -m rsync -r ~/embeddable-explorer/dist gs://embeddable-explorer/$CIRCLE_SHA1
 
+  build-latest-umd-sandbox:
+    executor: node
+    steps:
+      - checkout
+      - npm-install
+      - run:
+          name: Build
+          command: '[ -d build ] || PUBLIC_URL=https://embeddable-explorer.cdn.apollographql.com/_latest npm run build-explorer:umd -- --no-progress'
+          environment:
+            BUILD_TO_CDN: 'true'
+      - persist_to_workspace:
+          root: ~/embeddable-explorer
+          paths:
+            - dist
+
+  build-versioned-umd-sandbox:
+    executor: node
+    steps:
+      - checkout
+      - npm-install
+      - run:
+          name: Build
+          command: '[ -d build ] || PUBLIC_URL=https://embeddable-sandbox.cdn.apollographql.com/$CIRCLE_SHA1 npm run build-sandbox:umd -- --no-progress'
+          environment:
+            BUILD_TO_CDN: 'true'
+      - persist_to_workspace:
+          root: ~/embeddable-explorer
+          paths:
+            - dist
+
+  cdn-upload-latest-sandbox:
+    executor: gcp-cli/google
+    steps:
+      - gcp-cli/initialize:
+          gcloud-service-key: GCLOUD_GCS_SERVICE_KEY
+      - gcp-cli/install
+      - checkout
+      - attach_workspace:
+          at: ~/embeddable-explorer
+      - run:
+          name: Upload build artifacts to CDN
+          command: |
+            gsutil -m rsync -r ~/embeddable-sandbox/dist gs://embeddable-sandbox/_latest
+
+  cdn-upload-versioned-sandbox:
+    executor: gcp-cli/google
+    steps:
+      - gcp-cli/initialize:
+          gcloud-service-key: GCLOUD_GCS_SERVICE_KEY
+      - gcp-cli/install
+      - checkout
+      - attach_workspace:
+          at: ~/embeddable-sandbox
+      - run:
+          name: Upload build artifacts to CDN
+          command: |
+            gsutil -m rsync -r ~/embeddable-sandbox/dist gs://embeddable-sandbox/$CIRCLE_SHA1
+
+
 workflows:
   build-test-deploy:
     jobs:
       - eslint
       - prettier
       - typescript
-      - build-latest-umd-app
-      - cdn-upload-latest:
+      - build-latest-umd-explorer
+      - build-latest-umd-sandbox
+      - cdn-upload-latest-explorer:
           requires:
-            - build-latest-umd-app
+            - build-latest-umd-explorer
           filters:
             branches:
               only: main
-      - build-versioned-umd-app:
+      - build-versioned-umd-explorer:
           requires:
-            - cdn-upload-latest
-      - cdn-upload-versioned:
+            - cdn-upload-latest-explorer
+      - cdn-upload-versioned-explorer:
           requires:
-            - build-versioned-umd-app
+            - build-versioned-umd-explorer
+          filters:
+            branches:
+              only: main
+      - cdn-upload-latest-sandbox:
+          requires:
+            - build-latest-umd-sandbox
+          filters:
+            branches:
+              only: main
+      - build-versioned-umd-sandbox:
+          requires:
+            - cdn-upload-latest-sandbox
+      - cdn-upload-versioned-sandbox:
+          requires:
+            - build-versioned-umd-sandbox
           filters:
             branches:
               only: main
