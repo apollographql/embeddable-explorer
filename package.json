@@ -61,7 +61,7 @@
     "@changesets/cli": "2.22.0",
     "@size-limit/preset-small-lib": "5.0.5",
     "@types/react": "18.0.8",
-    "@types/react-dom": "18.0.2",
+    "@types/react-dom": "18.0.3",
     "@typescript-eslint/eslint-plugin": "5.21.0",
     "@typescript-eslint/parser": "5.21.0",
     "eslint": "8.14.0",
@@ -78,7 +78,7 @@
     "size-limit": "5.0.5",
     "tsdx": "0.14.1",
     "tslib": "2.4.0",
-    "typescript": "4.6.3"
+    "typescript": "4.6.4"
   },
   "peerDependencies": {
     "react": "^16.8.0 || ^17.0.0 || ^18.0.0",
