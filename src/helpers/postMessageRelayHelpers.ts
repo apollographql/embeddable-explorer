@@ -43,6 +43,7 @@ export function sendPostMessageToEmbed({
 
 type Error = {
   message: string;
+  stack?: string;
 };
 
 export type OutgoingEmbedMessage =
@@ -66,6 +67,8 @@ export type OutgoingEmbedMessage =
         data?: JSONValue;
         error?: Error;
         errors?: [Error];
+        status?: number;
+        headers?: Headers;
       };
     };
 
@@ -124,21 +127,14 @@ export function executeOperation({
       operationName,
     }),
   })
-    .then((response) => response.json())
-    .then((response) => {
-      sendPostMessageToEmbed({
-        message: {
-          // Include the same operation ID in the response message's name
-          // so the Explorer knows which operation it's associated with
-          name: EXPLORER_QUERY_MUTATION_RESPONSE,
-          operationId,
-          response,
-        },
-        embeddedIFrameElement,
-        embedUrl,
+    .then(async (response) => {
+      const json = await response.json();
+
+      const responseHeaders: Record<string, string> = {};
+      response.headers.forEach((value, key) => {
+        responseHeaders[key] = value;
       });
-    })
-    .catch((error) => {
+
       sendPostMessageToEmbed({
         message: {
           // Include the same operation ID in the response message's name
@@ -146,7 +142,27 @@ export function executeOperation({
           name: EXPLORER_QUERY_MUTATION_RESPONSE,
           operationId,
           response: {
-            error,
+            ...json,
+            status: response.status,
+            headers: responseHeaders,
+          },
+        },
+        embeddedIFrameElement,
+        embedUrl,
+      });
+    })
+    .catch((response) => {
+      sendPostMessageToEmbed({
+        message: {
+          // Include the same operation ID in the response message's name
+          // so the Explorer knows which operation it's associated with
+          name: EXPLORER_QUERY_MUTATION_RESPONSE,
+          operationId,
+          response: {
+            error: {
+              message: response.message,
+              ...(response.stack ? { stack: response.stack } : {}),
+            },
           },
         },
         embeddedIFrameElement,
