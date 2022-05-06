@@ -95,7 +95,10 @@ export class EmbeddedExplorer {
     iframeElement.src = this.embeddedExplorerURL;
 
     iframeElement.id = IFRAME_DOM_ID(this.uniqueEmbedInstanceId);
-    iframeElement.setAttribute('style', 'height: 100%; width: 100%');
+    iframeElement.setAttribute(
+      'style',
+      'height: 100%; width: 100%; border: none;'
+    );
 
     element?.appendChild(iframeElement);
 
