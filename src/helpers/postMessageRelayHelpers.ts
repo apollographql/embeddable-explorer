@@ -1,6 +1,6 @@
 import type { GraphQLError, IntrospectionQuery } from 'graphql';
 import {
-  AUTHENTICATED_TOKEN_RESPONSE,
+  HALF_AUTHENTICATION_TOKEN_RESPONSE,
   EMBEDDABLE_SANDBOX_URL,
   EXPLORER_QUERY_MUTATION_RESPONSE,
   HANDSHAKE_RESPONSE,
@@ -62,7 +62,7 @@ export type OutgoingEmbedMessage =
       graphRef?: string;
     }
   | {
-      name: typeof AUTHENTICATED_TOKEN_RESPONSE;
+      name: typeof HALF_AUTHENTICATION_TOKEN_RESPONSE;
       token?: string;
     }
   | {
