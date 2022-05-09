@@ -25,4 +25,7 @@ export const IFRAME_DOM_ID = (uniqueId: number) => `apollo-embed-${uniqueId}`;
 // Message types for authentication
 export const EXPLORER_LISTENING_FOR_HANDSHAKE = 'ExplorerListeningForHandshake';
 export const HANDSHAKE_RESPONSE = 'HandshakeResponse';
+export const SET_AUTHENTICATED_TOKEN = 'SetAuthenticatedToken';
+export const EXPLORER_LISTENING_FOR_TOKEN = 'ExplorerListeningForToken';
+export const AUTHENTICATED_TOKEN_RESPONSE = 'AuthenticatedTokenResponse';
 export const INTROSPECTION_QUERY_WITH_HEADERS = 'IntrospectionQueryWithHeaders';

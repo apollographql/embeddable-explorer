@@ -1,10 +1,13 @@
 import type { IntrospectionQuery } from 'graphql';
 import {
   EMBEDDABLE_EXPLORER_URL,
+  SET_AUTHENTICATED_TOKEN,
   EXPLORER_LISTENING_FOR_HANDSHAKE,
   EXPLORER_LISTENING_FOR_SCHEMA,
   EXPLORER_QUERY_MUTATION_REQUEST,
   HANDSHAKE_RESPONSE,
+  EXPLORER_LISTENING_FOR_TOKEN,
+  AUTHENTICATED_TOKEN_RESPONSE,
 } from '../helpers/constants';
 import {
   executeOperation,
@@ -41,6 +44,22 @@ export function setupEmbedRelay({
         message: {
           name: HANDSHAKE_RESPONSE,
           graphRef,
+        },
+        embeddedIFrameElement: embeddedExplorerIFrameElement,
+        embedUrl: EMBEDDABLE_EXPLORER_URL,
+      });
+    }
+
+    // When the embed authenticates, save the token in local storage
+    if (data.name === SET_AUTHENTICATED_TOKEN) {
+      window.localStorage.setItem(data.key, data.token);
+    }
+
+    if (data.name === EXPLORER_LISTENING_FOR_TOKEN) {
+      sendPostMessageToEmbed({
+        message: {
+          name: AUTHENTICATED_TOKEN_RESPONSE,
+          token: window.localStorage.getItem(data.key) ?? undefined,
         },
         embeddedIFrameElement: embeddedExplorerIFrameElement,
         embedUrl: EMBEDDABLE_EXPLORER_URL,
