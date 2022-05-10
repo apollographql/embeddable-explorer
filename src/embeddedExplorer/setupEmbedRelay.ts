@@ -1,13 +1,13 @@
 import type { IntrospectionQuery } from 'graphql';
 import {
   EMBEDDABLE_EXPLORER_URL,
-  SET_HALF_AUTHENTICATION_TOKEN_FOR_PARENT,
+  SET_PARTIAL_AUTHENTICATION_TOKEN_FOR_PARENT,
   EXPLORER_LISTENING_FOR_HANDSHAKE,
   EXPLORER_LISTENING_FOR_SCHEMA,
   EXPLORER_QUERY_MUTATION_REQUEST,
   HANDSHAKE_RESPONSE,
-  EXPLORER_LISTENING_FOR_HALF_TOKEN,
-  HALF_AUTHENTICATION_TOKEN_RESPONSE,
+  EXPLORER_LISTENING_FOR_PARTIAL_TOKEN,
+  PARTIAL_AUTHENTICATION_TOKEN_RESPONSE,
 } from '../helpers/constants';
 import {
   executeOperation,
@@ -50,16 +50,16 @@ export function setupEmbedRelay({
       });
     }
 
-    // When the embed authenticates, save the token in local storage
-    if (data.name === SET_HALF_AUTHENTICATION_TOKEN_FOR_PARENT) {
-      window.localStorage.setItem(data.key, data.token);
+    // When the embed authenticates, save the partial token in local storage
+    if (data.name === SET_PARTIAL_AUTHENTICATION_TOKEN_FOR_PARENT) {
+      window.localStorage.setItem(data.key, data.partialToken);
     }
 
-    if (data.name === EXPLORER_LISTENING_FOR_HALF_TOKEN) {
+    if (data.name === EXPLORER_LISTENING_FOR_PARTIAL_TOKEN) {
       sendPostMessageToEmbed({
         message: {
-          name: HALF_AUTHENTICATION_TOKEN_RESPONSE,
-          token: window.localStorage.getItem(data.key) ?? undefined,
+          name: PARTIAL_AUTHENTICATION_TOKEN_RESPONSE,
+          partialToken: window.localStorage.getItem(data.key) ?? undefined,
         },
         embeddedIFrameElement: embeddedExplorerIFrameElement,
         embedUrl: EMBEDDABLE_EXPLORER_URL,
