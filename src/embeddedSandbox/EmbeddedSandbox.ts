@@ -12,6 +12,7 @@ import { setupSandboxEmbedRelay } from './setupSandboxEmbedRelay';
 
 export interface EmbeddableSandboxOptions {
   target: string | HTMLElement; // HTMLElement is to accomodate people who might prefer to pass in a ref
+  initialEndpoint?: string;
 
   // optional. defaults to `return fetch(url, fetchOptions)`
   handleRequest?: HandleRequest;
@@ -56,7 +57,11 @@ export class EmbeddedSandbox {
       element = target;
     }
     const iframeElement = document.createElement('iframe');
-    iframeElement.src = EMBEDDABLE_SANDBOX_URL;
+    iframeElement.src = `${EMBEDDABLE_SANDBOX_URL}${
+      this.options.initialEndpoint
+        ? `?endpoint=${this.options.initialEndpoint}`
+        : ''
+    }`;
 
     iframeElement.id = IFRAME_DOM_ID(this.uniqueEmbedInstanceId);
     iframeElement.setAttribute('style', 'height: 100%; width: 100%');
