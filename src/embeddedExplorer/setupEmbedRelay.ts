@@ -52,18 +52,36 @@ export function setupEmbedRelay({
 
     // When the embed authenticates, save the partial token in local storage
     if (data.name === SET_PARTIAL_AUTHENTICATION_TOKEN_FOR_PARENT) {
-      window.localStorage.setItem(data.key, data.partialToken);
+      const partialEmbedApiKeysString = window.localStorage.getItem(
+        'apolloStudioEmbeddedExplorerEncodedApiKey'
+      );
+      const partialEmbedApiKeys = partialEmbedApiKeysString
+        ? JSON.parse(partialEmbedApiKeysString)
+        : {};
+      partialEmbedApiKeys[data.key] = data.partialToken;
+      window.localStorage.setItem(
+        'apolloStudioEmbeddedExplorerEncodedApiKey',
+        JSON.stringify(partialEmbedApiKeys)
+      );
     }
 
-    if (data.name === EXPLORER_LISTENING_FOR_PARTIAL_TOKEN) {
-      sendPostMessageToEmbed({
-        message: {
-          name: PARTIAL_AUTHENTICATION_TOKEN_RESPONSE,
-          partialToken: window.localStorage.getItem(data.key) ?? undefined,
-        },
-        embeddedIFrameElement: embeddedExplorerIFrameElement,
-        embedUrl: EMBEDDABLE_EXPLORER_URL,
-      });
+    if (data.name === EXPLORER_LISTENING_FOR_PARTIAL_TOKEN && data.key) {
+      const partialEmbedApiKeysString = window.localStorage.getItem(
+        'apolloStudioEmbeddedExplorerEncodedApiKey'
+      );
+      const partialEmbedApiKeys = partialEmbedApiKeysString
+        ? JSON.parse(partialEmbedApiKeysString)
+        : {};
+      if (partialEmbedApiKeys && partialEmbedApiKeys[data.key]) {
+        sendPostMessageToEmbed({
+          message: {
+            name: PARTIAL_AUTHENTICATION_TOKEN_RESPONSE,
+            partialToken: partialEmbedApiKeys[data.key],
+          },
+          embeddedIFrameElement: embeddedExplorerIFrameElement,
+          embedUrl: EMBEDDABLE_EXPLORER_URL,
+        });
+      }
     }
 
     // Embedded Explorer sends us a PM when it is ready for a schema

@@ -96,6 +96,15 @@ export type IncomingEmbedMessage = MessageEvent;
 //     name: typeof EXPLORER_LISTENING_FOR_SCHEMA;
 //   }>
 // | MessageEvent<{
+//     name: typeof SET_PARTIAL_AUTHENTICATION_TOKEN_FOR_PARENT;
+//     key: string;
+//     partialToken: string;
+//   }>
+// | MessageEvent<{
+//     name: typeof EXPLORER_LISTENING_FOR_PARTIAL_TOKEN;
+//     key?: string;
+//   }>
+// | MessageEvent<{
 //     name: typeof INTROSPECTION_QUERY_WITH_HEADERS;
 //     introspectionRequestBody: string;
 //     introspectionRequestHeaders: Record<string, string>;
