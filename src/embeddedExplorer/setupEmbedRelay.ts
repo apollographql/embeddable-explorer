@@ -23,6 +23,8 @@ export function setupEmbedRelay({
   updateSchemaInEmbed,
   schema,
   graphRef,
+  inviteToken,
+  accountId,
 }: {
   endpointUrl: string;
   handleRequest: HandleRequest;
@@ -34,6 +36,8 @@ export function setupEmbedRelay({
   }) => void;
   schema?: string | IntrospectionQuery | undefined;
   graphRef?: string | undefined;
+  inviteToken?: string;
+  accountId?: string;
 }) {
   // Callback definition
   const onPostMessageReceived = (event: IncomingEmbedMessage) => {
@@ -44,6 +48,8 @@ export function setupEmbedRelay({
         message: {
           name: HANDSHAKE_RESPONSE,
           graphRef,
+          inviteToken,
+          accountId,
         },
         embeddedIFrameElement: embeddedExplorerIFrameElement,
         embedUrl: EMBEDDABLE_EXPLORER_URL,
