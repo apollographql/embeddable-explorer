@@ -58,25 +58,28 @@ export function setupEmbedRelay({
       const partialEmbedApiKeys = partialEmbedApiKeysString
         ? JSON.parse(partialEmbedApiKeysString)
         : {};
-      partialEmbedApiKeys[data.key] = data.partialToken;
+      partialEmbedApiKeys[data.localStorageKey] = data.partialToken;
       window.localStorage.setItem(
         'apolloStudioEmbeddedExplorerEncodedApiKey',
         JSON.stringify(partialEmbedApiKeys)
       );
     }
 
-    if (data.name === EXPLORER_LISTENING_FOR_PARTIAL_TOKEN && data.key) {
+    if (
+      data.name === EXPLORER_LISTENING_FOR_PARTIAL_TOKEN &&
+      data.localStorageKey
+    ) {
       const partialEmbedApiKeysString = window.localStorage.getItem(
         'apolloStudioEmbeddedExplorerEncodedApiKey'
       );
       const partialEmbedApiKeys = partialEmbedApiKeysString
         ? JSON.parse(partialEmbedApiKeysString)
         : {};
-      if (partialEmbedApiKeys && partialEmbedApiKeys[data.key]) {
+      if (partialEmbedApiKeys && partialEmbedApiKeys[data.localStorageKey]) {
         sendPostMessageToEmbed({
           message: {
             name: PARTIAL_AUTHENTICATION_TOKEN_RESPONSE,
-            partialToken: partialEmbedApiKeys[data.key],
+            partialToken: partialEmbedApiKeys[data.localStorageKey],
           },
           embeddedIFrameElement: embeddedExplorerIFrameElement,
           embedUrl: EMBEDDABLE_EXPLORER_URL,

@@ -102,7 +102,7 @@ export type IncomingEmbedMessage = MessageEvent;
 //   }>
 // | MessageEvent<{
 //     name: typeof EXPLORER_LISTENING_FOR_PARTIAL_TOKEN;
-//     key?: string;
+//     localStorageKey?: string;
 //   }>
 // | MessageEvent<{
 //     name: typeof INTROSPECTION_QUERY_WITH_HEADERS;
