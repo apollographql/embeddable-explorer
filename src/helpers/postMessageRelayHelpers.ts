@@ -1,5 +1,6 @@
 import type { GraphQLError, IntrospectionQuery } from 'graphql';
 import {
+  PARTIAL_AUTHENTICATION_TOKEN_RESPONSE,
   EMBEDDABLE_SANDBOX_URL,
   EXPLORER_QUERY_MUTATION_RESPONSE,
   HANDSHAKE_RESPONSE,
@@ -61,6 +62,10 @@ export type OutgoingEmbedMessage =
       graphRef?: string;
     }
   | {
+      name: typeof PARTIAL_AUTHENTICATION_TOKEN_RESPONSE;
+      partialToken?: string;
+    }
+  | {
       name: typeof EXPLORER_QUERY_MUTATION_RESPONSE;
       operationId: string;
       response: {
@@ -89,6 +94,15 @@ export type IncomingEmbedMessage = MessageEvent;
 //   }>
 // | MessageEvent<{
 //     name: typeof EXPLORER_LISTENING_FOR_SCHEMA;
+//   }>
+// | MessageEvent<{
+//     name: typeof SET_PARTIAL_AUTHENTICATION_TOKEN_FOR_PARENT;
+//     key: string;
+//     partialToken: string;
+//   }>
+// | MessageEvent<{
+//     name: typeof EXPLORER_LISTENING_FOR_PARTIAL_TOKEN;
+//     localStorageKey?: string;
 //   }>
 // | MessageEvent<{
 //     name: typeof INTROSPECTION_QUERY_WITH_HEADERS;
