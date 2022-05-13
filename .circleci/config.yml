@@ -140,7 +140,7 @@ jobs:
       - npm-install
       - run:
           name: Build
-          command: '[ -d build ] || PUBLIC_URL=https://embeddable-explorer.cdn.apollographql.com/_latest npm run build-explorer:umd -- --no-progress'
+          command: 'rm -rf dist && ([ -d build ] || PUBLIC_URL=https://embeddable-explorer.cdn.apollographql.com/_latest npm run build-sandbox:umd -- --no-progress)'
           environment:
             BUILD_TO_CDN: 'true'
       - persist_to_workspace:
@@ -185,11 +185,11 @@ jobs:
       - gcp-cli/install
       - checkout
       - attach_workspace:
-          at: ~/embeddable-sandbox
+          at: ~/embeddable-explorer
       - run:
           name: Upload build artifacts to CDN
           command: |
-            gsutil -m rsync -r ~/embeddable-sandbox/dist gs://embeddable-sandbox/$CIRCLE_SHA1
+            gsutil -m rsync -r ~/embeddable-explorer/dist gs://embeddable-sandbox/$CIRCLE_SHA1
 
 
 workflows:
