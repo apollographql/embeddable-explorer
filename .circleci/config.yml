@@ -23,6 +23,17 @@ commands:
       - restore_cache:
           keys:
             - v0-dependencies-
+  setup-explorer-gcs-creds:
+    steps:
+      - checkout
+      - run:
+          name: Setup GCloud Creds
+          command: |
+            echo "$GCLOUD_SERVICE_KEY_EXPLORER" | base64 --ignore-garbage -d > /tmp/google-service-account-key-explorer.json
+            [ ! -z "$GCLOUD_SERVICE_KEY_EXPLORER" ] && gcloud auth activate-service-account --key-file=/tmp/google-service-account-key-explorer.json || exit 0
+      - restore_cache:
+          keys:
+            - v0-dependencies-
   npm-install:
     steps:
       - run:
@@ -119,8 +130,7 @@ jobs:
   cdn-upload-latest-explorer:
     executor: gcp-cli/google
     steps:
-      - gcp-cli/initialize:
-          gcloud-service-key: GCLOUD_GCS_SERVICE_KEY
+      - setup-explorer-gcs-creds
       - gcp-cli/install
       - checkout
       - attach_workspace:
@@ -133,8 +143,7 @@ jobs:
   cdn-upload-versioned-explorer:
     executor: gcp-cli/google
     steps:
-      - gcp-cli/initialize:
-          gcloud-service-key: GCLOUD_GCS_SERVICE_KEY
+      - setup-explorer-gcs-creds
       - gcp-cli/install
       - checkout
       - attach_workspace:
@@ -209,6 +218,8 @@ workflows:
       - typescript
       - build-latest-umd-explorer
       - cdn-upload-latest-explorer:
+          context:
+            - embeddable-explorer-write
           requires:
             - build-latest-umd-explorer
           filters:
@@ -218,6 +229,8 @@ workflows:
           requires:
             - cdn-upload-latest-explorer
       - cdn-upload-versioned-explorer:
+          context:
+            - embeddable-explorer-write
           requires:
             - build-versioned-umd-explorer
           filters:
