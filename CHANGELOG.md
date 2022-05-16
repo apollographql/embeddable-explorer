@@ -1,5 +1,25 @@
 # @apollo/explorer
 
+## 0.4.0
+
+### Minor Changes
+
+- [#92](https://github.com/apollographql/embeddable-explorer/pull/92) [`18b6a09`](https://github.com/apollographql/embeddable-explorer/commit/18b6a0986a252d91f62c2707950f5290f4e83bf8) Thanks [@William010x](https://github.com/William010x)! - Add optional config for inviteToken and accountId
+
+* [#88](https://github.com/apollographql/embeddable-explorer/pull/88) [`55e957a`](https://github.com/apollographql/embeddable-explorer/commit/55e957af5e88a7f04c50c681df6e009ff715f8ae) Thanks [@William010x](https://github.com/William010x)! - Add new post messages and listeners for local storage tokens
+
+- [#71](https://github.com/apollographql/embeddable-explorer/pull/71) [`fb3097f`](https://github.com/apollographql/embeddable-explorer/commit/fb3097f625e717a65d6ffa65ee34a20fa183fa08) Thanks [@William010x](https://github.com/William010x)! - Add handshake on connection for Embedded Explorer
+
+* [#71](https://github.com/apollographql/embeddable-explorer/pull/71) [`fb3097f`](https://github.com/apollographql/embeddable-explorer/commit/fb3097f625e717a65d6ffa65ee34a20fa183fa08) Thanks [@William010x](https://github.com/William010x)! - Add support for embeddable Sandbox in the embedded-explorer repo. The embeddable Sandbox is only built and pushed to our CDN bucket for use in Apollo Server right now.
+
+### Patch Changes
+
+- [#86](https://github.com/apollographql/embeddable-explorer/pull/86) [`89a94e3`](https://github.com/apollographql/embeddable-explorer/commit/89a94e3b8da54ab7c20715c15842fb8b95b49790) Thanks [@mayakoneval](https://github.com/mayakoneval)! - remove grey border on default iframes
+
+* [#36](https://github.com/apollographql/embeddable-explorer/pull/36) [`13e9d2b`](https://github.com/apollographql/embeddable-explorer/commit/13e9d2bf4297a6886ddc560a2877f7c20edcb52b) Thanks [@renovate](https://github.com/apps/renovate)! - chore(deps): update dependency typescript to v4
+
+- [#84](https://github.com/apollographql/embeddable-explorer/pull/84) [`2d47591`](https://github.com/apollographql/embeddable-explorer/commit/2d475911411ce9602ac630eb5ebbaf76da92ea74) Thanks [@mayakoneval](https://github.com/mayakoneval)! - Send status & headers to embed
+
 ## 0.3.2
 
 ### Patch Changes
