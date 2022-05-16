@@ -60,6 +60,8 @@ export type OutgoingEmbedMessage =
   | {
       name: typeof HANDSHAKE_RESPONSE;
       graphRef?: string;
+      inviteToken?: string;
+      accountId?: string;
     }
   | {
       name: typeof PARTIAL_AUTHENTICATION_TOKEN_RESPONSE;
