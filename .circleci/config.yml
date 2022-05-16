@@ -12,6 +12,28 @@ executors:
     working_directory: ~/embeddable-explorer
 
 commands:
+  setup-sandbox-gcs-creds:
+    steps:
+      - checkout
+      - run:
+          name: Setup GCloud Creds
+          command: |
+            echo "$GCLOUD_SERVICE_KEY_SANDBOX" | base64 --ignore-garbage -d > /tmp/google-service-account-key-sandbox.json
+            [ ! -z "$GCLOUD_SERVICE_KEY_SANDBOX" ] && gcloud auth activate-service-account --key-file=/tmp/google-service-account-key-sandbox.json || exit 0
+      - restore_cache:
+          keys:
+            - v0-dependencies-
+  setup-explorer-gcs-creds:
+    steps:
+      - checkout
+      - run:
+          name: Setup GCloud Creds
+          command: |
+            echo "$GCLOUD_SERVICE_KEY_EXPLORER" | base64 --ignore-garbage -d > /tmp/google-service-account-key-explorer.json
+            [ ! -z "$GCLOUD_SERVICE_KEY_EXPLORER" ] && gcloud auth activate-service-account --key-file=/tmp/google-service-account-key-explorer.json || exit 0
+      - restore_cache:
+          keys:
+            - v0-dependencies-
   npm-install:
     steps:
       - run:
@@ -108,8 +130,7 @@ jobs:
   cdn-upload-latest-explorer:
     executor: gcp-cli/google
     steps:
-      - gcp-cli/initialize:
-          gcloud-service-key: GCLOUD_GCS_SERVICE_KEY
+      - setup-explorer-gcs-creds
       - gcp-cli/install
       - checkout
       - attach_workspace:
@@ -122,8 +143,7 @@ jobs:
   cdn-upload-versioned-explorer:
     executor: gcp-cli/google
     steps:
-      - gcp-cli/initialize:
-          gcloud-service-key: GCLOUD_GCS_SERVICE_KEY
+      - setup-explorer-gcs-creds
       - gcp-cli/install
       - checkout
       - attach_workspace:
@@ -140,7 +160,7 @@ jobs:
       - npm-install
       - run:
           name: Build
-          command: '[ -d build ] || PUBLIC_URL=https://embeddable-explorer.cdn.apollographql.com/_latest npm run build-explorer:umd -- --no-progress'
+          command: 'rm -rf dist && ([ -d build ] || PUBLIC_URL=https://embeddable-explorer.cdn.apollographql.com/_latest npm run build-sandbox:umd -- --no-progress)'
           environment:
             BUILD_TO_CDN: 'true'
       - persist_to_workspace:
@@ -166,8 +186,7 @@ jobs:
   cdn-upload-latest-sandbox:
     executor: gcp-cli/google
     steps:
-      - gcp-cli/initialize:
-          gcloud-service-key: GCLOUD_GCS_SERVICE_KEY
+      - setup-sandbox-gcs-creds
       - gcp-cli/install
       - checkout
       - attach_workspace:
@@ -175,21 +194,20 @@ jobs:
       - run:
           name: Upload build artifacts to CDN
           command: |
-            gsutil -m rsync -r ~/embeddable-sandbox/dist gs://embeddable-sandbox/_latest
+            gsutil -m rsync -r ~/embeddable-explorer/dist gs://embeddable-sandbox/_latest
 
   cdn-upload-versioned-sandbox:
     executor: gcp-cli/google
     steps:
-      - gcp-cli/initialize:
-          gcloud-service-key: GCLOUD_GCS_SERVICE_KEY
+      - setup-sandbox-gcs-creds
       - gcp-cli/install
       - checkout
       - attach_workspace:
-          at: ~/embeddable-sandbox
+          at: ~/embeddable-explorer
       - run:
           name: Upload build artifacts to CDN
           command: |
-            gsutil -m rsync -r ~/embeddable-sandbox/dist gs://embeddable-sandbox/$CIRCLE_SHA1
+            gsutil -m rsync -r ~/embeddable-explorer/dist gs://embeddable-sandbox/$CIRCLE_SHA1
 
 
 workflows:
@@ -200,6 +218,8 @@ workflows:
       - typescript
       - build-latest-umd-explorer
       - cdn-upload-latest-explorer:
+          context:
+            - embeddable-explorer-write
           requires:
             - build-latest-umd-explorer
           filters:
@@ -209,6 +229,8 @@ workflows:
           requires:
             - cdn-upload-latest-explorer
       - cdn-upload-versioned-explorer:
+          context:
+            - embeddable-explorer-write
           requires:
             - build-versioned-umd-explorer
           filters:
@@ -218,6 +240,8 @@ workflows:
           requires:
             - cdn-upload-versioned-explorer
       - cdn-upload-latest-sandbox:
+          context:
+            - embeddable-sandbox-write
           requires:
             - build-latest-umd-sandbox
           filters:
@@ -227,10 +251,13 @@ workflows:
           requires:
             - cdn-upload-latest-sandbox
       - cdn-upload-versioned-sandbox:
+          context:
+            - embeddable-sandbox-write
           requires:
             - build-versioned-umd-sandbox
           filters:
             branches:
               only: main
+
       # For running simple node tests, you could optionally use the node/test job from the orb to replicate and replace the job above in fewer lines.
       # - node/test
