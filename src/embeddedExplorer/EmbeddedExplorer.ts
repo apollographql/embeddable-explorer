@@ -29,8 +29,13 @@ export interface BaseEmbeddableExplorerOptions {
 
   // optional. defaults to `return fetch(url, fetchOptions)`
   handleRequest?: HandleRequest;
-  inviteToken?: string;
-  accountId?: string;
+  // If this object has values for `inviteToken` and `accountId`,
+  // any users who can see your embeddable Explorer are automatically
+  // invited to the account your graph is under with the role specified by the `inviteToken`.
+  autoInviteOptions?: {
+    accountId: string;
+    inviteToken: string;
+  };
 }
 
 interface EmbeddableExplorerOptionsWithSchema
@@ -72,10 +77,7 @@ export class EmbeddedExplorer {
       updateSchemaInEmbed: this.updateSchemaInEmbed.bind(this),
       schema: 'schema' in this.options ? this.options.schema : undefined,
       graphRef: 'graphRef' in this.options ? this.options.graphRef : undefined,
-      inviteToken:
-        'inviteToken' in this.options ? this.options.inviteToken : undefined,
-      accountId:
-        'accountId' in this.options ? this.options.accountId : undefined,
+      autoInviteOptions: this.options.autoInviteOptions,
     });
   }
 
