@@ -1,5 +1,11 @@
 # @apollo/explorer
 
+## 0.4.2
+
+### Patch Changes
+
+- [#97](https://github.com/apollographql/embeddable-explorer/pull/97) [`2770795`](https://github.com/apollographql/embeddable-explorer/commit/277079565779d89215261363fdff79388225faf5) Thanks [@mayakoneval](https://github.com/mayakoneval)! - move index to root
+
 ## 0.4.1
 
 ### Patch Changes
