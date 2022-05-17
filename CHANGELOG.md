@@ -1,5 +1,11 @@
 # @apollo/explorer
 
+## 0.4.1
+
+### Patch Changes
+
+- [#93](https://github.com/apollographql/embeddable-explorer/pull/93) [`d69e2da`](https://github.com/apollographql/embeddable-explorer/commit/d69e2daf9e561ae7147a1d8c25959fe99b42b63d) Thanks [@mayakoneval](https://github.com/mayakoneval)! - point to correct index file for cjs/esm build
+
 ## 0.4.0
 
 ### Minor Changes
