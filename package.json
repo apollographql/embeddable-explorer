@@ -21,7 +21,7 @@
   "scripts": {
     "start": "tsdx watch",
     "build": "npm run build-explorer:cjs-esm",
-    "build-explorer:cjs-esm": "tsdx build --format cjs,esm --name embeddable-explorer",
+    "build-explorer:cjs-esm": "tsdx build --format cjs,esm --entry src/embeddedExplorer/index.ts --name embeddable-explorer",
     "build-explorer:umd": "tsdx build --format umd --entry src/embeddedExplorer/index-umd.ts --name embeddable-explorer",
     "build-sandbox:umd": "tsdx build --format umd --entry src/embeddedSandbox/index-umd.ts --name embeddable-sandbox",
     "test": "tsdx test --passWithNoTests",
