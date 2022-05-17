@@ -18,7 +18,7 @@ export interface BaseEmbeddableExplorerOptions {
     variables?: Record<string, any>;
     headers?: Record<string, string>;
     displayOptions: {
-      docsPanelState?: 'open' | 'closed'; // default to 'open',
+      docsPanelState?: 'open' | 'closed'; // default to 'open'
       showHeadersAndEnvVars?: boolean; // default to `false`
       theme?: 'dark' | 'light';
     };
