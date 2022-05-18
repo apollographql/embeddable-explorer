@@ -24,10 +24,12 @@ export interface EmbeddableSandboxOptions {
   /**
    * Only for Apollo team testing
    */
-  apolloStudioEnv: 'staging' | 'prod';
+  apolloStudioEnv?: 'staging' | 'prod';
 }
 
-export function getEmbeddedSandboxBaseUrl(apolloStudioEnv: 'staging' | 'prod') {
+export function getEmbeddedSandboxBaseUrl(
+  apolloStudioEnv: 'staging' | 'prod' | undefined
+) {
   return apolloStudioEnv === 'staging'
     ? EMBEDDABLE_SANDBOX_URL_STAGING
     : EMBEDDABLE_SANDBOX_URL;
@@ -52,7 +54,7 @@ export class EmbeddedSandbox {
     this.disposable = setupSandboxEmbedRelay({
       embeddedSandboxIFrameElement: this.embeddedSandboxIFrameElement,
       handleRequest: this.handleRequest,
-      apolloStudioEnv: this.options.apolloStudioEnv,
+      apolloStudioEnv: this.options.apolloStudioEnv || 'prod',
     });
   }
 

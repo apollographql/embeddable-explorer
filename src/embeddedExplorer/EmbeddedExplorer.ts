@@ -44,11 +44,11 @@ export interface BaseEmbeddableExplorerOptions {
   /**
    * Only for Apollo team testing
    */
-  apolloStudioEnv: 'staging' | 'prod';
+  apolloStudioEnv?: 'staging' | 'prod';
 }
 
 export function getEmbeddedExplorerBaseUrl(
-  apolloStudioEnv: 'staging' | 'prod'
+  apolloStudioEnv: 'staging' | 'prod' | undefined
 ) {
   return apolloStudioEnv === 'staging'
     ? EMBEDDABLE_EXPLORER_URL_STAGING
@@ -97,7 +97,7 @@ export class EmbeddedExplorer {
       schema: 'schema' in this.options ? this.options.schema : undefined,
       graphRef: 'graphRef' in this.options ? this.options.graphRef : undefined,
       autoInviteOptions: this.options.autoInviteOptions,
-      apolloStudioEnv: this.options.apolloStudioEnv,
+      apolloStudioEnv: this.options.apolloStudioEnv || 'prod',
     });
   }
 
