@@ -54,7 +54,7 @@ export class EmbeddedSandbox {
     this.disposable = setupSandboxEmbedRelay({
       embeddedSandboxIFrameElement: this.embeddedSandboxIFrameElement,
       handleRequest: this.handleRequest,
-      apolloStudioEnv: this.options.apolloStudioEnv || 'prod',
+      apolloStudioEnv: this.options.apolloStudioEnv || 'staging',
     });
   }
 
