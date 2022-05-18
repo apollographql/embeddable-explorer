@@ -1,6 +1,7 @@
 import type { IntrospectionQuery } from 'graphql';
 import {
   EMBEDDABLE_SANDBOX_URL,
+  EMBEDDABLE_SANDBOX_URL_STAGING,
   IFRAME_DOM_ID,
   SCHEMA_RESPONSE,
 } from '../helpers/constants';
@@ -19,6 +20,17 @@ export interface EmbeddableSandboxOptions {
   handleRequest?: HandleRequest;
   // defaults to false. If you pass `handleRequest` that will override this.
   includeCookies?: boolean;
+
+  /**
+   * Only for Apollo team testing
+   */
+  apolloStudioEnv: 'staging' | 'prod';
+}
+
+export function getEmbeddedSandboxBaseUrl(apolloStudioEnv: 'staging' | 'prod') {
+  return apolloStudioEnv === 'staging'
+    ? EMBEDDABLE_SANDBOX_URL_STAGING
+    : EMBEDDABLE_SANDBOX_URL;
 }
 
 let idCounter = 0;
@@ -40,6 +52,7 @@ export class EmbeddedSandbox {
     this.disposable = setupSandboxEmbedRelay({
       embeddedSandboxIFrameElement: this.embeddedSandboxIFrameElement,
       handleRequest: this.handleRequest,
+      apolloStudioEnv: this.options.apolloStudioEnv,
     });
   }
 
@@ -62,7 +75,9 @@ export class EmbeddedSandbox {
       element = target;
     }
     const iframeElement = document.createElement('iframe');
-    iframeElement.src = `${EMBEDDABLE_SANDBOX_URL}${
+    iframeElement.src = `${getEmbeddedSandboxBaseUrl(
+      this.options.apolloStudioEnv
+    )}${
       this.options.initialEndpoint
         ? `?endpoint=${this.options.initialEndpoint}`
         : ''
@@ -96,7 +111,7 @@ export class EmbeddedSandbox {
         schema,
       },
       embeddedIFrameElement: this.embeddedSandboxIFrameElement,
-      embedUrl: EMBEDDABLE_SANDBOX_URL,
+      embedUrl: getEmbeddedSandboxBaseUrl(this.options.apolloStudioEnv),
     });
   }
 }

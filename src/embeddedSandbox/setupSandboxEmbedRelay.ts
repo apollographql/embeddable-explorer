@@ -1,5 +1,4 @@
 import {
-  EMBEDDABLE_SANDBOX_URL,
   EXPLORER_LISTENING_FOR_HANDSHAKE,
   EXPLORER_QUERY_MUTATION_REQUEST,
   HANDSHAKE_RESPONSE,
@@ -13,15 +12,18 @@ import {
   IncomingEmbedMessage,
   sendPostMessageToEmbed,
 } from '../helpers/postMessageRelayHelpers';
+import { getEmbeddedSandboxBaseUrl } from './EmbeddedSandbox';
 
 export function setupSandboxEmbedRelay({
   handleRequest,
   embeddedSandboxIFrameElement,
+  apolloStudioEnv,
 }: {
   handleRequest: HandleRequest;
   embeddedSandboxIFrameElement: HTMLIFrameElement;
+  apolloStudioEnv: 'staging' | 'prod';
 }) {
-  const embedUrl = EMBEDDABLE_SANDBOX_URL;
+  const embedUrl = getEmbeddedSandboxBaseUrl(apolloStudioEnv);
   // Callback definition
   const onPostMessageReceived = (event: IncomingEmbedMessage) => {
     handleAuthenticationPostMessage({
@@ -55,6 +57,7 @@ export function setupSandboxEmbedRelay({
           introspectionRequestBody,
           headers: introspectionRequestHeaders,
           embeddedIFrameElement: embeddedSandboxIFrameElement,
+          apolloStudioEnv,
         });
       }
     }
