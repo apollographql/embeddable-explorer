@@ -14,7 +14,7 @@ export interface EmbeddableSandboxOptions {
   target: string | HTMLElement; // HTMLElement is to accomodate people who might prefer to pass in a ref
   initialEndpoint?: string;
 
-  // optional. defaults to `return fetch(url, fetchOptions)`
+  // optional. defaults to `return fetch(url, fetchOptions)` test
   handleRequest?: HandleRequest;
 }
 
