@@ -8,6 +8,7 @@ import {
 import {
   executeIntrospectionRequest,
   executeOperation,
+  handleAuthenticationPostMessage,
   HandleRequest,
   IncomingEmbedMessage,
   sendPostMessageToEmbed,
@@ -20,9 +21,17 @@ export function setupSandboxEmbedRelay({
   handleRequest: HandleRequest;
   embeddedSandboxIFrameElement: HTMLIFrameElement;
 }) {
+  const embedUrl = EMBEDDABLE_SANDBOX_URL;
   // Callback definition
   const onPostMessageReceived = (event: IncomingEmbedMessage) => {
-    const data = event.data;
+    handleAuthenticationPostMessage({
+      event,
+      embedUrl,
+      embeddedIFrameElement: embeddedSandboxIFrameElement,
+    });
+
+    const { data } = event;
+
     // When embed connects, send a handshake message
     if (data.name === EXPLORER_LISTENING_FOR_HANDSHAKE) {
       sendPostMessageToEmbed({
@@ -30,7 +39,7 @@ export function setupSandboxEmbedRelay({
           name: HANDSHAKE_RESPONSE,
         },
         embeddedIFrameElement: embeddedSandboxIFrameElement,
-        embedUrl: EMBEDDABLE_SANDBOX_URL,
+        embedUrl,
       });
     }
 
@@ -76,7 +85,7 @@ export function setupSandboxEmbedRelay({
           headers,
           embeddedIFrameElement: embeddedSandboxIFrameElement,
           operationId,
-          embedUrl: EMBEDDABLE_SANDBOX_URL,
+          embedUrl,
         });
       }
     }
