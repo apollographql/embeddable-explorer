@@ -1,16 +1,14 @@
 import type { IntrospectionQuery } from 'graphql';
 import {
   EMBEDDABLE_EXPLORER_URL,
-  SET_PARTIAL_AUTHENTICATION_TOKEN_FOR_PARENT,
   EXPLORER_LISTENING_FOR_HANDSHAKE,
   EXPLORER_LISTENING_FOR_SCHEMA,
   EXPLORER_QUERY_MUTATION_REQUEST,
   HANDSHAKE_RESPONSE,
-  EXPLORER_LISTENING_FOR_PARTIAL_TOKEN,
-  PARTIAL_AUTHENTICATION_TOKEN_RESPONSE,
 } from '../helpers/constants';
 import {
   executeOperation,
+  handleAuthenticationPostMessage,
   HandleRequest,
   IncomingEmbedMessage,
   sendPostMessageToEmbed,
@@ -40,9 +38,16 @@ export function setupEmbedRelay({
     inviteToken: string;
   };
 }) {
+  const embedUrl = EMBEDDABLE_EXPLORER_URL;
   // Callback definition
   const onPostMessageReceived = (event: IncomingEmbedMessage) => {
-    const data = event.data;
+    handleAuthenticationPostMessage({
+      event,
+      embedUrl,
+      embeddedIFrameElement: embeddedExplorerIFrameElement,
+    });
+
+    const { data } = event;
     // When embed connects, send a handshake message
     if (data.name === EXPLORER_LISTENING_FOR_HANDSHAKE) {
       sendPostMessageToEmbed({
@@ -53,45 +58,8 @@ export function setupEmbedRelay({
           accountId: autoInviteOptions?.accountId,
         },
         embeddedIFrameElement: embeddedExplorerIFrameElement,
-        embedUrl: EMBEDDABLE_EXPLORER_URL,
+        embedUrl,
       });
-    }
-
-    // When the embed authenticates, save the partial token in local storage
-    if (data.name === SET_PARTIAL_AUTHENTICATION_TOKEN_FOR_PARENT) {
-      const partialEmbedApiKeysString = window.localStorage.getItem(
-        'apolloStudioEmbeddedExplorerEncodedApiKey'
-      );
-      const partialEmbedApiKeys = partialEmbedApiKeysString
-        ? JSON.parse(partialEmbedApiKeysString)
-        : {};
-      partialEmbedApiKeys[data.localStorageKey] = data.partialToken;
-      window.localStorage.setItem(
-        'apolloStudioEmbeddedExplorerEncodedApiKey',
-        JSON.stringify(partialEmbedApiKeys)
-      );
-    }
-
-    if (
-      data.name === EXPLORER_LISTENING_FOR_PARTIAL_TOKEN &&
-      data.localStorageKey
-    ) {
-      const partialEmbedApiKeysString = window.localStorage.getItem(
-        'apolloStudioEmbeddedExplorerEncodedApiKey'
-      );
-      const partialEmbedApiKeys = partialEmbedApiKeysString
-        ? JSON.parse(partialEmbedApiKeysString)
-        : {};
-      if (partialEmbedApiKeys && partialEmbedApiKeys[data.localStorageKey]) {
-        sendPostMessageToEmbed({
-          message: {
-            name: PARTIAL_AUTHENTICATION_TOKEN_RESPONSE,
-            partialToken: partialEmbedApiKeys[data.localStorageKey],
-          },
-          embeddedIFrameElement: embeddedExplorerIFrameElement,
-          embedUrl: EMBEDDABLE_EXPLORER_URL,
-        });
-      }
     }
 
     // Embedded Explorer sends us a PM when it is ready for a schema
@@ -123,7 +91,7 @@ export function setupEmbedRelay({
           headers,
           embeddedIFrameElement: embeddedExplorerIFrameElement,
           operationId,
-          embedUrl: EMBEDDABLE_EXPLORER_URL,
+          embedUrl,
         });
       }
     }
