@@ -1,9 +1,9 @@
 // Test urls for QA against staging. These will need to be updated
 // for every change
 export const EMBEDDABLE_EXPLORER_URL_STAGING =
-  'https://deploy-preview-6299--embeddable-explorer.netlify.app/';
+  'https://deploy-preview-6300--embeddable-explorer.netlify.app/';
 export const EMBEDDABLE_SANDBOX_URL_STAGING =
-  'https://deploy-preview-6299--embeddable-sandbox.netlify.app/sandbox/explorer';
+  'https://deploy-preview-6300--embeddable-sandbox.netlify.app//sandbox/explorer';
 
 // URL for any embedded Explorer iframe
 export const EMBEDDABLE_EXPLORER_URL =
