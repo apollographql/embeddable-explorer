@@ -50,9 +50,9 @@ export interface BaseEmbeddableExplorerOptions {
 export function getEmbeddedExplorerBaseUrl(
   apolloStudioEnv: 'staging' | 'prod' | undefined
 ) {
-  return apolloStudioEnv === 'staging'
-    ? EMBEDDABLE_EXPLORER_URL_STAGING
-    : EMBEDDABLE_EXPLORER_URL;
+  return apolloStudioEnv === 'prod'
+    ? EMBEDDABLE_EXPLORER_URL
+    : EMBEDDABLE_EXPLORER_URL_STAGING;
 }
 
 interface EmbeddableExplorerOptionsWithSchema

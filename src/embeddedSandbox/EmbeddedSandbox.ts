@@ -30,9 +30,9 @@ export interface EmbeddableSandboxOptions {
 export function getEmbeddedSandboxBaseUrl(
   apolloStudioEnv: 'staging' | 'prod' | undefined
 ) {
-  return apolloStudioEnv === 'staging'
-    ? EMBEDDABLE_SANDBOX_URL_STAGING
-    : EMBEDDABLE_SANDBOX_URL;
+  return apolloStudioEnv === 'prod'
+    ? EMBEDDABLE_SANDBOX_URL
+    : EMBEDDABLE_SANDBOX_URL_STAGING;
 }
 
 let idCounter = 0;
