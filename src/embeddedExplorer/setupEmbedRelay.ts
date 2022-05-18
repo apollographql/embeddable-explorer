@@ -1,6 +1,5 @@
 import type { IntrospectionQuery } from 'graphql';
 import {
-  EMBEDDABLE_EXPLORER_URL,
   EXPLORER_LISTENING_FOR_HANDSHAKE,
   EXPLORER_LISTENING_FOR_SCHEMA,
   EXPLORER_QUERY_MUTATION_REQUEST,
@@ -13,6 +12,7 @@ import {
   IncomingEmbedMessage,
   sendPostMessageToEmbed,
 } from '../helpers/postMessageRelayHelpers';
+import { getEmbeddedExplorerBaseUrl } from './EmbeddedExplorer';
 
 export function setupEmbedRelay({
   endpointUrl,
@@ -22,6 +22,7 @@ export function setupEmbedRelay({
   schema,
   graphRef,
   autoInviteOptions,
+  apolloStudioEnv,
 }: {
   endpointUrl: string;
   handleRequest: HandleRequest;
@@ -37,8 +38,10 @@ export function setupEmbedRelay({
     accountId: string;
     inviteToken: string;
   };
+  apolloStudioEnv: 'staging' | 'prod';
 }) {
-  const embedUrl = EMBEDDABLE_EXPLORER_URL;
+  const embedUrl = getEmbeddedExplorerBaseUrl(apolloStudioEnv);
+
   // Callback definition
   const onPostMessageReceived = (event: IncomingEmbedMessage) => {
     handleAuthenticationPostMessage({

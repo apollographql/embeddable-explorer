@@ -1,6 +1,7 @@
 import type { IntrospectionQuery } from 'graphql';
 import {
   EMBEDDABLE_EXPLORER_URL,
+  EMBEDDABLE_EXPLORER_URL_STAGING,
   IFRAME_DOM_ID,
   SCHEMA_RESPONSE,
 } from '../helpers/constants';
@@ -39,6 +40,19 @@ export interface BaseEmbeddableExplorerOptions {
     accountId: string;
     inviteToken: string;
   };
+
+  /**
+   * Only for Apollo team testing
+   */
+  apolloStudioEnv: 'staging' | 'prod';
+}
+
+export function getEmbeddedExplorerBaseUrl(
+  apolloStudioEnv: 'staging' | 'prod'
+) {
+  return apolloStudioEnv === 'staging'
+    ? EMBEDDABLE_EXPLORER_URL_STAGING
+    : EMBEDDABLE_EXPLORER_URL;
 }
 
 interface EmbeddableExplorerOptionsWithSchema
@@ -83,6 +97,7 @@ export class EmbeddedExplorer {
       schema: 'schema' in this.options ? this.options.schema : undefined,
       graphRef: 'graphRef' in this.options ? this.options.graphRef : undefined,
       autoInviteOptions: this.options.autoInviteOptions,
+      apolloStudioEnv: this.options.apolloStudioEnv,
     });
   }
 
@@ -169,7 +184,9 @@ export class EmbeddedExplorer {
       .filter(([_, value]) => value !== undefined)
       .map(([key, value]) => `${key}=${value}`)
       .join('&');
-    return `${EMBEDDABLE_EXPLORER_URL}?${queryString}`;
+    return `${getEmbeddedExplorerBaseUrl(
+      this.options.apolloStudioEnv
+    )}?${queryString}`;
   };
 
   updateSchemaInEmbed({
@@ -183,7 +200,7 @@ export class EmbeddedExplorer {
         schema,
       },
       embeddedIFrameElement: this.embeddedExplorerIFrameElement,
-      embedUrl: EMBEDDABLE_EXPLORER_URL,
+      embedUrl: getEmbeddedExplorerBaseUrl(this.options.apolloStudioEnv),
     });
   }
 }

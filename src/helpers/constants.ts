@@ -1,3 +1,10 @@
+// Test urls for QA against staging. These will need to be updated
+// for every change
+export const EMBEDDABLE_EXPLORER_URL_STAGING =
+  'https://deploy-preview-6299--embeddable-explorer.netlify.app/';
+export const EMBEDDABLE_SANDBOX_URL_STAGING =
+  'https://deploy-preview-6299--embeddable-sandbox.netlify.app/';
+
 // URL for any embedded Explorer iframe
 export const EMBEDDABLE_EXPLORER_URL =
   'https://explorer.embed.apollographql.com';
