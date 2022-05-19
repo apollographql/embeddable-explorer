@@ -30,6 +30,17 @@ export function ApolloExplorerReact(
   const [wrapperElement, setWrapperElement] = useState<HTMLDivElement | null>();
 
   const currentEmbedRef = useRef<EmbeddedExplorer>();
+  const {
+    endpointUrl,
+    handleRequest,
+    initialState = {},
+    persistExplorerState,
+    graphRef,
+    autoInviteOptions = {},
+    includeCookies,
+    className,
+    schema,
+  } = props;
 
   useDeepCompareEffect(
     () => {
@@ -45,25 +56,27 @@ export function ApolloExplorerReact(
     },
     // we purposely exclude schema here
     // when the schema changes we don't want to tear down and render a new embed,
-    // we just want to pm the new schema to the embed in the above useEffect
+    // we just want to pm the new schema to the embed in the below useEffect
     [
-      props.endpointUrl,
-      props.handleRequest,
-      props.initialState,
-      props.persistExplorerState,
-      props.graphRef,
+      endpointUrl,
+      handleRequest,
+      initialState,
+      persistExplorerState,
+      graphRef,
+      autoInviteOptions,
+      includeCookies,
+      className,
       wrapperElement,
     ]
   );
 
   useEffect(() => {
-    if (props.schema)
-      currentEmbedRef.current?.updateSchemaInEmbed({ schema: props.schema });
-  }, [props.schema, currentEmbedRef.current]);
+    if (schema) currentEmbedRef.current?.updateSchemaInEmbed({ schema });
+  }, [schema, currentEmbedRef.current]);
 
   return (
     <div
-      className={props.className}
+      className={className}
       ref={(element) => {
         setWrapperElement(element);
       }}
