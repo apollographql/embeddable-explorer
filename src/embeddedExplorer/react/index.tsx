@@ -30,6 +30,9 @@ export function ApolloExplorerReact(
   const [wrapperElement, setWrapperElement] = useState<HTMLDivElement | null>();
 
   const currentEmbedRef = useRef<EmbeddedExplorer>();
+  // we need to default to empty objects for the objects type props
+  // that show up in the useDeepCompareEffect below, because useDeepCompareEffect
+  // will throw if all of its deps are primitives (undefined instead of objects)
   const {
     endpointUrl,
     handleRequest,
