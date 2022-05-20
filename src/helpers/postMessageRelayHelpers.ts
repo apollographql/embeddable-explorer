@@ -8,7 +8,7 @@ import {
   SCHEMA_RESPONSE,
   SET_PARTIAL_AUTHENTICATION_TOKEN_FOR_PARENT,
   EXPLORER_LISTENING_FOR_PARTIAL_TOKEN,
-  PARENT_LOGOUT_RESPONSE,
+  PARENT_LOGOUT_SUCCESS,
   REMOVE_PARTIAL_AUTHENTICATION_TOKEN_FOR_PARENT,
 } from './constants';
 import type { JSONValue } from '../types';
@@ -83,7 +83,7 @@ export type OutgoingEmbedMessage =
       };
     }
   | {
-      name: typeof PARENT_LOGOUT_RESPONSE;
+      name: typeof PARENT_LOGOUT_SUCCESS;
     };
 
 // TODO(Maya) uncomment and switch to MessageEvent as a generic when tsdx supports Typescript V4.
@@ -299,7 +299,7 @@ export const handleAuthenticationPostMessage = ({
       JSON.stringify(partialEmbedApiKeys)
     );
     sendPostMessageToEmbed({
-      message: { name: PARENT_LOGOUT_RESPONSE },
+      message: { name: PARENT_LOGOUT_SUCCESS },
       embeddedIFrameElement,
       embedUrl,
     });

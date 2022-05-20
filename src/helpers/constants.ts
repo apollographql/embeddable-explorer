@@ -34,4 +34,4 @@ export const EXPLORER_LISTENING_FOR_PARTIAL_TOKEN =
 export const PARTIAL_AUTHENTICATION_TOKEN_RESPONSE =
   'PartialAuthenticationTokenResponse';
 export const INTROSPECTION_QUERY_WITH_HEADERS = 'IntrospectionQueryWithHeaders';
-export const PARENT_LOGOUT_RESPONSE = 'ParentLogoutResponse';
+export const PARENT_LOGOUT_SUCCESS = 'ParentLogoutSuccess';
