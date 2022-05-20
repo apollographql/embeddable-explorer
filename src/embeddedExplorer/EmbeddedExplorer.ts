@@ -96,7 +96,7 @@ export class EmbeddedExplorer {
   }
 
   injectEmbed() {
-    let element;
+    let element: HTMLElement | null;
     const { target } = this.options;
 
     if (typeof target === 'string') {
@@ -112,6 +112,9 @@ export class EmbeddedExplorer {
       'style',
       'height: 100%; width: 100%; border: none;'
     );
+
+    Object.assign(element?.style, { height: element?.style.height || '100%' });
+    Object.assign(element?.style, { width: element?.style.width || '100%' });
 
     element?.appendChild(iframeElement);
 
