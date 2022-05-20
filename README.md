@@ -80,7 +80,7 @@ me {
 - [Embedding a registered public graph](./src/embeddableExplorer/examples/graphRef.html)
 - [Usage by directly passing in schema](./src/embeddableExplorer/examples/manualSchema.html)
 
-## Developing
+## Developing Embedded Explorer
 
 run `npm run build-explorer:umd` to build umd files where EmbeddedExplorer is exposed on window.
 
@@ -89,8 +89,12 @@ Open `examples/embeddedExplorer/localDevelopmentExample.html` to test your chang
 Install the `Live Server` extension on VSCode, then go to `localDevelopmentExample.html` and click 'Go Live'
 <img width="279" alt="Screen Shot 2022-04-27 at 4 34 53 PM" src="https://user-images.githubusercontent.com/16390269/165626464-8252abcd-2577-4d97-90a8-f487da807a64.png">
 
+### Developing embedded Explorer with the React example
 
 run `npm run build-explorer:cjs-esm` to build cjs & esm files where ApolloExplorer & ApolloExplorerReact are named exports.
+
+We have a React example app that uses our ApolloExplorerReact component to render the embedded Explorer located in src/embeddedExplorer/examples/react-example. To run this example, `npm run build` and `npm run start` in `react-example`. Make sure you delete the .parcel-cache folder before you rebuild for new changes. (TODO remove parcel caching)
+
 
 ## Developing Embedded Sandbox
 
