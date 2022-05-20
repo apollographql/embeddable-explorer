@@ -4,6 +4,7 @@ import {
   IFRAME_DOM_ID,
   SCHEMA_RESPONSE,
 } from '../helpers/constants';
+import { defaultHandleRequest } from '../helpers/defaultHandleRequest';
 import {
   HandleRequest,
   sendPostMessageToEmbed,
@@ -29,6 +30,8 @@ export interface BaseEmbeddableExplorerOptions {
 
   // optional. defaults to `return fetch(url, fetchOptions)`
   handleRequest?: HandleRequest;
+  // defaults to false. If you pass `handleRequest` that will override this.
+  includeCookies?: boolean;
   // If this object has values for `inviteToken` and `accountId`,
   // any users who can see your embeddable Explorer are automatically
   // invited to the account your graph is under with the role specified by the `inviteToken`.
@@ -66,7 +69,9 @@ export class EmbeddedExplorer {
   constructor(options: EmbeddableExplorerOptions) {
     this.options = options;
     this.validateOptions();
-    this.handleRequest = this.options.handleRequest ?? fetch;
+    this.handleRequest =
+      this.options.handleRequest ??
+      defaultHandleRequest({ includeCookies: !!this.options.includeCookies });
     this.uniqueEmbedInstanceId = idCounter++;
     this.embeddedExplorerURL = this.getEmbeddedExplorerURL();
     this.embeddedExplorerIFrameElement = this.injectEmbed();

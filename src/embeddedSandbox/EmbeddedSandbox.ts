@@ -4,6 +4,7 @@ import {
   IFRAME_DOM_ID,
   SCHEMA_RESPONSE,
 } from '../helpers/constants';
+import { defaultHandleRequest } from '../helpers/defaultHandleRequest';
 import {
   HandleRequest,
   sendPostMessageToEmbed,
@@ -16,6 +17,8 @@ export interface EmbeddableSandboxOptions {
 
   // optional. defaults to `return fetch(url, fetchOptions)`
   handleRequest?: HandleRequest;
+  // defaults to false. If you pass `handleRequest` that will override this.
+  includeCookies?: boolean;
 }
 
 let idCounter = 0;
@@ -29,7 +32,9 @@ export class EmbeddedSandbox {
   constructor(options: EmbeddableSandboxOptions) {
     this.options = options;
     this.validateOptions();
-    this.handleRequest = this.options.handleRequest ?? fetch;
+    this.handleRequest =
+      this.options.handleRequest ??
+      defaultHandleRequest({ includeCookies: !!this.options.includeCookies });
     this.uniqueEmbedInstanceId = idCounter++;
     this.embeddedSandboxIFrameElement = this.injectEmbed();
     this.disposable = setupSandboxEmbedRelay({
