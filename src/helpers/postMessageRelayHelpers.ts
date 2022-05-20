@@ -8,6 +8,8 @@ import {
   SCHEMA_RESPONSE,
   SET_PARTIAL_AUTHENTICATION_TOKEN_FOR_PARENT,
   EXPLORER_LISTENING_FOR_PARTIAL_TOKEN,
+  PARENT_LOGOUT_RESPONSE,
+  REMOVE_PARTIAL_AUTHENTICATION_TOKEN_FOR_PARENT,
 } from './constants';
 import type { JSONValue } from '../types';
 
@@ -79,6 +81,9 @@ export type OutgoingEmbedMessage =
         status?: number;
         headers?: Headers;
       };
+    }
+  | {
+      name: typeof PARENT_LOGOUT_RESPONSE;
     };
 
 // TODO(Maya) uncomment and switch to MessageEvent as a generic when tsdx supports Typescript V4.
@@ -101,8 +106,12 @@ export type IncomingEmbedMessage = MessageEvent;
 //   }>
 // | MessageEvent<{
 //     name: typeof SET_PARTIAL_AUTHENTICATION_TOKEN_FOR_PARENT;
-//     key: string;
+//     localStorageKey: string;
 //     partialToken: string;
+//   }>
+// | MessageEvent<{
+//     name: typeof REMOVE_PARTIAL_AUTHENTICATION_TOKEN_FOR_PARENT;
+//     localStorageKey: string;
 //   }>
 // | MessageEvent<{
 //     name: typeof EXPLORER_LISTENING_FOR_PARTIAL_TOKEN;
@@ -274,6 +283,26 @@ export const handleAuthenticationPostMessage = ({
       'apolloStudioEmbeddedExplorerEncodedApiKey',
       JSON.stringify(partialEmbedApiKeys)
     );
+  }
+
+  // When the embed logs out, remove the partial token in local storage
+  if (data.name === REMOVE_PARTIAL_AUTHENTICATION_TOKEN_FOR_PARENT) {
+    const partialEmbedApiKeysString = window.localStorage.getItem(
+      'apolloStudioEmbeddedExplorerEncodedApiKey'
+    );
+    const partialEmbedApiKeys = partialEmbedApiKeysString
+      ? JSON.parse(partialEmbedApiKeysString)
+      : {};
+    delete partialEmbedApiKeys[data.localStorageKey];
+    window.localStorage.setItem(
+      'apolloStudioEmbeddedExplorerEncodedApiKey',
+      JSON.stringify(partialEmbedApiKeys)
+    );
+    sendPostMessageToEmbed({
+      message: { name: PARENT_LOGOUT_RESPONSE },
+      embeddedIFrameElement,
+      embedUrl,
+    });
   }
 
   if (
