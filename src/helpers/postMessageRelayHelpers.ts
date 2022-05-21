@@ -9,7 +9,7 @@ import {
   SET_PARTIAL_AUTHENTICATION_TOKEN_FOR_PARENT,
   EXPLORER_LISTENING_FOR_PARTIAL_TOKEN,
   PARENT_LOGOUT_SUCCESS,
-  REMOVE_PARTIAL_AUTHENTICATION_TOKEN_FOR_PARENT,
+  TRIGGER_LOGOUT_IN_PARENT,
 } from './constants';
 import type { JSONValue } from '../types';
 
@@ -110,7 +110,7 @@ export type IncomingEmbedMessage = MessageEvent;
 //     partialToken: string;
 //   }>
 // | MessageEvent<{
-//     name: typeof REMOVE_PARTIAL_AUTHENTICATION_TOKEN_FOR_PARENT;
+//     name: typeof TRIGGER_LOGOUT_IN_PARENT;
 //     localStorageKey: string;
 //   }>
 // | MessageEvent<{
@@ -286,7 +286,7 @@ export const handleAuthenticationPostMessage = ({
   }
 
   // When the embed logs out, remove the partial token in local storage
-  if (data.name === REMOVE_PARTIAL_AUTHENTICATION_TOKEN_FOR_PARENT) {
+  if (data.name === TRIGGER_LOGOUT_IN_PARENT) {
     const partialEmbedApiKeysString = window.localStorage.getItem(
       'apolloStudioEmbeddedExplorerEncodedApiKey'
     );

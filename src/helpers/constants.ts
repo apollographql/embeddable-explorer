@@ -27,8 +27,7 @@ export const EXPLORER_LISTENING_FOR_HANDSHAKE = 'ExplorerListeningForHandshake';
 export const HANDSHAKE_RESPONSE = 'HandshakeResponse';
 export const SET_PARTIAL_AUTHENTICATION_TOKEN_FOR_PARENT =
   'SetPartialAuthenticationTokenForParent';
-export const REMOVE_PARTIAL_AUTHENTICATION_TOKEN_FOR_PARENT =
-  'RemovePartialAuthenticationTokenForParent';
+export const TRIGGER_LOGOUT_IN_PARENT = 'TriggerLogoutInParent';
 export const EXPLORER_LISTENING_FOR_PARTIAL_TOKEN =
   'ExplorerListeningForPartialToken';
 export const PARTIAL_AUTHENTICATION_TOKEN_RESPONSE =
