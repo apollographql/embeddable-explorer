@@ -27,8 +27,10 @@ export const EXPLORER_LISTENING_FOR_HANDSHAKE = 'ExplorerListeningForHandshake';
 export const HANDSHAKE_RESPONSE = 'HandshakeResponse';
 export const SET_PARTIAL_AUTHENTICATION_TOKEN_FOR_PARENT =
   'SetPartialAuthenticationTokenForParent';
+export const TRIGGER_LOGOUT_IN_PARENT = 'TriggerLogoutInParent';
 export const EXPLORER_LISTENING_FOR_PARTIAL_TOKEN =
   'ExplorerListeningForPartialToken';
 export const PARTIAL_AUTHENTICATION_TOKEN_RESPONSE =
   'PartialAuthenticationTokenResponse';
 export const INTROSPECTION_QUERY_WITH_HEADERS = 'IntrospectionQueryWithHeaders';
+export const PARENT_LOGOUT_SUCCESS = 'ParentLogoutSuccess';
