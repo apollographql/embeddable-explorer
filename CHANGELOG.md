@@ -1,5 +1,17 @@
 # @apollo/explorer
 
+## 0.5.0
+
+### Minor Changes
+
+- [#103](https://github.com/apollographql/embeddable-explorer/pull/103) [`72ff775`](https://github.com/apollographql/embeddable-explorer/commit/72ff775d016dd95c34ee38be2f415bb5eaaa5076) Thanks [@mayakoneval](https://github.com/mayakoneval)! - add config option: `includeCookies`
+
+* [#105](https://github.com/apollographql/embeddable-explorer/pull/105) [`e2fbfc8`](https://github.com/apollographql/embeddable-explorer/commit/e2fbfc8622dd7c553945b1d9edf2227da6e291f1) Thanks [@William010x](https://github.com/William010x)! - Add logout messages to parent
+
+### Patch Changes
+
+- [#101](https://github.com/apollographql/embeddable-explorer/pull/101) [`0f83338`](https://github.com/apollographql/embeddable-explorer/commit/0f83338b1cde200a191ba16c9b839ee0254a9ad4) Thanks [@mayakoneval](https://github.com/mayakoneval)! - listen for auth stuff in sandbox too
+
 ## 0.4.2
 
 ### Patch Changes
