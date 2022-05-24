@@ -1,5 +1,13 @@
 # @apollo/explorer
 
+## 0.5.1
+
+### Patch Changes
+
+- [#109](https://github.com/apollographql/embeddable-explorer/pull/109) [`a387e0d`](https://github.com/apollographql/embeddable-explorer/commit/a387e0d5837694dd25dbad77cbe023d7090379d7) Thanks [@mayakoneval](https://github.com/mayakoneval)! - respect classes that folks applied to their embed elements
+
+* [#108](https://github.com/apollographql/embeddable-explorer/pull/108) [`7c741b8`](https://github.com/apollographql/embeddable-explorer/commit/7c741b860e756dc3104b65e5cd5e404d757f50ac) Thanks [@mayakoneval](https://github.com/mayakoneval)! - get rid of 'cannot use in operator' type error shown in development
+
 ## 0.5.0
 
 ### Minor Changes
