@@ -47,52 +47,52 @@ export function setupEmbedRelay({
       embeddedIFrameElement: embeddedExplorerIFrameElement,
     });
 
-    const { data } = event;
-    // When embed connects, send a handshake message
-    if (data.name === EXPLORER_LISTENING_FOR_HANDSHAKE) {
-      sendPostMessageToEmbed({
-        message: {
-          name: HANDSHAKE_RESPONSE,
-          graphRef,
-          inviteToken: autoInviteOptions?.inviteToken,
-          accountId: autoInviteOptions?.accountId,
-        },
-        embeddedIFrameElement: embeddedExplorerIFrameElement,
-        embedUrl,
-      });
-    }
+    // Any pm can be listened for here, not just the ones we know the
+    // structure of. Some have a data field that is not an object
+    const data = typeof event.data === 'object' ? event.data : undefined;
 
-    // Embedded Explorer sends us a PM when it is ready for a schema
-    if (
-      'name' in data &&
-      data.name === EXPLORER_LISTENING_FOR_SCHEMA &&
-      !!schema
-    ) {
-      updateSchemaInEmbed({ schema });
-    }
-
-    // Check to see if the posted message indicates that the user is
-    // executing a query or mutation or subscription in the Explorer
-    const isQueryOrMutation =
-      'name' in data && data.name === EXPLORER_QUERY_MUTATION_REQUEST;
-
-    // If the user is executing a query or mutation or subscription...
-    if (isQueryOrMutation && data.operation && data.operationId) {
-      // Extract the operation details from the event.data object
-      const { operation, operationId, operationName, variables, headers } =
-        data;
-      if (isQueryOrMutation) {
-        executeOperation({
-          endpointUrl,
-          handleRequest,
-          operation,
-          operationName,
-          variables,
-          headers,
+    if (data && 'name' in data) {
+      // When embed connects, send a handshake message
+      if (data.name === EXPLORER_LISTENING_FOR_HANDSHAKE) {
+        sendPostMessageToEmbed({
+          message: {
+            name: HANDSHAKE_RESPONSE,
+            graphRef,
+            inviteToken: autoInviteOptions?.inviteToken,
+            accountId: autoInviteOptions?.accountId,
+          },
           embeddedIFrameElement: embeddedExplorerIFrameElement,
-          operationId,
           embedUrl,
         });
+      }
+
+      // Embedded Explorer sends us a PM when it is ready for a schema
+      if (data.name === EXPLORER_LISTENING_FOR_SCHEMA && !!schema) {
+        updateSchemaInEmbed({ schema });
+      }
+
+      // Check to see if the posted message indicates that the user is
+      // executing a query or mutation or subscription in the Explorer
+      const isQueryOrMutation = data.name === EXPLORER_QUERY_MUTATION_REQUEST;
+
+      // If the user is executing a query or mutation or subscription...
+      if (isQueryOrMutation && data.operation && data.operationId) {
+        // Extract the operation details from the event.data object
+        const { operation, operationId, operationName, variables, headers } =
+          data;
+        if (isQueryOrMutation) {
+          executeOperation({
+            endpointUrl,
+            handleRequest,
+            operation,
+            operationName,
+            variables,
+            headers,
+            embeddedIFrameElement: embeddedExplorerIFrameElement,
+            operationId,
+            embedUrl,
+          });
+        }
       }
     }
   };
