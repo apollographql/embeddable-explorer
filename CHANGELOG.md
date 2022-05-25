@@ -1,5 +1,13 @@
 # @apollo/explorer
 
+## 0.5.2
+
+### Patch Changes
+
+- [#64](https://github.com/apollographql/embeddable-explorer/pull/64) [`bfebd0c`](https://github.com/apollographql/embeddable-explorer/commit/bfebd0c179033c6bbf3cec328a58e6aaeda6487d) Thanks [@mayakoneval](https://github.com/mayakoneval)! - 🚨 Remove `sendRequestsFrom` 🚨 DON'T MERGE UNTIL https://github.com/mdg-private/studio-ui/pull/6154 IS OUT 🚨
+
+* [#112](https://github.com/apollographql/embeddable-explorer/pull/112) [`d07cfb2`](https://github.com/apollographql/embeddable-explorer/commit/d07cfb226d62dfd057fbc66e42c2395ae0cfba43) Thanks [@mayakoneval](https://github.com/mayakoneval)! - 🐛 🩹 always send `shouldShowGlobalHeader` as true from this repo
+
 ## 0.5.1
 
 ### Patch Changes
