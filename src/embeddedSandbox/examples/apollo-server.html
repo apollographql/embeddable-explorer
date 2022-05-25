@@ -1,4 +1,6 @@
 <!DOCTYPE html>
+This is a copy-paste of the apollo server landing page for local dev with
+embed:true
 <html lang="en">
   <head>
     <meta charset="utf-8" />
@@ -36,18 +38,28 @@
           padding: 1em;
         }
         @keyframes fadeIn {
-          0% {opacity:0;}
-          100% {opacity:1; }
+          0% {
+            opacity: 0;
+          }
+          100% {
+            opacity: 1;
+          }
         }
       </style>
       <div class="fallback">
         <h1>Welcome to Apollo Server</h1>
-        <p>It appears that you might be offline. POST to this endpoint to query your graph:</p>
-        <code style="white-space: pre;">
-curl --request POST \\
-  --header 'content-type: application/json' \\
-  --url '<script>document.write(window.location.href)</script>' \\
-  --data '{"query":"query { __typename }"}'</code>
+        <p>
+          It appears that you might be offline. POST to this endpoint to query
+          your graph:
+        </p>
+        <code style="white-space: pre">
+          curl --request POST \\ --header 'content-type: application/json' \\
+          --url '
+          <script>
+            document.write(window.location.href);
+          </script>
+          ' \\ --data '{"query":"query { __typename }"}'</code
+        >
       </div>
       <style>
         iframe {
@@ -55,8 +67,8 @@ curl --request POST \\
         }
       </style>
       <div
-      style="width: 100vw; height: 100vh; position: absolute; top: 0;"
-      id="embeddableSandbox"
+        style="width: 100vw; height: 100vh; position: absolute; top: 0"
+        id="embeddableSandbox"
       ></div>
       <script src="../../../dist/embeddable-sandbox.umd.production.min.js"></script>
       <script>
