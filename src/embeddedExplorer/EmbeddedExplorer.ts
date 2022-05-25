@@ -175,6 +175,7 @@ export class EmbeddedExplorer {
       docsPanelState: displayOptions?.docsPanelState ?? 'open',
       showHeadersAndEnvVars: displayOptions?.showHeadersAndEnvVars !== false,
       theme: displayOptions?.theme ?? 'dark',
+      shouldShowGlobalHeader: true,
     };
 
     const queryString = Object.entries(queryParams)
