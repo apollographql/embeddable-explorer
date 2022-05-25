@@ -113,21 +113,6 @@ export class EmbeddedExplorer {
       'height: 100%; width: 100%; border: none;'
     );
 
-    // if there is no className applied to the element, add height & width via the `style` attribute.
-    // the `style` attribute overrides any className, so we want to default to the users className always
-    if (element && !element.className) {
-      Object.assign(element, {
-        style: element.style ?? {},
-      });
-      Object.assign(element.style, {
-        height: element.style.height.length ? element.style.height : '100%',
-      });
-      Object.assign(element.style, {
-        width: element.style.width.length ? element.style.width : '100%',
-      });
-      console.log('element', element.style);
-    }
-
     element?.appendChild(iframeElement);
 
     return iframeElement;
