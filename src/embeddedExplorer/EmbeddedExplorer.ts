@@ -176,6 +176,7 @@ export class EmbeddedExplorer {
       showHeadersAndEnvVars: displayOptions?.showHeadersAndEnvVars !== false,
       theme: displayOptions?.theme ?? 'dark',
       shouldShowGlobalHeader: true,
+      parentSupportsSubscriptions: false,
     };
 
     const queryString = Object.entries(queryParams)
