@@ -150,7 +150,7 @@ export class EmbeddedExplorer {
       graphRef,
       document: document ? encodeURIComponent(document) : undefined,
       variables: variables
-        ? encodeURIComponent(JSON.stringify(variables))
+        ? encodeURIComponent(JSON.stringify(variables, null, 2))
         : undefined,
       headers: headers
         ? encodeURIComponent(JSON.stringify(headers))
