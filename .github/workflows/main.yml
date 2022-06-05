@@ -31,8 +31,8 @@ jobs:
       - name: Build Explorer UMD
         run: yarn build-explorer:umd
 
-      - name: Build Explorer CJS / ESM
-        run: yarn build-explorer:cjs-esm
+      - name: Build Explorer ESM
+        run: yarn build-explorer:esm
 
       - name: Build Sandbox UMD
         run: yarn build-sandbox:umd
