@@ -9,12 +9,12 @@ module.exports = {
       }
       config.output.exports = 'default';
     }
-    if (options.format === 'esm') {
+    if (options.format === 'esm' || options.format === 'cjs') {
       config = { ...config, preserveModules: true };
       config.output = {
         ...config.output,
         dir: 'dist/',
-        entryFileNames: '[name].esm.js',
+        entryFileNames: `[name].${options.format}.js`,
       };
       delete config.output.file;
     }
