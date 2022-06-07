@@ -14,7 +14,6 @@ module.exports = {
       config.output = {
         ...config.output,
         dir: 'dist/',
-        entryFileNames: `[name].${options.format}.js`,
       };
       delete config.output.file;
     }
