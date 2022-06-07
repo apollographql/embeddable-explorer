@@ -8,7 +8,7 @@
     "url": "https://github.com/apollographql/embeddable-explorer"
   },
   "homepage": "https://github.com/apollographql/embeddable-explorer#readme",
-  "main": "dist/index.js",
+  "main": "dist/index.cjs.js",
   "typings": "dist/index.d.ts",
   "files": [
     "dist",
@@ -21,7 +21,7 @@
   "scripts": {
     "start": "tsdx watch",
     "build": "npm run build-explorer:cjs-esm",
-    "build-explorer:cjs-esm": "tsdx build --format cjs,esm --name embeddable-explorer",
+    "build-explorer:cjs-esm": "tsdx build --format cjs,esm",
     "build-explorer:umd": "tsdx build --format umd --entry src/embeddedExplorer/index-umd.ts --name embeddable-explorer",
     "build-sandbox:umd": "tsdx build --format umd --entry src/embeddedSandbox/index-umd.ts --name embeddable-sandbox",
     "test": "tsdx test --passWithNoTests",
@@ -46,14 +46,10 @@
     "trailingComma": "es5",
     "endOfLine": "auto"
   },
-  "module": "dist/explorer.esm.js",
+  "module": "dist/index.esm.js",
   "size-limit": [
     {
-      "path": "dist/explorer.cjs.production.min.js",
-      "limit": "10 KB"
-    },
-    {
-      "path": "dist/explorer.esm.js",
+      "path": "dist/index.esm.js",
       "limit": "10 KB"
     }
   ],
