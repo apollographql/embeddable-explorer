@@ -20,8 +20,8 @@
   },
   "scripts": {
     "build": "npm run build-explorer:cjs-esm",
-    "build-explorer:cjs-esm": "tsdx build --format cjs,esm --name embeddable-explorer",
-    "build-umd": "rollup -c rollup.config.js",
+    "build-explorer:cjs-esm": "rollup -c rollup.cjs-esm.config.js",
+    "build-umd": "rollup -c rollup.umd.config.js",
     "test": "tsdx test --passWithNoTests",
     "lint": "eslint --ext .js,.jsx,.ts,.tsx .",
     "prepare": "tsdx build",

@@ -41,8 +41,11 @@ export function createRollupConfig(options) {
                   : 'embeddable-sandbox'
               }.umd.development.js`,
       }),
-      ...(options.format !== 'umd' && {
-        dir: 'dist',
+      ...(options.format === 'cjs' && {
+        file: `dist/embeddable-explorer.cjs.${options.environment}.js`,
+      }),
+      ...(options.format === 'esm' && {
+        file: `dist/embeddable-explorer.esm.js`,
       }),
     },
     plugins: [

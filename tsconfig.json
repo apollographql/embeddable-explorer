@@ -33,6 +33,6 @@
     "noEmit": true,
     // if you import as type only, force import type
     "importsNotUsedAsValues": "error",
-    "outDir": "dist",
+    "outDir": "./dist",
   }
 }
