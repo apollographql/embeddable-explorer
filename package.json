@@ -19,11 +19,9 @@
     "npm": ">=7.0"
   },
   "scripts": {
-    "start": "tsdx watch",
     "build": "npm run build-explorer:cjs-esm",
     "build-explorer:cjs-esm": "tsdx build --format cjs,esm --name embeddable-explorer",
-    "build-explorer:umd": "tsdx build --format umd --entry src/embeddedExplorer/index-umd.ts --name embeddable-explorer",
-    "build-sandbox:umd": "tsdx build --format umd --entry src/embeddedSandbox/index-umd.ts --name embeddable-sandbox",
+    "build-umd": "rollup -c rollup.config.js",
     "test": "tsdx test --passWithNoTests",
     "lint": "eslint --ext .js,.jsx,.ts,.tsx .",
     "prepare": "tsdx build",
@@ -60,6 +58,7 @@
   "devDependencies": {
     "@changesets/changelog-github": "0.4.4",
     "@changesets/cli": "2.22.0",
+    "@rollup/plugin-typescript": "^8.3.2",
     "@size-limit/preset-small-lib": "5.0.5",
     "@types/react": "18.0.8",
     "@types/react-dom": "18.0.3",
@@ -69,22 +68,24 @@
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-import": "2.26.0",
     "eslint-plugin-jsx-a11y": "^6.5.1",
+    "eslint-plugin-prettier": "^3.3.1",
     "eslint-plugin-react": "^7.29.4",
     "eslint-plugin-react-hooks": "4.5.0",
-    "eslint-plugin-prettier": "^3.3.1",
     "graphql": "15.8.0",
     "husky": "7.0.4",
     "prettier": "2.6.2",
     "react": "18.1.0",
     "react-dom": "18.1.0",
+    "rollup": "^2.75.6",
+    "rollup-plugin-terser": "^7.0.2",
     "size-limit": "5.0.5",
     "tsdx": "0.14.1",
     "tslib": "2.3.1",
     "typescript": "3.9.10"
   },
   "dependencies": {
-    "use-deep-compare-effect": "^1.8.1",
     "react": "^16.8.0 || ^17.0.0 || ^18.0.0",
-    "react-dom": "^16.8.0 || ^17.0.0 || ^18.0.0"
+    "react-dom": "^16.8.0 || ^17.0.0 || ^18.0.0",
+    "use-deep-compare-effect": "^1.8.1"
   }
 }
