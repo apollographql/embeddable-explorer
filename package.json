@@ -17,7 +17,7 @@
   },
   "scripts": {
     "build": "npm run build-explorer:cjs-esm",
-    "build-explorer:cjs-esm": "rm -rf dist && rollup -c buildHelpers/rollup.explorer.cjs-esm.config.js && cp src/index.cjs dist/index.cjs && cp src/react/index.cjs dist/react/index.cjs",
+    "build-explorer:cjs-esm": "rm -rf dist && rollup -c buildHelpers/rollup.explorer.cjs-esm.config.js && cp src/index.cjs dist/index.cjs && cp src/react/index.cjs dist/react/index.cjs && node ./buildHelpers/prepareDist.js",
     "build-explorer:umd": "rm -rf dist && rollup -c buildHelpers/rollup.explorer.umd.config.js",
     "build-sandbox:umd": "rm -rf dist && rollup -c buildHelpers/rollup.sandbox.umd.config.js",
     "lint": "eslint --ext .js,.jsx,.ts,.tsx .",
@@ -58,6 +58,7 @@
     "@rollup/plugin-babel": "^5.3.1",
     "@rollup/plugin-typescript": "^8.3.2",
     "@size-limit/preset-small-lib": "5.0.5",
+    "@types/fs-extra": "^9.0.13",
     "@types/react": "18.0.8",
     "@types/react-dom": "18.0.3",
     "@typescript-eslint/eslint-plugin": "5.21.0",
@@ -69,6 +70,7 @@
     "eslint-plugin-prettier": "^3.3.1",
     "eslint-plugin-react": "^7.29.4",
     "eslint-plugin-react-hooks": "4.5.0",
+    "fs-extra": "^10.1.0",
     "graphql": "15.8.0",
     "husky": "7.0.4",
     "prettier": "2.6.2",
@@ -84,7 +86,6 @@
     "react": "^16.8.0 || ^17.0.0 || ^18.0.0",
     "react-dom": "^16.8.0 || ^17.0.0 || ^18.0.0",
     "use-deep-compare-effect": "^1.8.1"
-
   },
   "peerDependenciesMeta": {
     "react": {
@@ -97,6 +98,5 @@
       "optional": true
     }
   },
-  "dependencies": {
-  }
+  "dependencies": {}
 }
