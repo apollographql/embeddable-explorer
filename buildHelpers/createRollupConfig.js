@@ -84,6 +84,13 @@ export function createCJS_ESMRollupConfig(options) {
             ? '[name].production.min.js'
             : '[name].development.js',
       }),
+      sourcemapPathTransform: (relativeSourcePath, sourcemapPath) => {
+        // will replace relative paths with absolute paths
+        return relativeSourcePath
+          .replace('src/', '')
+          .replace('node_modules/', 'external/')
+          .replace('../../external', '../external');
+      },
     },
     external: ['use-deep-compare-effect', 'react'],
     plugins: [
