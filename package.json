@@ -80,9 +80,23 @@
     "tslib": "2.3.1",
     "typescript": "3.9.10"
   },
-  "dependencies": {
+  "peerDependencies": {
     "react": "^16.8.0 || ^17.0.0 || ^18.0.0",
     "react-dom": "^16.8.0 || ^17.0.0 || ^18.0.0",
     "use-deep-compare-effect": "^1.8.1"
+
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    },
+    "react-dom": {
+      "optional": true
+    },
+    "use-deep-compare-effect": {
+      "optional": true
+    }
+  },
+  "dependencies": {
   }
 }
