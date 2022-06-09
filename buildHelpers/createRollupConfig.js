@@ -35,7 +35,7 @@ export function createUMDRollupConfig(options) {
       // if we pass outDir: 'dist' here the ts files will be put in a nested dist dir inside dist
       typescript({ tsconfig: './tsconfig.json', outDir: '' }),
       options.environment === 'production' &&
-        // terser is for minifying production builds
+        // terser is for minifying
         // see https://www.npmjs.com/package/rollup-plugin-terser#options
         terser({
           output: { comments: false },
@@ -47,6 +47,56 @@ export function createUMDRollupConfig(options) {
           ecma: 2020,
           module: false,
           toplevel: false,
+        }),
+    ],
+  };
+}
+
+export function createCJS_ESMRollupConfig(options) {
+  return {
+    input: 'src/index.ts',
+    output: {
+      format: options.format,
+      freeze: false,
+      esModule: true,
+      name: options.isExplorer ? 'embeddable-explorer' : 'embeddable-sandbox',
+      exports: 'named',
+      sourcemap: true,
+      dir: `./dist`,
+      entryFileNames:
+        // All of our esm files have .mjs extensions
+        options.format === 'esm'
+          ? '[name].mjs'
+          : // we only make production & development builds in cjs, so we need to name the chunks accordingly
+          options.environment === 'production'
+          ? '[name].production.min.js'
+          : '[name].development.js',
+      // we only make production & development builds in cjs, so we need to name the chunks accordingly
+      ...(options.format === 'cjs' && {
+        chunkFileNames:
+          options.environment === 'production'
+            ? '[name].production.min.js'
+            : '[name].development.js',
+      }),
+    },
+    external: ['use-deep-compare-effect', 'react'],
+    plugins: [
+      typescript({
+        tsconfig: './tsconfig.json',
+      }),
+      options.environment === 'production' &&
+        // terser is for minifying
+        // see https://www.npmjs.com/package/rollup-plugin-terser#options
+        terser({
+          output: { comments: false },
+          compress: {
+            keep_infinity: true,
+            pure_getters: true,
+            passes: 10,
+          },
+          ecma: 2020,
+          module: options.format === 'esm',
+          toplevel: options.format === 'esm' || options.format === 'cjs',
         }),
     ],
   };

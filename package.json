@@ -8,12 +8,9 @@
     "url": "https://github.com/apollographql/embeddable-explorer"
   },
   "homepage": "https://github.com/apollographql/embeddable-explorer#readme",
-  "main": "dist/index.js",
+  "main": "dist/index.cjs",
+  "module": "dist/index.mjs",
   "typings": "dist/index.d.ts",
-  "files": [
-    "dist",
-    "src"
-  ],
   "engines": {
     "node": ">=12.0",
     "npm": ">=7.0"
@@ -21,7 +18,7 @@
   "scripts": {
     "start": "tsdx watch",
     "build": "npm run build-explorer:cjs-esm",
-    "build-explorer:cjs-esm": "tsdx build --format cjs,esm --name embeddable-explorer",
+    "build-explorer:cjs-esm": "rm -rf dist && rollup -c buildHelpers/rollup.explorer.cjs-esm.config.js && node ./buildHelpers/writeCjsEntryFile.js index",
     "build-explorer:umd": "rm -rf dist && rollup -c buildHelpers/rollup.explorer.umd.config.js",
     "build-sandbox:umd": "rm -rf dist && rollup -c buildHelpers/rollup.sandbox.umd.config.js",
     "test": "tsdx test --passWithNoTests",
@@ -46,14 +43,13 @@
     "trailingComma": "es5",
     "endOfLine": "auto"
   },
-  "module": "dist/explorer.esm.js",
   "size-limit": [
     {
-      "path": "dist/explorer.cjs.production.min.js",
+      "path": "dist/index.production.min.js",
       "limit": "10 KB"
     },
     {
-      "path": "dist/explorer.esm.js",
+      "path": "dist/index.mjs",
       "limit": "10 KB"
     }
   ],
@@ -62,6 +58,7 @@
     "@changesets/cli": "2.22.0",
     "@rollup/plugin-typescript": "^8.3.2",
     "@size-limit/preset-small-lib": "5.0.5",
+    "@types/fs-extra": "^9.0.13",
     "@types/react": "18.0.8",
     "@types/react-dom": "18.0.3",
     "@typescript-eslint/eslint-plugin": "5.21.0",
@@ -73,6 +70,7 @@
     "eslint-plugin-prettier": "^3.3.1",
     "eslint-plugin-react": "^7.29.4",
     "eslint-plugin-react-hooks": "4.5.0",
+    "fs-extra": "^10.1.0",
     "graphql": "15.8.0",
     "husky": "7.0.4",
     "prettier": "2.6.2",
