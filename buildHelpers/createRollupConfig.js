@@ -48,7 +48,10 @@ export function createUMDRollupConfig(options) {
 
 export function createCJS_ESMRollupConfig(options) {
   return {
-    input: 'src/index.ts',
+    input: {
+      index: 'src/index.ts',
+      'react/index': 'src/react/index.ts',
+    },
     output: {
       format: options.format,
       freeze: false,

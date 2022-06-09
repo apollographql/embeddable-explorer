@@ -11,3 +11,4 @@ const contents = `
   }
   `;
 fs.outputFile('dist/index.cjs', contents);
+fs.outputFile('dist/react/index.cjs', contents);
