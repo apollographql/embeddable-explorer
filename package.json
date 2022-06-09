@@ -17,7 +17,7 @@
   },
   "scripts": {
     "build": "npm run build-explorer:cjs-esm",
-    "build-explorer:cjs-esm": "rm -rf dist && rollup -c buildHelpers/rollup.explorer.cjs-esm.config.js && node ./buildHelpers/writeCjsEntryFile.js index",
+    "build-explorer:cjs-esm": "rm -rf dist && rollup -c buildHelpers/rollup.explorer.cjs-esm.config.js && node ./buildHelpers/writeCjsEntryFile.js index && node ./buildHelpers/prepareDist.js",
     "build-explorer:umd": "rm -rf dist && rollup -c buildHelpers/rollup.explorer.umd.config.js",
     "build-sandbox:umd": "rm -rf dist && rollup -c buildHelpers/rollup.sandbox.umd.config.js",
     "lint": "eslint --ext .js,.jsx,.ts,.tsx .",
@@ -25,7 +25,7 @@
     "size": "size-limit",
     "analyze": "size-limit --why",
     "typescript:check": "tsc --noEmit",
-    "publish-changeset": "changeset publish",
+    "publish-changeset": "cd dist && changeset publish",
     "prettier:check": "prettier --check .",
     "prettier:fix": "prettier --write ."
   },
