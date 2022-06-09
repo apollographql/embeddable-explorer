@@ -54,7 +54,13 @@ export function createUMDRollupConfig(options) {
 
 export function createCJS_ESMRollupConfig(options) {
   return {
-    input: 'src/index.ts',
+    input: {
+      // We have two entry files - the vanilla js class export (index.js) and
+      // the react export which is exported from its own file.
+      // This allows folks to skip bundling with react if they just want to use the vanilla js class
+      index: 'src/index.ts',
+      'react/index': 'src/react/index.ts',
+    },
     output: {
       format: options.format,
       freeze: false,
