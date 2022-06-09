@@ -226,8 +226,6 @@ export function executeIntrospectionRequest({
       if (response.errors && response.errors.length) {
         sendPostMessageToEmbed({
           message: {
-            // Include the same operation ID in the response message's name
-            // so the Explorer knows which operation it's associated with
             name: SCHEMA_ERROR,
             errors: response.errors,
           },
@@ -237,8 +235,6 @@ export function executeIntrospectionRequest({
       }
       sendPostMessageToEmbed({
         message: {
-          // Include the same operation ID in the response message's name
-          // so the Explorer knows which operation it's associated with
           name: SCHEMA_RESPONSE,
           schema: response.data,
         },
@@ -249,8 +245,6 @@ export function executeIntrospectionRequest({
     .catch((error) => {
       sendPostMessageToEmbed({
         message: {
-          // Include the same operation ID in the response message's name
-          // so the Explorer knows which operation it's associated with
           name: SCHEMA_ERROR,
           error: error,
         },
