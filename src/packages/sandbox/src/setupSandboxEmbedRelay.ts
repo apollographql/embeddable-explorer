@@ -1,50 +1,33 @@
-import type { IntrospectionQuery } from 'graphql';
 import {
-  EMBEDDABLE_EXPLORER_URL,
+  EMBEDDABLE_SANDBOX_URL,
   EXPLORER_LISTENING_FOR_HANDSHAKE,
-  EXPLORER_LISTENING_FOR_SCHEMA,
   EXPLORER_QUERY_MUTATION_REQUEST,
   HANDSHAKE_RESPONSE,
-} from '../helpers/constants';
+  INTROSPECTION_QUERY_WITH_HEADERS,
+} from '../../../shared/constants';
 import {
+  executeIntrospectionRequest,
   executeOperation,
   handleAuthenticationPostMessage,
   HandleRequest,
   IncomingEmbedMessage,
   sendPostMessageToEmbed,
-} from '../helpers/postMessageRelayHelpers';
+} from '../../../shared/postMessageRelayHelpers';
 
-export function setupEmbedRelay({
-  endpointUrl,
+export function setupSandboxEmbedRelay({
   handleRequest,
-  embeddedExplorerIFrameElement,
-  updateSchemaInEmbed,
-  schema,
-  graphRef,
-  autoInviteOptions,
+  embeddedSandboxIFrameElement,
 }: {
-  endpointUrl: string;
   handleRequest: HandleRequest;
-  embeddedExplorerIFrameElement: HTMLIFrameElement;
-  updateSchemaInEmbed: ({
-    schema,
-  }: {
-    schema: string | IntrospectionQuery | undefined;
-  }) => void;
-  schema?: string | IntrospectionQuery | undefined;
-  graphRef?: string | undefined;
-  autoInviteOptions?: {
-    accountId: string;
-    inviteToken: string;
-  };
+  embeddedSandboxIFrameElement: HTMLIFrameElement;
 }) {
-  const embedUrl = EMBEDDABLE_EXPLORER_URL;
+  const embedUrl = EMBEDDABLE_SANDBOX_URL;
   // Callback definition
   const onPostMessageReceived = (event: IncomingEmbedMessage) => {
     handleAuthenticationPostMessage({
       event,
       embedUrl,
-      embeddedIFrameElement: embeddedExplorerIFrameElement,
+      embeddedIFrameElement: embeddedSandboxIFrameElement,
     });
 
     // Any pm can be listened for here, not just the ones we know the
@@ -57,18 +40,26 @@ export function setupEmbedRelay({
         sendPostMessageToEmbed({
           message: {
             name: HANDSHAKE_RESPONSE,
-            graphRef,
-            inviteToken: autoInviteOptions?.inviteToken,
-            accountId: autoInviteOptions?.accountId,
           },
-          embeddedIFrameElement: embeddedExplorerIFrameElement,
+          embeddedIFrameElement: embeddedSandboxIFrameElement,
           embedUrl,
         });
       }
 
-      // Embedded Explorer sends us a PM when it is ready for a schema
-      if (data.name === EXPLORER_LISTENING_FOR_SCHEMA && !!schema) {
-        updateSchemaInEmbed({ schema });
+      if (data.name === INTROSPECTION_QUERY_WITH_HEADERS) {
+        const {
+          introspectionRequestBody,
+          introspectionRequestHeaders,
+          sandboxEndpointUrl,
+        } = data;
+        if (sandboxEndpointUrl) {
+          executeIntrospectionRequest({
+            endpointUrl: sandboxEndpointUrl,
+            introspectionRequestBody,
+            headers: introspectionRequestHeaders,
+            embeddedIFrameElement: embeddedSandboxIFrameElement,
+          });
+        }
       }
 
       // Check to see if the posted message indicates that the user is
@@ -78,17 +69,23 @@ export function setupEmbedRelay({
       // If the user is executing a query or mutation or subscription...
       if (isQueryOrMutation && data.operation && data.operationId) {
         // Extract the operation details from the event.data object
-        const { operation, operationId, operationName, variables, headers } =
-          data;
-        if (isQueryOrMutation) {
+        const {
+          operation,
+          operationId,
+          operationName,
+          variables,
+          headers,
+          sandboxEndpointUrl,
+        } = data;
+        if (isQueryOrMutation && sandboxEndpointUrl) {
           executeOperation({
-            endpointUrl,
+            endpointUrl: sandboxEndpointUrl,
             handleRequest,
             operation,
             operationName,
             variables,
             headers,
-            embeddedIFrameElement: embeddedExplorerIFrameElement,
+            embeddedIFrameElement: embeddedSandboxIFrameElement,
             operationId,
             embedUrl,
           });

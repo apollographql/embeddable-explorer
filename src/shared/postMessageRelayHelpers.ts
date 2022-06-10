@@ -11,7 +11,7 @@ import {
   PARENT_LOGOUT_SUCCESS,
   TRIGGER_LOGOUT_IN_PARENT,
 } from './constants';
-import type { JSONValue } from '../types';
+import type { JSONValue } from './types';
 
 export type HandleRequest = (
   endpointUrl: string,
