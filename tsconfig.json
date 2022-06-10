@@ -1,6 +1,5 @@
 {
-  // see https://www.typescriptlang.org/tsconfig to better understand tsconfigs
-  "include": ["src", "types", "src/index.ts"],
+  "include": ["src/shared/types"],
   "compilerOptions": {
     "module": "esnext",
     "lib": ["dom", "esnext"],
@@ -33,6 +32,5 @@
     "noEmit": true,
     // if you import as type only, force import type
     "importsNotUsedAsValues": "error",
-    "outDir": "dist",
   }
 }
