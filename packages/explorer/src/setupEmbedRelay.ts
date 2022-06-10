@@ -1,33 +1,50 @@
+import type { IntrospectionQuery } from 'graphql';
 import {
-  EMBEDDABLE_SANDBOX_URL,
+  EMBEDDABLE_EXPLORER_URL,
   EXPLORER_LISTENING_FOR_HANDSHAKE,
+  EXPLORER_LISTENING_FOR_SCHEMA,
   EXPLORER_QUERY_MUTATION_REQUEST,
   HANDSHAKE_RESPONSE,
-  INTROSPECTION_QUERY_WITH_HEADERS,
-} from '../../../shared/constants';
+} from './helpers/constants';
 import {
-  executeIntrospectionRequest,
   executeOperation,
   handleAuthenticationPostMessage,
   HandleRequest,
   IncomingEmbedMessage,
   sendPostMessageToEmbed,
-} from '../../../shared/postMessageRelayHelpers';
+} from './helpers/postMessageRelayHelpers';
 
-export function setupSandboxEmbedRelay({
+export function setupEmbedRelay({
+  endpointUrl,
   handleRequest,
-  embeddedSandboxIFrameElement,
+  embeddedExplorerIFrameElement,
+  updateSchemaInEmbed,
+  schema,
+  graphRef,
+  autoInviteOptions,
 }: {
+  endpointUrl: string;
   handleRequest: HandleRequest;
-  embeddedSandboxIFrameElement: HTMLIFrameElement;
+  embeddedExplorerIFrameElement: HTMLIFrameElement;
+  updateSchemaInEmbed: ({
+    schema,
+  }: {
+    schema: string | IntrospectionQuery | undefined;
+  }) => void;
+  schema?: string | IntrospectionQuery | undefined;
+  graphRef?: string | undefined;
+  autoInviteOptions?: {
+    accountId: string;
+    inviteToken: string;
+  };
 }) {
-  const embedUrl = EMBEDDABLE_SANDBOX_URL;
+  const embedUrl = EMBEDDABLE_EXPLORER_URL;
   // Callback definition
   const onPostMessageReceived = (event: IncomingEmbedMessage) => {
     handleAuthenticationPostMessage({
       event,
       embedUrl,
-      embeddedIFrameElement: embeddedSandboxIFrameElement,
+      embeddedIFrameElement: embeddedExplorerIFrameElement,
     });
 
     // Any pm can be listened for here, not just the ones we know the
@@ -40,26 +57,18 @@ export function setupSandboxEmbedRelay({
         sendPostMessageToEmbed({
           message: {
             name: HANDSHAKE_RESPONSE,
+            graphRef,
+            inviteToken: autoInviteOptions?.inviteToken,
+            accountId: autoInviteOptions?.accountId,
           },
-          embeddedIFrameElement: embeddedSandboxIFrameElement,
+          embeddedIFrameElement: embeddedExplorerIFrameElement,
           embedUrl,
         });
       }
 
-      if (data.name === INTROSPECTION_QUERY_WITH_HEADERS) {
-        const {
-          introspectionRequestBody,
-          introspectionRequestHeaders,
-          sandboxEndpointUrl,
-        } = data;
-        if (sandboxEndpointUrl) {
-          executeIntrospectionRequest({
-            endpointUrl: sandboxEndpointUrl,
-            introspectionRequestBody,
-            headers: introspectionRequestHeaders,
-            embeddedIFrameElement: embeddedSandboxIFrameElement,
-          });
-        }
+      // Embedded Explorer sends us a PM when it is ready for a schema
+      if (data.name === EXPLORER_LISTENING_FOR_SCHEMA && !!schema) {
+        updateSchemaInEmbed({ schema });
       }
 
       // Check to see if the posted message indicates that the user is
@@ -69,23 +78,17 @@ export function setupSandboxEmbedRelay({
       // If the user is executing a query or mutation or subscription...
       if (isQueryOrMutation && data.operation && data.operationId) {
         // Extract the operation details from the event.data object
-        const {
-          operation,
-          operationId,
-          operationName,
-          variables,
-          headers,
-          sandboxEndpointUrl,
-        } = data;
-        if (isQueryOrMutation && sandboxEndpointUrl) {
+        const { operation, operationId, operationName, variables, headers } =
+          data;
+        if (isQueryOrMutation) {
           executeOperation({
-            endpointUrl: sandboxEndpointUrl,
+            endpointUrl,
             handleRequest,
             operation,
             operationName,
             variables,
             headers,
-            embeddedIFrameElement: embeddedSandboxIFrameElement,
+            embeddedIFrameElement: embeddedExplorerIFrameElement,
             operationId,
             embedUrl,
           });
