@@ -1,7 +1,6 @@
 {
     "extends": "../../tsconfig.base.json",
-    // see https://www.typescriptlang.org/tsconfig to better understand tsconfigs
-    "include": ["src", "src/index.ts"],
+    "include": ["src", "src/index.ts", "buildHelpers"],
     "compilerOptions": {
       "outDir": "dist",
       "rootDir": "src"
