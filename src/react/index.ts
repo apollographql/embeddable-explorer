@@ -1,1 +1,1 @@
-export { ApolloExplorerReact } from '../embeddedExplorer/react';
+export { ApolloExplorerReact as ApolloExplorer } from '../embeddedExplorer/react';

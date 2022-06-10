@@ -2,7 +2,7 @@ import './index.css';
 // we alias react & react-dom to the same version in the main package.json
 import * as React from 'react';
 import { createRoot } from 'react-dom/client';
-import { ApolloExplorerReact } from '../../../react';
+import { ApolloExplorer } from '../../../react';
 import { useState } from 'react';
 import { exampleSchema } from './exampleSchema';
 
@@ -20,7 +20,7 @@ function App() {
       >
         Click me to change the theme
       </button>
-      <ApolloExplorerReact
+      <ApolloExplorer
         className="embedded-explorer"
         graphRef="acephei@current"
         endpointUrl="https://acephei-gateway.herokuapp.com"
@@ -50,7 +50,7 @@ function App() {
       >
         Click me to change the schema
       </button>
-      <ApolloExplorerReact
+      <ApolloExplorer
         className="embedded-explorer"
         schema={schema}
         endpointUrl="https://acephei-gateway.herokuapp.com"
