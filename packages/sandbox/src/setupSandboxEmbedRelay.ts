@@ -4,7 +4,7 @@ import {
   EXPLORER_QUERY_MUTATION_REQUEST,
   HANDSHAKE_RESPONSE,
   INTROSPECTION_QUERY_WITH_HEADERS,
-} from '../helpers/constants';
+} from './helpers/constants';
 import {
   executeIntrospectionRequest,
   executeOperation,
@@ -12,7 +12,7 @@ import {
   HandleRequest,
   IncomingEmbedMessage,
   sendPostMessageToEmbed,
-} from '../helpers/postMessageRelayHelpers';
+} from './helpers/postMessageRelayHelpers';
 
 export function setupSandboxEmbedRelay({
   handleRequest,

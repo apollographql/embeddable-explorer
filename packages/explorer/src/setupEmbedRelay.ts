@@ -5,14 +5,14 @@ import {
   EXPLORER_LISTENING_FOR_SCHEMA,
   EXPLORER_QUERY_MUTATION_REQUEST,
   HANDSHAKE_RESPONSE,
-} from '../helpers/constants';
+} from './helpers/constants';
 import {
   executeOperation,
   handleAuthenticationPostMessage,
   HandleRequest,
   IncomingEmbedMessage,
   sendPostMessageToEmbed,
-} from '../helpers/postMessageRelayHelpers';
+} from './helpers/postMessageRelayHelpers';
 
 export function setupEmbedRelay({
   endpointUrl,

@@ -3,12 +3,12 @@ import {
   EMBEDDABLE_EXPLORER_URL,
   IFRAME_DOM_ID,
   SCHEMA_RESPONSE,
-} from '../helpers/constants';
-import { defaultHandleRequest } from '../helpers/defaultHandleRequest';
+} from './helpers/constants';
+import { defaultHandleRequest } from './helpers/defaultHandleRequest';
 import {
   HandleRequest,
   sendPostMessageToEmbed,
-} from '../helpers/postMessageRelayHelpers';
+} from './helpers/postMessageRelayHelpers';
 import { setupEmbedRelay } from './setupEmbedRelay';
 
 export interface BaseEmbeddableExplorerOptions {
