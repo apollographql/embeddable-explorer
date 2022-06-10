@@ -1,0 +1,54 @@
+{
+    "name": "@apollo/sandbox",
+    "version": "0.5.2",
+    "author": "packages@apollographql.com",
+    "license": "MIT",
+    "repository": {
+      "type": "git",
+      "url": "https://github.com/apollographql/embeddable-explorer"
+    },
+    "homepage": "https://github.com/apollographql/embeddable-explorer#readme",
+    "main": "dist/index.cjs",
+    "module": "dist/index.mjs",
+    "typings": "dist/index.d.ts",
+    "engines": {
+      "node": ">=12.0",
+      "npm": ">=7.0"
+    },
+    "scripts": {
+      "build": "npm run build:cjs-esm",
+      "build:cjs-esm": "rm -rf dist && rollup -c buildHelpers/rollup.explorer.cjs-esm.config.js && node ./buildHelpers/writeCjsEntryFile.js index && node ./buildHelpers/prepareDist.js sandbox",
+      "build:umd": "rm -rf dist && rollup -c buildHelpers/rollup.sandbox.umd.config.js",
+      "lint": "eslint --ext .js,.jsx,.ts,.tsx .",
+      "prepare": "npm run build",
+      "size": "size-limit",
+      "analyze": "size-limit --why",
+      "typescript:check": "tsc --noEmit",
+      "publish-changeset": "cd dist && changeset publish",
+      "prettier:check": "prettier --check .",
+      "prettier:fix": "prettier --write ."
+    },
+    "husky": {
+      "hooks": {
+        "pre-commit": "npm run lint"
+      }
+    },
+    "prettier": {
+      "printWidth": 80,
+      "semi": true,
+      "singleQuote": true,
+      "trailingComma": "es5",
+      "endOfLine": "auto"
+    },
+    "size-limit": [
+      {
+        "path": "dist/index.production.min.js",
+        "limit": "10 KB"
+      },
+      {
+        "path": "dist/index.mjs",
+        "limit": "10 KB"
+      }
+    ]
+  }
+  
