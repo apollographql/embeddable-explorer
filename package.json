@@ -1,5 +1,5 @@
 {
-  "name": "@apollo/explorer",
+  "name": "apollo-embeds-monorepo",
   "version": "0.5.2",
   "author": "packages@apollographql.com",
   "license": "MIT",
@@ -29,6 +29,9 @@
       "pre-commit": "npm run lint"
     }
   },
+  "workspaces": [
+    "packages/*"
+  ],
   "prettier": {
     "printWidth": 80,
     "semi": true,
