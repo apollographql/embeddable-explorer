@@ -102,3 +102,13 @@ run `npm run build-sandbox:umd` to build umd files where EmbeddedExplorer is exp
 
 Open `examples/embeddedSandbox/localDevelopmentExample.html` to test your changes.
 
+## Build, deploy, publish process
+
+We have 2 ways that we export the code that is build in this repo. 
+1. We publish a umd file `embeddable-explorer.umd.production.min.js` to [this bucket](https://console.cloud.google.com/storage/browser/embeddable-explorer;tab=objects?forceOnBucketsSortingFiltering=false&project=mdg-services&prefix=&forceOnObjectsSortingFiltering=false&pli=1) on merge. This file is used by folks who select the CDN option in the Embed Explorer modal like so:
+
+![Screen Shot 2022-06-06 at 6 15 25 PM](https://user-images.githubusercontent.com/14367451/172967743-2f40b74f-7494-43f2-85cd-f77fae6ae0cf.png)
+
+2. We also have an npm package `@apollo/explorer` that is managed by [Changesets](https://github.com/changesets/changesets). This npm package uses the `build` command, which creates an esm & cjs build. 
+
+
