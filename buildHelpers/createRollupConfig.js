@@ -1,5 +1,6 @@
 import typescript from '@rollup/plugin-typescript';
 import { terser } from 'rollup-plugin-terser';
+import babel from '@rollup/plugin-babel';
 
 // type RollupOptions = {
 //   format: 'umd' | 'cjs' | 'esm',
@@ -56,6 +57,11 @@ function createUMDRollupConfig(options) {
           module: false,
           toplevel: false,
         }),
+      babel({
+        exclude: 'node_modules/**',
+        extensions: ['.js', '.jsx', '.ts', '.tsx'],
+        babelHelpers: 'bundled',
+      }),
     ],
   };
 }
@@ -106,6 +112,11 @@ function createCJS_ESMRollupConfig(options) {
           module: options.format === 'esm',
           toplevel: options.format === 'esm' || options.format === 'cjs',
         }),
+      babel({
+        exclude: 'node_modules/**',
+        extensions: ['.js', '.jsx', '.ts', '.tsx'],
+        babelHelpers: 'bundled',
+      }),
     ],
   };
 }
