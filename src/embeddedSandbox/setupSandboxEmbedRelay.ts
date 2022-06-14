@@ -40,6 +40,7 @@ export function setupSandboxEmbedRelay({
         sendPostMessageToEmbed({
           message: {
             name: HANDSHAKE_RESPONSE,
+            parentHref: window.location.href,
           },
           embeddedIFrameElement: embeddedSandboxIFrameElement,
           embedUrl,

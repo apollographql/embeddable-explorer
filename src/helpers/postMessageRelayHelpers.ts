@@ -66,6 +66,7 @@ export type OutgoingEmbedMessage =
       graphRef?: string;
       inviteToken?: string;
       accountId?: string;
+      parentHref?: string;
     }
   | {
       name: typeof PARTIAL_AUTHENTICATION_TOKEN_RESPONSE;
