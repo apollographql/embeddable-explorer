@@ -7,7 +7,15 @@ import { terser } from 'rollup-plugin-terser';
 //   environment: 'production' | 'development',
 // };
 
-export function createUMDRollupConfig(options) {
+export function createRollupConfig(options) {
+  if (options.format === 'umd') {
+    return createUMDRollupConfig(options);
+  } else {
+    return createCJS_ESMRollupConfig(options);
+  }
+}
+
+function createUMDRollupConfig(options) {
   return {
     input: `src/${
       options.isSandbox ? 'embeddedSandbox' : 'embeddedExplorer'
@@ -52,7 +60,7 @@ export function createUMDRollupConfig(options) {
   };
 }
 
-export function createCJS_ESMRollupConfig(options) {
+function createCJS_ESMRollupConfig(options) {
   return {
     input: 'src/index.ts',
     output: {

@@ -1,12 +1,14 @@
-import { createUMDRollupConfig } from './createRollupConfig';
+import { createRollupConfig } from './createRollupConfig';
 
 export default [
-  createUMDRollupConfig({
+  createRollupConfig({
     environment: 'development',
     isSandbox: true,
+    format: 'umd',
   }),
-  createUMDRollupConfig({
+  createRollupConfig({
     environment: 'production',
     isSandbox: true,
+    format: 'umd',
   }),
 ];

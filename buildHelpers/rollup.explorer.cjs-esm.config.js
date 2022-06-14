@@ -1,17 +1,17 @@
-import { createCJS_ESMRollupConfig } from './createRollupConfig';
+import { createRollupConfig } from './createRollupConfig';
 
 export default [
-  createCJS_ESMRollupConfig({
+  createRollupConfig({
     environment: 'production',
     format: 'cjs',
     isSandbox: false,
   }),
-  createCJS_ESMRollupConfig({
+  createRollupConfig({
     environment: 'development',
     format: 'cjs',
     isSandbox: false,
   }),
-  createCJS_ESMRollupConfig({
+  createRollupConfig({
     environment: 'production',
     format: 'esm',
     isSandbox: false,
