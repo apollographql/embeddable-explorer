@@ -3,32 +3,32 @@ import { terser } from 'rollup-plugin-terser';
 
 // type RollupOptions = {
 //   format: 'umd' | 'cjs' | 'esm',
-//   isExplorer: boolean,
+//   isSandbox: boolean,
 //   environment: 'production' | 'development',
 // };
 
 export function createUMDRollupConfig(options) {
   return {
     input: `src/${
-      options.isExplorer ? 'embeddedExplorer' : 'embeddedSandbox'
+      options.isSandbox ? 'embeddedSandbox' : 'embeddedExplorer'
     }/index-umd.ts`,
     output: {
       format: 'umd',
       freeze: false,
       // we need to specify that this is a default export so that
       // EmbeddedExplorer or EmbeddedSandbox will be exposed on window
-      name: options.isExplorer ? 'EmbeddedExplorer' : 'EmbeddedSandbox',
+      name: options.isSandbox ? 'EmbeddedSandbox' : 'EmbeddedExplorer',
       exports: 'default',
       sourcemap: true,
       file:
         // we minify production builds using terser - see plugins below
-        options.environment === 'production'
-          ? `./dist/${
-              options.isExplorer ? 'embeddable-explorer' : 'embeddable-sandbox'
-            }.umd.production.min.js`
-          : `./dist/${
-              options.isExplorer ? 'embeddable-explorer' : 'embeddable-sandbox'
-            }.umd.development.js`,
+        `./dist/${
+          options.isSandbox ? 'embeddable-sandbox' : 'embeddable-explorer'
+        }.umd.${
+          options.environment === 'production'
+            ? 'production.min'
+            : 'development'
+        }.js`,
     },
     plugins: [
       // we override outDir for the umd build since we are outputting to files, not dirs
@@ -59,7 +59,7 @@ export function createCJS_ESMRollupConfig(options) {
       format: options.format,
       freeze: false,
       esModule: true,
-      name: options.isExplorer ? 'embeddable-explorer' : 'embeddable-sandbox',
+      name: options.isSandbox ? 'embeddable-sandbox' : 'embeddable-explorer',
       exports: 'named',
       sourcemap: true,
       dir: `./dist`,

@@ -4,16 +4,16 @@ export default [
   createCJS_ESMRollupConfig({
     environment: 'production',
     format: 'cjs',
-    isExplorer: true,
+    isSandbox: false,
   }),
   createCJS_ESMRollupConfig({
     environment: 'development',
     format: 'cjs',
-    isExplorer: true,
+    isSandbox: false,
   }),
   createCJS_ESMRollupConfig({
     environment: 'production',
     format: 'esm',
-    isExplorer: true,
+    isSandbox: false,
   }),
 ];

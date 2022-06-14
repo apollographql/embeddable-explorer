@@ -3,10 +3,10 @@ import { createUMDRollupConfig } from './createRollupConfig';
 export default [
   createUMDRollupConfig({
     environment: 'development',
-    isExplorer: true,
+    isSandbox: false,
   }),
   createUMDRollupConfig({
     environment: 'production',
-    isExplorer: true,
+    isSandbox: false,
   }),
 ];
