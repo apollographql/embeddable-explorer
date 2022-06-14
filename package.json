@@ -17,7 +17,7 @@
   },
   "scripts": {
     "build": "npm run build-explorer:cjs-esm",
-    "build-explorer:cjs-esm": "rm -rf dist && rollup -c buildHelpers/rollup.explorer.cjs-esm.config.js && node ./buildHelpers/writeCjsEntryFile.js index",
+    "build-explorer:cjs-esm": "rm -rf dist && rollup -c buildHelpers/rollup.explorer.cjs-esm.config.js && cp src/index.cjs dist/index.cjs",
     "build-explorer:umd": "rm -rf dist && rollup -c buildHelpers/rollup.explorer.umd.config.js",
     "build-sandbox:umd": "rm -rf dist && rollup -c buildHelpers/rollup.sandbox.umd.config.js",
     "lint": "eslint --ext .js,.jsx,.ts,.tsx .",
