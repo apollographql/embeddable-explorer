@@ -10,6 +10,7 @@ import {
   sendPostMessageToEmbed,
 } from '../helpers/postMessageRelayHelpers';
 import { setupEmbedRelay } from './setupEmbedRelay';
+import packageJSON from '../../package.json';
 
 export interface BaseEmbeddableExplorerOptions {
   target: string | HTMLElement; // HTMLElement is to accomodate people who might prefer to pass in a ref
@@ -161,6 +162,7 @@ export class EmbeddedExplorer {
       theme: displayOptions?.theme ?? 'dark',
       shouldShowGlobalHeader: true,
       parentSupportsSubscriptions: false,
+      version: packageJSON.version,
     };
 
     const queryString = Object.entries(queryParams)
