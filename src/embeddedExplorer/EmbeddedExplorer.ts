@@ -148,11 +148,11 @@ export class EmbeddedExplorer {
       'graphRef' in this.options ? this.options.graphRef : undefined;
     const queryParams = {
       graphRef,
-      document: document ? encodeURIComponent(document) : undefined,
-      variables: variables
+      defaultDocument: document ? encodeURIComponent(document) : undefined,
+      defaultVariables: variables
         ? encodeURIComponent(JSON.stringify(variables, null, 2))
         : undefined,
-      headers: headers
+      defaultHeaders: headers
         ? encodeURIComponent(JSON.stringify(headers))
         : undefined,
       shouldPersistState: !!persistExplorerState,
