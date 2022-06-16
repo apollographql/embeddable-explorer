@@ -50,11 +50,11 @@ export function setupSandboxEmbedRelay({
         const {
           introspectionRequestBody,
           introspectionRequestHeaders,
-          sandboxEndpointUrl,
+          endpointUrl,
         } = data;
-        if (sandboxEndpointUrl) {
+        if (endpointUrl) {
           executeIntrospectionRequest({
-            endpointUrl: sandboxEndpointUrl,
+            endpointUrl,
             introspectionRequestBody,
             headers: introspectionRequestHeaders,
             embeddedIFrameElement: embeddedSandboxIFrameElement,
@@ -75,11 +75,11 @@ export function setupSandboxEmbedRelay({
           operationName,
           variables,
           headers,
-          sandboxEndpointUrl,
+          endpointUrl,
         } = data;
-        if (isQueryOrMutation && sandboxEndpointUrl) {
+        if (isQueryOrMutation && endpointUrl) {
           executeOperation({
-            endpointUrl: sandboxEndpointUrl,
+            endpointUrl,
             handleRequest,
             operation,
             operationName,

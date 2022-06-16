@@ -26,8 +26,6 @@ export interface BaseEmbeddableExplorerOptions {
   };
   persistExplorerState?: boolean; // defaults to 'false'
 
-  endpointUrl: string;
-
   // optional. defaults to `return fetch(url, fetchOptions)`
   handleRequest?: HandleRequest;
   // defaults to false. If you pass `handleRequest` that will override this.
@@ -44,6 +42,7 @@ export interface BaseEmbeddableExplorerOptions {
 interface EmbeddableExplorerOptionsWithSchema
   extends BaseEmbeddableExplorerOptions {
   schema: string | IntrospectionQuery;
+  endpointUrl: string;
   graphRef?: never;
 }
 
@@ -51,6 +50,7 @@ interface EmbeddableExplorerOptionsWithGraphRef
   extends BaseEmbeddableExplorerOptions {
   graphRef: string;
   schema?: never;
+  endpointUrl?: never;
 }
 
 export type EmbeddableExplorerOptions =
@@ -123,9 +123,11 @@ export class EmbeddedExplorer {
       throw new Error('"target" is required');
     }
 
-    if (!this.options.handleRequest && !this.options.endpointUrl) {
-      throw new Error(
-        '`endpointUrl` is required unless you write a custom `handleRequest`'
+    if ('endpointUrl' in this.options && 'graphRef' in this.options) {
+      // we can't throw here for backwards compat reasons. Folks on the cdn _latest bundle
+      // will still be passing this
+      console.warn(
+        'You may only specify an endpointUrl if you are manually passing a `schema`. If you pass a `graphRef`, you must configure your endpoint on your Studio graph.'
       );
     }
 
