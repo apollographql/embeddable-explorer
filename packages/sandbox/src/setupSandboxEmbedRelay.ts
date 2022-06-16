@@ -76,10 +76,14 @@ export function setupSandboxEmbedRelay({
           variables,
           headers,
           endpointUrl,
+          // this can be deleted in Fall 2022
+          // it is just here to be backwards compatible with old
+          // studio versions (service workers)
+          sandboxEndpointUrl,
         } = data;
         if (isQueryOrMutation && endpointUrl) {
           executeOperation({
-            endpointUrl,
+            endpointUrl: endpointUrl ?? sandboxEndpointUrl,
             handleRequest,
             operation,
             operationName,
