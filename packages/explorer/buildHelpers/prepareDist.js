@@ -1,11 +1,12 @@
 const fs = require('fs-extra');
 
+const packageName = process.argv[2];
 // write a package.json to the react folder
 // for folks importing from @apollo/explorer/react
 const contents =
   JSON.stringify(
     {
-      name: '@apollo/explorer/react',
+      name: `@apollo/${packageName}/react`,
       type: 'module',
       main: `index.cjs`,
       module: 'index.mjs',

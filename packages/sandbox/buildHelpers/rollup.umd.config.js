@@ -2,13 +2,11 @@ import { createRollupConfig } from './createRollupConfig';
 
 export default [
   createRollupConfig({
-    environment: 'development',
-    isSandbox: false,
     format: 'umd',
+    environment: 'development',
   }),
   createRollupConfig({
-    environment: 'production',
-    isSandbox: false,
     format: 'umd',
+    environment: 'production',
   }),
 ];
