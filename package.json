@@ -1,8 +1,9 @@
 {
-  "name": "@apollo/explorer",
-  "version": "0.5.2",
+  "name": "apollo-embeds-monorepo",
+  "version": "0.0.0",
   "author": "packages@apollographql.com",
   "license": "MIT",
+  "private": true,
   "repository": {
     "type": "git",
     "url": "https://github.com/apollographql/embeddable-explorer"
@@ -16,18 +17,18 @@
     "npm": ">=7.0"
   },
   "scripts": {
-    "build": "npm run build-explorer:cjs-esm",
-    "build-explorer:cjs-esm": "rm -rf dist && rollup -c buildHelpers/rollup.explorer.cjs-esm.config.js && cp src/index.cjs dist/index.cjs && cp src/react/index.cjs dist/react/index.cjs && node ./buildHelpers/prepareDist.js",
-    "build-explorer:umd": "rm -rf dist && rollup -c buildHelpers/rollup.explorer.umd.config.js",
-    "build-sandbox:umd": "rm -rf dist && rollup -c buildHelpers/rollup.sandbox.umd.config.js",
     "lint": "eslint --ext .js,.jsx,.ts,.tsx .",
-    "prepare": "npm run build",
     "size": "size-limit",
     "analyze": "size-limit --why",
     "typescript:check": "tsc --noEmit",
-    "publish-changeset": "changeset publish",
+    "typescript:clean": "tsc --build --clean",
+    "build": "tsc --build",
+    "watch": "npm run build -- --watch",
     "prettier:check": "prettier --check .",
-    "prettier:fix": "prettier --write ."
+    "prettier:fix": "prettier --write .",
+    "//": "The below two scripts are only used for code sandbox ci since code sandbox doesn't support workspaces / npm 7, we need to install & build in the packages",
+    "code-sandbox-build-all-packages": "cd packages/explorer && npm run build && cd ../sandbox && npm run build",
+    "code-sandbox-install": "npm i -g npm@8.5.0 && npm -v && npm i"
   },
   "husky": {
     "hooks": {
@@ -41,15 +42,9 @@
     "trailingComma": "es5",
     "endOfLine": "auto"
   },
-  "size-limit": [
-    {
-      "path": "dist/index.production.min.js",
-      "limit": "10 KB"
-    },
-    {
-      "path": "dist/index.mjs",
-      "limit": "10 KB"
-    }
+  "workspaces": [
+    "packages/explorer",
+    "packages/sandbox"
   ],
   "devDependencies": {
     "@babel/core": "^7.18.5",
@@ -81,22 +76,5 @@
     "size-limit": "5.0.5",
     "tslib": "2.3.1",
     "typescript": "3.9.10"
-  },
-  "peerDependencies": {
-    "react": "^16.8.0 || ^17.0.0 || ^18.0.0",
-    "react-dom": "^16.8.0 || ^17.0.0 || ^18.0.0",
-    "use-deep-compare-effect": "^1.8.1"
-  },
-  "peerDependenciesMeta": {
-    "react": {
-      "optional": true
-    },
-    "react-dom": {
-      "optional": true
-    },
-    "use-deep-compare-effect": {
-      "optional": true
-    }
-  },
-  "dependencies": {}
+  }
 }
