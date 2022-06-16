@@ -17,10 +17,9 @@
     },
     "scripts": {
       "build": "npm run build:cjs-esm",
-      "build:cjs-esm": "rm -rf dist && rollup -c buildHelpers/rollup.explorer.cjs-esm.config.js && cp src/index.cjs dist/index.cjs && node ./buildHelpers/prepareDist.js sandbox",
-      "build:umd": "rm -rf dist && rollup -c buildHelpers/rollup.sandbox.umd.config.js",
+      "build:cjs-esm": "rm -rf dist && rollup -c buildHelpers/rollup.cjs-esm.config.js && cp src/index.cjs dist/index.cjs && cp src/react/index.cjs dist/react/index.cjs && node ./buildHelpers/prepareDist.js sandbox",
+      "build:umd": "rm -rf dist && rollup -c buildHelpers/rollup.umd.config.js",
       "lint": "eslint --ext .js,.jsx,.ts,.tsx .",
-      "prepare": "npm run build",
       "size": "size-limit",
       "analyze": "size-limit --why",
       "typescript:check": "tsc --noEmit",
