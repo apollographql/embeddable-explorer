@@ -23,6 +23,7 @@
     "typescript:check": "tsc --noEmit",
     "typescript:clean": "tsc --build --clean",
     "build": "tsc --build",
+    "build-all-cjs-esm": "for package in packages/*; do cd $package && npm run build && cd ../..; done",
     "watch": "npm run build -- --watch",
     "prettier:check": "prettier --check .",
     "prettier:fix": "prettier --write .",
