@@ -11,12 +11,14 @@ import useDeepCompareEffect from 'use-deep-compare-effect';
 interface EmbeddableExplorerOptionsWithSchema
   extends Omit<BaseEmbeddableExplorerOptions, 'target'> {
   schema: string | IntrospectionQuery;
+  endpointUrl: string;
   graphRef?: never;
 }
 
 interface EmbeddableExplorerOptionsWithGraphRef
   extends Omit<BaseEmbeddableExplorerOptions, 'target'> {
   graphRef: string;
+  endpointUrl?: never;
   schema?: never;
 }
 
