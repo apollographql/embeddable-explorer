@@ -26,10 +26,13 @@ jobs:
         run: yarn lint
 
       - name: Build Explorer UMD
-        run: yarn build-explorer:umd
+        run: cd packages/explorer && yarn build:umd
 
       - name: Build Explorer CJS / ESM
-        run: yarn build-explorer:cjs-esm
+        run: cd packages/explorer && yarn build:cjs-esm
 
       - name: Build Sandbox UMD
-        run: yarn build-sandbox:umd
+        run:  cd packages/sandbox && yarn build:umd
+
+      - name: Build Sandbox CJS / ESM
+        run: cd packages/sandbox && yarn build:umd
