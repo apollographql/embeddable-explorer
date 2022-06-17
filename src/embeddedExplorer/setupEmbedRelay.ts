@@ -60,6 +60,7 @@ export function setupEmbedRelay({
             graphRef,
             inviteToken: autoInviteOptions?.inviteToken,
             accountId: autoInviteOptions?.accountId,
+            parentHref: window.location.href,
           },
           embeddedIFrameElement: embeddedExplorerIFrameElement,
           embedUrl,

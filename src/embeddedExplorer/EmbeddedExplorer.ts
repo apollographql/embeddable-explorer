@@ -10,6 +10,7 @@ import {
   sendPostMessageToEmbed,
 } from '../helpers/postMessageRelayHelpers';
 import { setupEmbedRelay } from './setupEmbedRelay';
+import packageJSON from '../../package.json';
 
 export interface BaseEmbeddableExplorerOptions {
   target: string | HTMLElement; // HTMLElement is to accomodate people who might prefer to pass in a ref
@@ -148,11 +149,11 @@ export class EmbeddedExplorer {
       'graphRef' in this.options ? this.options.graphRef : undefined;
     const queryParams = {
       graphRef,
-      document: document ? encodeURIComponent(document) : undefined,
-      variables: variables
+      defaultDocument: document ? encodeURIComponent(document) : undefined,
+      defaultVariables: variables
         ? encodeURIComponent(JSON.stringify(variables, null, 2))
         : undefined,
-      headers: headers
+      defaultHeaders: headers
         ? encodeURIComponent(JSON.stringify(headers))
         : undefined,
       shouldPersistState: !!persistExplorerState,
@@ -161,6 +162,7 @@ export class EmbeddedExplorer {
       theme: displayOptions?.theme ?? 'dark',
       shouldShowGlobalHeader: true,
       parentSupportsSubscriptions: false,
+      version: packageJSON.version,
     };
 
     const queryString = Object.entries(queryParams)

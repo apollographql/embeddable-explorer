@@ -10,6 +10,7 @@ import {
   sendPostMessageToEmbed,
 } from '../helpers/postMessageRelayHelpers';
 import { setupSandboxEmbedRelay } from './setupSandboxEmbedRelay';
+import packageJSON from '../../package.json';
 
 export interface EmbeddableSandboxOptions {
   target: string | HTMLElement; // HTMLElement is to accomodate people who might prefer to pass in a ref
@@ -64,7 +65,7 @@ export class EmbeddedSandbox {
     const iframeElement = document.createElement('iframe');
     iframeElement.src = `${EMBEDDABLE_SANDBOX_URL}${
       this.options.initialEndpoint
-        ? `?endpoint=${this.options.initialEndpoint}`
+        ? `?endpoint=${this.options.initialEndpoint}&version=${packageJSON.version}`
         : ''
     }`;
 
