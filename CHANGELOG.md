@@ -1,5 +1,17 @@
 # @apollo/explorer
 
+## 0.6.0
+
+### Minor Changes
+
+- [#134](https://github.com/apollographql/embeddable-explorer/pull/134) [`c488c4b`](https://github.com/apollographql/embeddable-explorer/commit/c488c4bdcea5e362d9b10cd62d7215eb1305192e) Thanks [@mayakoneval](https://github.com/mayakoneval)! - NEBULA-1330 Shareable links from embed copy parent url
+
+### Patch Changes
+
+- [#114](https://github.com/apollographql/embeddable-explorer/pull/114) [`4150ba4`](https://github.com/apollographql/embeddable-explorer/commit/4150ba40c1254f033fdf11baba4a41e58af0ef75) Thanks [@William010x](https://github.com/William010x)! - NEBULA-1286: Pretty print variables on new lines
+
+* [#121](https://github.com/apollographql/embeddable-explorer/pull/121) [`91a4ff2`](https://github.com/apollographql/embeddable-explorer/commit/91a4ff2c94b4a0ba820fbbda6c7fe6ad25080edd) Thanks [@mayakoneval](https://github.com/mayakoneval)! - Make deps required until the vanilla js export can be imported without them. This looks like a major change, but this was the case all along to use the vanilla export.
+
 ## 0.5.2
 
 ### Patch Changes
