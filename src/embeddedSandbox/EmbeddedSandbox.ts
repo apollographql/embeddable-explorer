@@ -21,7 +21,6 @@ export interface EmbeddableSandboxOptions {
     variables?: Record<string, any>;
     headers?: Record<string, string>;
   };
-  persistExplorerState?: boolean; // defaults to 'false'
 
   // optional. defaults to `return fetch(url, fetchOptions)`
   handleRequest?: HandleRequest;
@@ -62,7 +61,7 @@ export class EmbeddedSandbox {
 
   injectEmbed() {
     let element: HTMLElement | null;
-    const { target, persistExplorerState } = this.options;
+    const { target } = this.options;
 
     const {
       document: initialDocument,
@@ -81,7 +80,6 @@ export class EmbeddedSandbox {
       defaultHeaders: headers
         ? encodeURIComponent(JSON.stringify(headers))
         : undefined,
-      shouldPersistState: !!persistExplorerState,
       version: packageJSON.version,
     };
 
