@@ -1,4 +1,7 @@
 {
   "sandboxes": ["npm-embeddable-explorer-zotwkv"],
-  "buildCommand": "build"
+  "buildCommand": "build",
+  "publishDirectory": {
+    "@apollo/explorer": "dist"
+  }
 }
