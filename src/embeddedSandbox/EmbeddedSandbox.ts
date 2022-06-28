@@ -11,6 +11,7 @@ import {
 } from '../helpers/postMessageRelayHelpers';
 import { setupSandboxEmbedRelay } from './setupSandboxEmbedRelay';
 import packageJSON from '../../package.json';
+import type { JSONObject } from '../types';
 
 export interface EmbeddableSandboxOptions {
   target: string | HTMLElement; // HTMLElement is to accomodate people who might prefer to pass in a ref
@@ -18,7 +19,7 @@ export interface EmbeddableSandboxOptions {
 
   initialState?: {
     document?: string;
-    variables?: Record<string, any>;
+    variables?: JSONObject;
     headers?: Record<string, string>;
   };
 
