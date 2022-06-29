@@ -11,10 +11,17 @@ import {
 } from '../helpers/postMessageRelayHelpers';
 import { setupSandboxEmbedRelay } from './setupSandboxEmbedRelay';
 import packageJSON from '../../package.json';
+import type { JSONObject } from '../types';
 
 export interface EmbeddableSandboxOptions {
   target: string | HTMLElement; // HTMLElement is to accomodate people who might prefer to pass in a ref
   initialEndpoint?: string;
+
+  initialState?: {
+    document?: string;
+    variables?: JSONObject;
+    headers?: Record<string, string>;
+  };
 
   // optional. defaults to `return fetch(url, fetchOptions)`
   handleRequest?: HandleRequest;
@@ -57,17 +64,38 @@ export class EmbeddedSandbox {
     let element: HTMLElement | null;
     const { target } = this.options;
 
+    const {
+      document: initialDocument,
+      variables,
+      headers,
+    } = this.options.initialState || {};
+
+    const queryParams = {
+      endpoint: this.options.initialEndpoint,
+      defaultDocument: initialDocument
+        ? encodeURIComponent(initialDocument)
+        : undefined,
+      defaultVariables: variables
+        ? encodeURIComponent(JSON.stringify(variables, null, 2))
+        : undefined,
+      defaultHeaders: headers
+        ? encodeURIComponent(JSON.stringify(headers))
+        : undefined,
+      version: packageJSON.version,
+    };
+
+    const queryString = Object.entries(queryParams)
+      .filter(([_, value]) => value !== undefined)
+      .map(([key, value]) => `${key}=${value}`)
+      .join('&');
+
     if (typeof target === 'string') {
       element = document?.querySelector?.(target);
     } else {
       element = target;
     }
     const iframeElement = document.createElement('iframe');
-    iframeElement.src = `${EMBEDDABLE_SANDBOX_URL}${
-      this.options.initialEndpoint
-        ? `?endpoint=${this.options.initialEndpoint}&version=${packageJSON.version}`
-        : ''
-    }`;
+    iframeElement.src = `${EMBEDDABLE_SANDBOX_URL}?${queryString}`;
 
     iframeElement.id = IFRAME_DOM_ID(this.uniqueEmbedInstanceId);
     iframeElement.setAttribute(

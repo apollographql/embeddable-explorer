@@ -11,13 +11,14 @@ import {
 } from '../helpers/postMessageRelayHelpers';
 import { setupEmbedRelay } from './setupEmbedRelay';
 import packageJSON from '../../package.json';
+import type { JSONObject } from '../types';
 
 export interface BaseEmbeddableExplorerOptions {
   target: string | HTMLElement; // HTMLElement is to accomodate people who might prefer to pass in a ref
 
   initialState?: {
     document?: string;
-    variables?: Record<string, any>;
+    variables?: JSONObject;
     headers?: Record<string, string>;
     displayOptions: {
       docsPanelState?: 'open' | 'closed'; // default to 'open',
