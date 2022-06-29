@@ -1,7 +1,11 @@
 {
-  "sandboxes": ["npm-embeddable-explorer-zotwkv"],
-  "buildCommand": "build",
+  "sandboxes": ["npm-embeddable-explorer-zotwkv", "npm-embeddable-sandbox-q0zv0e"],
+  "buildCommand": "code-sandbox-build-all-packages",
   "publishDirectory": {
-    "@apollo/explorer": "dist"
-  }
+    "@apollo/explorer": "packages/explorer/dist",
+    "@apollo/sandbox": "packages/sandbox/dist"
+  },
+  "packages": ["packages/explorer", "packages/sandbox"],
+  "node": "14",
+  "installCommand": "code-sandbox-install"
 }

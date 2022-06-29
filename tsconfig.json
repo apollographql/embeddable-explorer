@@ -1,6 +1,4 @@
 {
-  // see https://www.typescriptlang.org/tsconfig to better understand tsconfigs
-  "include": ["src", "types", "src/index.ts"],
   "compilerOptions": {
     "module": "esnext",
     "lib": ["dom", "esnext"],
@@ -9,8 +7,6 @@
     "declaration": true,
     // output .js.map sourcemap files for consumers
     "sourceMap": true,
-    // match output dir to input dir. e.g. dist/index instead of dist/src/index
-    "rootDir": ".",
     // stricter type-checking for stronger correctness. Recommended by TS
     "strict": true,
     // linter checks for common issues
@@ -33,7 +29,14 @@
     "noEmit": true,
     // if you import as type only, force import type
     "importsNotUsedAsValues": "error",
-    "resolveJsonModule": true,
-    "outDir": "dist",
-  }
+  },
+  "files": [],
+  "references": [
+    {
+      "path": "./packages/explorer/tsconfig.ref.json"
+    },
+    {
+      "path": "./packages/sandbox/tsconfig.ref.json"
+    },
+  ],
 }
