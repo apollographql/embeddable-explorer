@@ -6,7 +6,11 @@ import {
   SubscriptionClient as TransportSubscriptionClient,
 } from 'subscriptions-transport-ws';
 import type { JSONObject } from './types';
-import { EXPLORER_SUBSCRIPTION_RESPONSE } from './constants';
+import {
+  EXPLORER_SET_SOCKET_STATUS,
+  EXPLORER_SET_SOCKET_ERROR,
+  EXPLORER_SUBSCRIPTION_RESPONSE,
+} from './constants';
 import {
   sendPostMessageToEmbed,
   SocketStatus,
@@ -169,6 +173,44 @@ class SubscriptionClient {
   }
 }
 
+function setParentSocketError({
+  error,
+  embeddedIFrameElement,
+  embedUrl,
+}: {
+  error: Error | undefined;
+  embeddedIFrameElement: HTMLIFrameElement;
+  embedUrl: string;
+}) {
+  sendPostMessageToEmbed({
+    message: {
+      name: EXPLORER_SET_SOCKET_ERROR,
+      error,
+    },
+    embeddedIFrameElement,
+    embedUrl,
+  });
+}
+
+function setParentSocketStatus({
+  status,
+  embeddedIFrameElement,
+  embedUrl,
+}: {
+  status: SocketStatus;
+  embeddedIFrameElement: HTMLIFrameElement;
+  embedUrl: string;
+}) {
+  sendPostMessageToEmbed({
+    message: {
+      name: EXPLORER_SET_SOCKET_STATUS,
+      status,
+    },
+    embeddedIFrameElement,
+    embedUrl,
+  });
+}
+
 export function executeSubscription({
   operation,
   operationName,
@@ -194,6 +236,59 @@ export function executeSubscription({
     subscriptionUrl,
     headers ?? {},
     protocol
+  );
+
+  client.onError((e: Error) =>
+    setParentSocketError({
+      error: JSON.parse(JSON.stringify(e)),
+      embeddedIFrameElement,
+      embedUrl,
+    })
+  );
+  client.onConnected(() => {
+    setParentSocketError({
+      error: undefined,
+      embeddedIFrameElement,
+      embedUrl,
+    });
+    setParentSocketStatus({
+      status: 'connected',
+      embeddedIFrameElement,
+      embedUrl,
+    });
+  });
+  client.onReconnected(() => {
+    setParentSocketError({
+      error: undefined,
+      embeddedIFrameElement,
+      embedUrl,
+    });
+    setParentSocketStatus({
+      status: 'connected',
+      embeddedIFrameElement,
+      embedUrl,
+    });
+  });
+  client.onConnecting(() =>
+    setParentSocketStatus({
+      status: 'connecting',
+      embeddedIFrameElement,
+      embedUrl,
+    })
+  );
+  client.onReconnecting(() =>
+    setParentSocketStatus({
+      status: 'connecting',
+      embeddedIFrameElement,
+      embedUrl,
+    })
+  );
+  client.onDisconnected(() =>
+    setParentSocketStatus({
+      status: 'disconnected',
+      embeddedIFrameElement,
+      embedUrl,
+    })
   );
 
   client

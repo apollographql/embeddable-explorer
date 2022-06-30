@@ -15,6 +15,8 @@ import {
   PARENT_LOGOUT_SUCCESS,
   TRIGGER_LOGOUT_IN_PARENT,
   EXPLORER_SUBSCRIPTION_RESPONSE,
+  EXPLORER_SET_SOCKET_ERROR,
+  EXPLORER_SET_SOCKET_STATUS,
 } from './constants';
 import type { JSONObject, JSONValue } from './types';
 
@@ -98,6 +100,14 @@ export type OutgoingEmbedMessage =
         error?: Error;
         errors?: [Error];
       };
+    }
+  | {
+      name: typeof EXPLORER_SET_SOCKET_ERROR;
+      error: Error | undefined;
+    }
+  | {
+      name: typeof EXPLORER_SET_SOCKET_STATUS;
+      status: SocketStatus;
     }
   | {
       name: typeof PARENT_LOGOUT_SUCCESS;
