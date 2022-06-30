@@ -100,7 +100,7 @@ export type IncomingEmbedMessage = MessageEvent;
 //     operationId: string;
 //     variables?: Record<string, string>;
 //     headers?: Record<string, string>;
-//     sandboxEndpointUrl?: string;
+//     endpointUrl?: string;
 //   }>
 // | MessageEvent<{
 //     name: typeof EXPLORER_LISTENING_FOR_SCHEMA;

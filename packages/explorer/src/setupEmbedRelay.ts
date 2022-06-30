@@ -23,7 +23,7 @@ export function setupEmbedRelay({
   graphRef,
   autoInviteOptions,
 }: {
-  endpointUrl: string;
+  endpointUrl: string | undefined;
   handleRequest: HandleRequest;
   embeddedExplorerIFrameElement: HTMLIFrameElement;
   updateSchemaInEmbed: ({
@@ -79,11 +79,17 @@ export function setupEmbedRelay({
       // If the user is executing a query or mutation or subscription...
       if (isQueryOrMutation && data.operation && data.operationId) {
         // Extract the operation details from the event.data object
-        const { operation, operationId, operationName, variables, headers } =
-          data;
+        const {
+          operation,
+          operationId,
+          operationName,
+          variables,
+          headers,
+          endpointUrl: studioGraphEndpointUrl,
+        } = data;
         if (isQueryOrMutation) {
           executeOperation({
-            endpointUrl,
+            endpointUrl: endpointUrl ?? studioGraphEndpointUrl,
             handleRequest,
             operation,
             operationName,
