@@ -1,3 +1,5 @@
+import commonjs from '@rollup/plugin-commonjs';
+import resolve from '@rollup/plugin-node-resolve';
 import typescript from '@rollup/plugin-typescript';
 import { terser } from 'rollup-plugin-terser';
 import babel from '@rollup/plugin-babel';
@@ -54,8 +56,15 @@ function createUMDRollupConfig(options) {
         extensions: ['.js', '.jsx', '.ts', '.tsx'],
         babelHelpers: 'bundled',
       }),
+      resolve({
+        jsnext: true,
+        main: true,
+        browser: true,
+      }),
+      commonjs(),
       json(),
     ],
+    context: 'this',
   };
 }
 
