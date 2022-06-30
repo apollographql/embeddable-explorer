@@ -95,7 +95,7 @@ jobs:
       - npm-install
       - run:
           name: TypeScript
-          command: npm run typescript:check
+          command: npm run build
 
   build-latest-umd-explorer:
     executor: node

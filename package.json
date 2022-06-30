@@ -20,7 +20,6 @@
     "lint": "eslint --ext .js,.jsx,.ts,.tsx .",
     "size": "size-limit",
     "analyze": "size-limit --why",
-    "typescript:check": "tsc --noEmit",
     "typescript:clean": "tsc --build --clean",
     "build": "tsc --build",
     "build-all-cjs-esm": "for package in packages/*; do cd $package && npm run build && cd ../..; done",
