@@ -1,4 +1,8 @@
-import type { GraphQLError, IntrospectionQuery } from 'graphql';
+import type {
+  ExecutionResult,
+  GraphQLError,
+  IntrospectionQuery,
+} from 'graphql';
 import {
   PARTIAL_AUTHENTICATION_TOKEN_RESPONSE,
   EMBEDDABLE_SANDBOX_URL,
@@ -10,8 +14,9 @@ import {
   EXPLORER_LISTENING_FOR_PARTIAL_TOKEN,
   PARENT_LOGOUT_SUCCESS,
   TRIGGER_LOGOUT_IN_PARENT,
+  EXPLORER_SUBSCRIPTION_RESPONSE,
 } from './constants';
-import type { JSONValue } from './types';
+import type { JSONObject, JSONValue } from './types';
 
 export type HandleRequest = (
   endpointUrl: string,
@@ -46,10 +51,12 @@ export function sendPostMessageToEmbed({
   embeddedIFrameElement?.contentWindow?.postMessage(message, embedUrl);
 }
 
-type Error = {
+type ResponseError = {
   message: string;
   stack?: string;
 };
+
+export type SocketStatus = 'disconnected' | 'connecting' | 'connected';
 
 export type OutgoingEmbedMessage =
   | {
@@ -77,10 +84,19 @@ export type OutgoingEmbedMessage =
       operationId: string;
       response: {
         data?: JSONValue;
-        error?: Error;
-        errors?: [Error];
+        error?: ResponseError;
+        errors?: [ResponseError];
         status?: number;
         headers?: Headers;
+      };
+    }
+  | {
+      name: typeof EXPLORER_SUBSCRIPTION_RESPONSE;
+      operationId: string;
+      response: {
+        data?: ExecutionResult<JSONObject>;
+        error?: Error;
+        errors?: [Error];
       };
     }
   | {
@@ -101,6 +117,16 @@ export type IncomingEmbedMessage = MessageEvent;
 //     variables?: Record<string, string>;
 //     headers?: Record<string, string>;
 //     endpointUrl?: string;
+//   }>
+// | MessageEvent<{
+//     name: typeof EXPLORER_SUBSCRIPTION_REQUEST;
+//     operationId: string;
+//     operation: string;
+//     variables?: Record<string, string>;
+//     operationName?: string;
+//     headers?: Record<string, string>;
+//     subscriptionUrl: string;
+//     protocol: GraphQLSubscriptionLibrary;
 //   }>
 // | MessageEvent<{
 //     name: typeof EXPLORER_LISTENING_FOR_SCHEMA;
