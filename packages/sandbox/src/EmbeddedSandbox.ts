@@ -10,8 +10,8 @@ import {
   sendPostMessageToEmbed,
 } from './helpers/postMessageRelayHelpers';
 import { setupSandboxEmbedRelay } from './setupSandboxEmbedRelay';
-import packageJSON from '../../package.json';
-import type { JSONObject } from '../types';
+import packageJSON from '../package.json';
+import type { JSONObject } from './helpers/types';
 
 export interface EmbeddableSandboxOptions {
   target: string | HTMLElement; // HTMLElement is to accomodate people who might prefer to pass in a ref

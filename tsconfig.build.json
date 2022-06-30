@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "composite": true
+  },
+  "include": [],
+  "files": [],
+  "references": [
+    {
+      "path": "./packages/explorer"
+    },
+    {
+      "path": "./packages/sandbox"
+    },
+  ],
+}

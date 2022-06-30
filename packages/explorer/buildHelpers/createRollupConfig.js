@@ -1,6 +1,7 @@
 import typescript from '@rollup/plugin-typescript';
 import { terser } from 'rollup-plugin-terser';
 import babel from '@rollup/plugin-babel';
+import json from '@rollup/plugin-json';
 
 // type RollupOptions = {
 //   format: 'umd' | 'cjs' | 'esm',
@@ -33,7 +34,7 @@ function createUMDRollupConfig(options) {
     plugins: [
       // we override outDir for the umd build since we are outputting to files, not dirs
       // if we pass outDir: 'dist' here the ts files will be put in a nested dist dir inside dist
-      typescript({ tsconfig: './tsconfig.ref.json', outDir: '' }),
+      typescript({ tsconfig: './tsconfig.json', outDir: '' }),
       options.environment === 'production' &&
         // terser is for minifying
         // see https://www.npmjs.com/package/rollup-plugin-terser#options
@@ -53,6 +54,7 @@ function createUMDRollupConfig(options) {
         extensions: ['.js', '.jsx', '.ts', '.tsx'],
         babelHelpers: 'bundled',
       }),
+      json(),
     ],
   };
 }
@@ -100,7 +102,7 @@ function createCJS_ESMRollupConfig(options) {
     external: ['use-deep-compare-effect', 'react'],
     plugins: [
       typescript({
-        tsconfig: './tsconfig.ref.json',
+        tsconfig: './tsconfig.json',
       }),
       options.environment === 'production' &&
         // terser is for minifying
@@ -121,6 +123,7 @@ function createCJS_ESMRollupConfig(options) {
         extensions: ['.js', '.jsx', '.ts', '.tsx'],
         babelHelpers: 'bundled',
       }),
+      json(),
     ],
   };
 }

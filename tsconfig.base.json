@@ -29,14 +29,6 @@
     "noEmit": true,
     // if you import as type only, force import type
     "importsNotUsedAsValues": "error",
+    "resolveJsonModule": true
   },
-  "files": [],
-  "references": [
-    {
-      "path": "./packages/explorer/tsconfig.ref.json"
-    },
-    {
-      "path": "./packages/sandbox/tsconfig.ref.json"
-    },
-  ],
 }
