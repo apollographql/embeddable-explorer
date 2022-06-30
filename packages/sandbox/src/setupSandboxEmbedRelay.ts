@@ -50,11 +50,11 @@ export function setupSandboxEmbedRelay({
         const {
           introspectionRequestBody,
           introspectionRequestHeaders,
-          endpointUrl,
+          sandboxEndpointUrl,
         } = data;
-        if (endpointUrl) {
+        if (sandboxEndpointUrl) {
           executeIntrospectionRequest({
-            endpointUrl,
+            endpointUrl: sandboxEndpointUrl,
             introspectionRequestBody,
             headers: introspectionRequestHeaders,
             embeddedIFrameElement: embeddedSandboxIFrameElement,
