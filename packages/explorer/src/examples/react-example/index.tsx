@@ -23,7 +23,6 @@ function App() {
       <ApolloExplorer
         className="embedded-explorer"
         graphRef="acephei@current"
-        endpointUrl="https://acephei-gateway.herokuapp.com"
         initialState={{
           document: `query Example {
 	me {
