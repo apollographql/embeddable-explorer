@@ -10,7 +10,7 @@ const contents =
       type: 'module',
       main: `index.cjs`,
       module: 'index.mjs',
-      types: 'index.d.ts',
+      types: '../src/react/index.d.ts',
       sideEffects: false,
     },
     null,
