@@ -2,6 +2,7 @@ import {
   EMBEDDABLE_SANDBOX_URL,
   EXPLORER_LISTENING_FOR_HANDSHAKE,
   EXPLORER_QUERY_MUTATION_REQUEST,
+  EXPLORER_SUBSCRIPTION_REQUEST,
   HANDSHAKE_RESPONSE,
   INTROSPECTION_QUERY_WITH_HEADERS,
 } from './helpers/constants';
@@ -13,6 +14,7 @@ import {
   IncomingEmbedMessage,
   sendPostMessageToEmbed,
 } from './helpers/postMessageRelayHelpers';
+import { executeSubscription } from './helpers/subscriptionPostMessageRelayHelpers';
 
 export function setupSandboxEmbedRelay({
   handleRequest,
@@ -66,9 +68,14 @@ export function setupSandboxEmbedRelay({
       // Check to see if the posted message indicates that the user is
       // executing a query or mutation or subscription in the Explorer
       const isQueryOrMutation = data.name === EXPLORER_QUERY_MUTATION_REQUEST;
+      const isSubscription = data.name === EXPLORER_SUBSCRIPTION_REQUEST;
 
       // If the user is executing a query or mutation or subscription...
-      if (isQueryOrMutation && data.operation && data.operationId) {
+      if (
+        (isQueryOrMutation || isSubscription) &&
+        data.operation &&
+        data.operationId
+      ) {
         // Extract the operation details from the event.data object
         const {
           operation,
@@ -93,6 +100,18 @@ export function setupSandboxEmbedRelay({
             embeddedIFrameElement: embeddedSandboxIFrameElement,
             operationId,
             embedUrl,
+          });
+        } else if (isSubscription) {
+          executeSubscription({
+            operation,
+            operationName,
+            variables,
+            headers,
+            embeddedIFrameElement: embeddedSandboxIFrameElement,
+            operationId,
+            embedUrl,
+            subscriptionUrl: data.subscriptionUrl,
+            protocol: data.protocol,
           });
         }
       }
