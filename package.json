@@ -28,7 +28,9 @@
     "prettier:fix": "prettier --write .",
     "//": "The below two scripts are only used for code sandbox ci since code sandbox doesn't support workspaces / npm 7, we need to install & build in the packages",
     "code-sandbox-build-all-packages": "cd packages/explorer && npm run build && cd ../sandbox && npm run build",
-    "code-sandbox-install": "npm i -g npm@8.5.0 && npm -v && npm i"
+    "code-sandbox-install": "npm i -g npm@8.5.0 && npm -v && npm i",
+    "publish-changeset": "npm run prepare-for-publish && yarn changeset publish",
+    "prepare-for-publish": "npm run build-all-cjs-esm && node ./prepareForPublish.js && for package in packages/*; do cd $package && rm -rf dist && cd ../..; done"
   },
   "husky": {
     "hooks": {

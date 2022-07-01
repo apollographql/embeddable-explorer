@@ -19,7 +19,7 @@ const contents =
 fs.outputFile('dist/react/package.json', contents);
 
 // We copy the package.json to the dist folder, since when we publish we
-// publish from inside the dist folder (see publish-changeset npm script).
+// publish from inside the dist folder (see prepareForPublish node script).
 const packageJson = require('../package.json');
 packageJson.type = 'module';
 
