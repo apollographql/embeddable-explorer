@@ -1,6 +1,6 @@
 {
   "sandboxes": ["npm-embeddable-explorer-zotwkv", "npm-embeddable-sandbox-q0zv0e"],
-  "buildCommand": "code-sandbox-build-all-packages",
+  "buildCommand": "build-all-cjs-esm",
   "publishDirectory": {
     "@apollo/explorer": "packages/explorer/dist",
     "@apollo/sandbox": "packages/sandbox/dist"
