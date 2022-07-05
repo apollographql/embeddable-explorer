@@ -6,10 +6,11 @@ This repo hosts the source for Apollo Studio's Embeddable Explorer
 
 ### Using the [@apollo/explorer npm package](https://www.npmjs.com/package/@apollo/explorer)
 
-You can download the @apollo/explorer npm package with `npm install @apollo/explorer`. Then, you can import the ApolloExplorer class or ApolloExplorerReact component like so:
+You can download the @apollo/explorer npm package with `npm install @apollo/explorer`. Then, you can import the ApolloExplorer class or ApolloExplorer component like so:
 
 ```
-import { ApolloExplorer, ApolloExplorerReact } from '@apollo/explorer';
+import { ApolloExplorer } from '@apollo/explorer';
+import { ApolloExplorer } from '@apollo/explorer/react';
 ```
 
 When you call the EmbeddedExplorer constructor with a `target` of an html div you have in your app, the Explorer will show up in an iframe in that element. Check out all the [configuration options](https://www.apollographql.com/docs/studio/explorer/embed-explorer/#options) for your graph.
@@ -17,12 +18,12 @@ When you call the EmbeddedExplorer constructor with a `target` of an html div yo
 #### React
 
 ```
-import { ApolloExplorerReact } from '@apollo/explorer';
+import { ApolloExplorer } from '@apollo/explorer/react';
 
 function App() {
 
   return (
-    <ApolloExplorerReact
+    <ApolloExplorer
       graphRef='acephei@current',
       endpointUrl='https://acephei-gateway.herokuapp.com',
       initialState={{
