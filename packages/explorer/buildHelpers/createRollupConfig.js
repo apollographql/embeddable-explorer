@@ -97,20 +97,6 @@ function createCJS_ESMRollupConfig(options) {
       typescript({
         tsconfig: './tsconfig.json',
       }),
-      options.environment === 'production' &&
-        // terser is for minifying
-        // see https://www.npmjs.com/package/rollup-plugin-terser#options
-        terser({
-          output: { comments: false },
-          compress: {
-            keep_infinity: true,
-            pure_getters: true,
-            passes: 10,
-          },
-          ecma: 2020,
-          module: options.format === 'esm',
-          toplevel: options.format === 'esm' || options.format === 'cjs',
-        }),
       babel({
         exclude: 'node_modules/**',
         extensions: ['.js', '.jsx', '.ts', '.tsx'],
