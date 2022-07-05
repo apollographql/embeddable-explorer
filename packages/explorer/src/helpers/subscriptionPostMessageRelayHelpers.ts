@@ -10,6 +10,7 @@ import {
   EXPLORER_SET_SOCKET_STATUS,
   EXPLORER_SET_SOCKET_ERROR,
   EXPLORER_SUBSCRIPTION_RESPONSE,
+  EXPLORER_SUBSCRIPTION_TERMINATION,
 } from './constants';
 import {
   sendPostMessageToEmbed,
@@ -237,6 +238,15 @@ export function executeSubscription({
     headers ?? {},
     protocol
   );
+
+  const checkForSubscriptionTermination = (event: MessageEvent) => {
+    if (event.data.name === EXPLORER_SUBSCRIPTION_TERMINATION) {
+      client.unsubscribeAll();
+      window.removeEventListener('message', checkForSubscriptionTermination);
+    }
+  };
+
+  window.addEventListener('message', checkForSubscriptionTermination);
 
   client.onError((e: Error) =>
     setParentSocketError({

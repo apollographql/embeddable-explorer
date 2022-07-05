@@ -139,6 +139,10 @@ export type IncomingEmbedMessage = MessageEvent;
 //     protocol: GraphQLSubscriptionLibrary;
 //   }>
 // | MessageEvent<{
+//     name: typeof EXPLORER_SUBSCRIPTION_TERMINATION;
+//     operationId: string;
+//   }>
+// | MessageEvent<{
 //     name: typeof EXPLORER_LISTENING_FOR_SCHEMA;
 //   }>
 // | MessageEvent<{
