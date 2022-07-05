@@ -174,7 +174,7 @@ class SubscriptionClient {
   }
 }
 
-function setParentSocketError({
+export function setParentSocketError({
   error,
   embeddedIFrameElement,
   embedUrl,

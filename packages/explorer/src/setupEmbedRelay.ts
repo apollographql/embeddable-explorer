@@ -14,7 +14,10 @@ import {
   IncomingEmbedMessage,
   sendPostMessageToEmbed,
 } from './helpers/postMessageRelayHelpers';
-import { executeSubscription } from './helpers/subscriptionPostMessageRelayHelpers';
+import {
+  executeSubscription,
+  setParentSocketError,
+} from './helpers/subscriptionPostMessageRelayHelpers';
 
 export function setupEmbedRelay({
   endpointUrl,
@@ -107,17 +110,27 @@ export function setupEmbedRelay({
             embedUrl,
           });
         } else if (isSubscription) {
-          executeSubscription({
-            operation,
-            operationName,
-            variables,
-            headers,
-            embeddedIFrameElement: embeddedExplorerIFrameElement,
-            operationId,
-            embedUrl,
-            subscriptionUrl: data.subscriptionUrl,
-            protocol: data.protocol,
-          });
+          if (!!schema) {
+            setParentSocketError({
+              error: new Error(
+                'you cannot run subscriptions from this embed, since you are not embedding with a registered Studio graph'
+              ),
+              embeddedIFrameElement: embeddedExplorerIFrameElement,
+              embedUrl,
+            });
+          } else {
+            executeSubscription({
+              operation,
+              operationName,
+              variables,
+              headers,
+              embeddedIFrameElement: embeddedExplorerIFrameElement,
+              operationId,
+              embedUrl,
+              subscriptionUrl: data.subscriptionUrl,
+              protocol: data.protocol,
+            });
+          }
         }
       }
     }
