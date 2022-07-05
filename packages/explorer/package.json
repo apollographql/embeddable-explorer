@@ -23,7 +23,6 @@
       "size": "size-limit",
       "analyze": "size-limit --why",
       "typescript:check": "tsc --noEmit",
-      "publish-changeset": "cd dist && changeset publish",
       "prettier:check": "prettier --check .",
       "prettier:fix": "prettier --write ."
     },
