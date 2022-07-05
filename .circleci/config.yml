@@ -95,7 +95,7 @@ jobs:
       - npm-install
       - run:
           name: TypeScript
-          command: npm run typescript:check
+          command: npm run build
 
   build-latest-umd-explorer:
     executor: node
@@ -104,13 +104,13 @@ jobs:
       - npm-install
       - run:
           name: Build
-          command: '[ -d build ] || PUBLIC_URL=https://embeddable-explorer.cdn.apollographql.com/_latest npm run build-explorer:umd -- --no-progress'
+          command: '[ -d build ] || cd packages/explorer && PUBLIC_URL=https://embeddable-explorer.cdn.apollographql.com/_latest npm run build:umd -- --no-progress'
           environment:
             BUILD_TO_CDN: 'true'
       - persist_to_workspace:
           root: ~/embeddable-explorer
           paths:
-            - dist
+            - packages/explorer/dist
 
   build-versioned-umd-explorer:
     executor: node
@@ -119,13 +119,13 @@ jobs:
       - npm-install
       - run:
           name: Build
-          command: '[ -d build ] || PUBLIC_URL=https://embeddable-explorer.cdn.apollographql.com/$CIRCLE_SHA1 npm run build-explorer:umd -- --no-progress'
+          command: '[ -d build ] || cd packages/explorer && PUBLIC_URL=https://embeddable-explorer.cdn.apollographql.com/$CIRCLE_SHA1 npm run build:umd -- --no-progress'
           environment:
             BUILD_TO_CDN: 'true'
       - persist_to_workspace:
           root: ~/embeddable-explorer
           paths:
-            - dist
+            - packages/explorer/dist
 
   cdn-upload-latest-explorer:
     executor: gcp-cli/google
@@ -138,7 +138,7 @@ jobs:
       - run:
           name: Upload build artifacts to CDN
           command: |
-            gsutil -m rsync -r ~/embeddable-explorer/dist gs://embeddable-explorer/_latest
+            gsutil -m rsync -r ~/embeddable-explorer/packages/explorer/dist gs://embeddable-explorer/_latest
 
   cdn-upload-versioned-explorer:
     executor: gcp-cli/google
@@ -151,7 +151,7 @@ jobs:
       - run:
           name: Upload build artifacts to CDN
           command: |
-            gsutil -m rsync -r ~/embeddable-explorer/dist gs://embeddable-explorer/$CIRCLE_SHA1
+            gsutil -m rsync -r ~/embeddable-explorer/packages/explorer/dist gs://embeddable-explorer/$CIRCLE_SHA1
 
   build-latest-umd-sandbox:
     executor: node
@@ -160,13 +160,13 @@ jobs:
       - npm-install
       - run:
           name: Build
-          command: 'rm -rf dist && ([ -d build ] || PUBLIC_URL=https://embeddable-sandbox.cdn.apollographql.com/_latest npm run build-sandbox:umd -- --no-progress)'
+          command: '([ -d build ] || cd packages/sandbox && PUBLIC_URL=https://embeddable-sandbox.cdn.apollographql.com/_latest npm run build:umd -- --no-progress)'
           environment:
             BUILD_TO_CDN: 'true'
       - persist_to_workspace:
           root: ~/embeddable-explorer
           paths:
-            - dist
+            - packages/sandbox/dist
 
   build-versioned-umd-sandbox:
     executor: node
@@ -175,13 +175,13 @@ jobs:
       - npm-install
       - run:
           name: Build
-          command: '[ -d build ] || PUBLIC_URL=https://embeddable-sandbox.cdn.apollographql.com/$CIRCLE_SHA1 npm run build-sandbox:umd -- --no-progress'
+          command: '[ -d build ] || cd packages/sandbox && PUBLIC_URL=https://embeddable-sandbox.cdn.apollographql.com/$CIRCLE_SHA1 npm run build:umd -- --no-progress'
           environment:
             BUILD_TO_CDN: 'true'
       - persist_to_workspace:
           root: ~/embeddable-explorer
           paths:
-            - dist
+            - packages/sandbox/dist
 
   cdn-upload-latest-sandbox:
     executor: gcp-cli/google
@@ -194,7 +194,7 @@ jobs:
       - run:
           name: Upload build artifacts to CDN
           command: |
-            gsutil -m rsync -r ~/embeddable-explorer/dist gs://embeddable-sandbox/_latest
+            gsutil -m rsync -r ~/embeddable-explorer/packages/sandbox/dist gs://embeddable-sandbox/_latest
 
   cdn-upload-versioned-sandbox:
     executor: gcp-cli/google
@@ -207,7 +207,7 @@ jobs:
       - run:
           name: Upload build artifacts to CDN
           command: |
-            gsutil -m rsync -r ~/embeddable-explorer/dist gs://embeddable-sandbox/$CIRCLE_SHA1
+            gsutil -m rsync -r ~/embeddable-explorer/packages/sandbox/dist gs://embeddable-sandbox/$CIRCLE_SHA1
 
 
 workflows:
@@ -217,6 +217,7 @@ workflows:
       - prettier
       - typescript
       - build-latest-umd-explorer
+      - build-latest-umd-sandbox
       - cdn-upload-latest-explorer:
           context:
             - embeddable-explorer-write
@@ -236,9 +237,6 @@ workflows:
           filters:
             branches:
               only: main
-      - build-latest-umd-sandbox:
-          requires:
-            - cdn-upload-versioned-explorer
       - cdn-upload-latest-sandbox:
           context:
             - embeddable-sandbox-write
