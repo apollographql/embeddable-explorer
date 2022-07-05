@@ -1,5 +1,15 @@
 # @apollo/explorer
 
+## 1.0.0
+
+### Major Changes
+
+- [#138](https://github.com/apollographql/embeddable-explorer/pull/138) [`9893948`](https://github.com/apollographql/embeddable-explorer/commit/9893948e8b459169e912dd18790dfe247bee29f6) Thanks [@mayakoneval](https://github.com/mayakoneval)! - New import syntax for @apollo/expplorer & first release of @apollo/sandbox
+
+### Minor Changes
+
+- [#136](https://github.com/apollographql/embeddable-explorer/pull/136) [`c6b246c`](https://github.com/apollographql/embeddable-explorer/commit/c6b246c737e42fdc6334f1cbc269866951b66548) Thanks [@William010x](https://github.com/William010x)! - Add initialState config for sandbox
+
 ## 0.6.0
 
 ### Minor Changes
