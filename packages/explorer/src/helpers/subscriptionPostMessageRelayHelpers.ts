@@ -22,7 +22,7 @@ export type GraphQLSubscriptionLibrary =
   | 'graphql-ws';
 
 // @see https://www.typescriptlang.org/docs/handbook/advanced-types.html#exhaustiveness-checking
-export function assertUnreachable(x: never): never {
+function assertUnreachable(x: never): never {
   throw new Error(`Didn't expect to get here ${x}`);
 }
 

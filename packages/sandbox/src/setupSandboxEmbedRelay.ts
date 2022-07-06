@@ -1,6 +1,5 @@
 import {
   EMBEDDABLE_SANDBOX_URL,
-  EXPLORER_CHANGE_PROTOCOL,
   EXPLORER_LISTENING_FOR_HANDSHAKE,
   EXPLORER_QUERY_MUTATION_REQUEST,
   EXPLORER_SUBSCRIPTION_REQUEST,
@@ -103,22 +102,6 @@ export function setupSandboxEmbedRelay({
             embedUrl,
           });
         } else if (isSubscription) {
-          const checkForProtocolChange = (event: MessageEvent) => {
-            if (event.data.name === EXPLORER_CHANGE_PROTOCOL) {
-              executeSubscription({
-                operation,
-                operationName,
-                variables,
-                headers,
-                embeddedIFrameElement: embeddedSandboxIFrameElement,
-                operationId,
-                embedUrl,
-                subscriptionUrl: data.subscriptionUrl,
-                protocol: event.data.protocol,
-              });
-            }
-          };
-          window.addEventListener('message', checkForProtocolChange);
           executeSubscription({
             operation,
             operationName,

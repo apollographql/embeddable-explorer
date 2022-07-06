@@ -20,7 +20,6 @@ export const EXPLORER_SUBSCRIPTION_REQUEST = 'ExplorerSubscriptionRequest';
 export const EXPLORER_SUBSCRIPTION_RESPONSE = 'ExplorerSubscriptionResponse';
 export const EXPLORER_SUBSCRIPTION_TERMINATION =
   'ExplorerSubscriptionTermination';
-export const EXPLORER_CHANGE_PROTOCOL = 'ExplorerChangeProtocol';
 export const EXPLORER_SET_SOCKET_ERROR = 'ExplorerSetSocketError';
 export const EXPLORER_SET_SOCKET_STATUS = 'ExplorerSetSocketStatus';
 export const IFRAME_DOM_ID = (uniqueId: number) => `apollo-embed-${uniqueId}`;
