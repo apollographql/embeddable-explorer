@@ -61,8 +61,6 @@ export type EmbeddableExplorerOptions =
 
 let idCounter = 0;
 
-const MIN_VERSION_WITH_SUBSCRIPTIONS_SUPPORTED = '1.1.0';
-
 export class EmbeddedExplorer {
   options: EmbeddableExplorerOptions;
   handleRequest: HandleRequest;
@@ -166,14 +164,7 @@ export class EmbeddedExplorer {
       showHeadersAndEnvVars: displayOptions?.showHeadersAndEnvVars !== false,
       theme: displayOptions?.theme ?? 'dark',
       shouldShowGlobalHeader: true,
-      parentSupportsSubscriptions:
-        !!graphRef &&
-        packageJSON.version &&
-        parseInt(packageJSON.version.replace(/\./, ''), 10) >=
-          parseInt(
-            MIN_VERSION_WITH_SUBSCRIPTIONS_SUPPORTED.replace(/\./, ''),
-            10
-          ),
+      parentSupportsSubscriptions: !!graphRef,
       version: packageJSON.version,
     };
 
