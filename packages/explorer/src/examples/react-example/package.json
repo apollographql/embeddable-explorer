@@ -9,9 +9,8 @@
   "dependencies": {
   },
   "alias": {
-    "react": "../../../../node_modules/react",
-    "react-dom": "../../../../node_modules/react-dom",
-    "scheduler/tracing": "../../../node_modules/scheduler/tracing-profiling"
+    "react": "../../../../../node_modules/react",
+    "react-dom": "../../../../../node_modules/react-dom"
   },
   "devDependencies": {
     "@types/react": "18.0.5",
