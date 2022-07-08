@@ -30,6 +30,7 @@ export interface EmbeddableSandboxOptions {
 }
 
 let idCounter = 0;
+const MIN_VERSION_WITH_SANDBOX_SUBSCRIPTIONS_SUPPORTED = '0.2.0';
 
 export class EmbeddedSandbox {
   options: EmbeddableSandboxOptions;
@@ -81,6 +82,13 @@ export class EmbeddedSandbox {
       defaultHeaders: headers
         ? encodeURIComponent(JSON.stringify(headers))
         : undefined,
+      parentSupportsSubscriptions:
+        packageJSON.version &&
+        parseInt(packageJSON.version.replace(/\./, ''), 10) >=
+          parseInt(
+            MIN_VERSION_WITH_SANDBOX_SUBSCRIPTIONS_SUPPORTED.replace(/\./, ''),
+            10
+          ),
       version: packageJSON.version,
     };
 
