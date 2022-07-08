@@ -164,7 +164,7 @@ export class EmbeddedExplorer {
       showHeadersAndEnvVars: displayOptions?.showHeadersAndEnvVars !== false,
       theme: displayOptions?.theme ?? 'dark',
       shouldShowGlobalHeader: true,
-      parentSupportsSubscriptions: false,
+      parentSupportsSubscriptions: !!graphRef,
       version: packageJSON.version,
     };
 

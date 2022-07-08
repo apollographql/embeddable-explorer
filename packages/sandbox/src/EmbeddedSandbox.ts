@@ -81,6 +81,7 @@ export class EmbeddedSandbox {
       defaultHeaders: headers
         ? encodeURIComponent(JSON.stringify(headers))
         : undefined,
+      parentSupportsSubscriptions: true,
       version: packageJSON.version,
     };
 

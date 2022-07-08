@@ -1,4 +1,8 @@
-import type { GraphQLError, IntrospectionQuery } from 'graphql';
+import type {
+  ExecutionResult,
+  GraphQLError,
+  IntrospectionQuery,
+} from 'graphql';
 import {
   PARTIAL_AUTHENTICATION_TOKEN_RESPONSE,
   EMBEDDABLE_SANDBOX_URL,
@@ -10,13 +14,18 @@ import {
   EXPLORER_LISTENING_FOR_PARTIAL_TOKEN,
   PARENT_LOGOUT_SUCCESS,
   TRIGGER_LOGOUT_IN_PARENT,
+  EXPLORER_SUBSCRIPTION_RESPONSE,
+  EXPLORER_SET_SOCKET_ERROR,
+  EXPLORER_SET_SOCKET_STATUS,
 } from './constants';
-import type { JSONValue } from './types';
+import type { JSONObject, JSONValue } from './types';
 
 export type HandleRequest = (
   endpointUrl: string,
   options: Omit<RequestInit, 'headers'> & { headers: Record<string, string> }
 ) => Promise<Response>;
+
+export type SocketStatus = 'disconnected' | 'connecting' | 'connected';
 
 // Helper function that adds content-type: application/json
 // to each request's headers if not present
@@ -46,7 +55,7 @@ export function sendPostMessageToEmbed({
   embeddedIFrameElement?.contentWindow?.postMessage(message, embedUrl);
 }
 
-type Error = {
+type ResponseError = {
   message: string;
   stack?: string;
 };
@@ -77,11 +86,28 @@ export type OutgoingEmbedMessage =
       operationId: string;
       response: {
         data?: JSONValue;
-        error?: Error;
-        errors?: [Error];
+        error?: ResponseError;
+        errors?: [ResponseError];
         status?: number;
         headers?: Headers;
       };
+    }
+  | {
+      name: typeof EXPLORER_SUBSCRIPTION_RESPONSE;
+      operationId: string;
+      response: {
+        data?: ExecutionResult<JSONObject>;
+        error?: Error;
+        errors?: [Error];
+      };
+    }
+  | {
+      name: typeof EXPLORER_SET_SOCKET_ERROR;
+      error: Error | undefined;
+    }
+  | {
+      name: typeof EXPLORER_SET_SOCKET_STATUS;
+      status: SocketStatus;
     }
   | {
       name: typeof PARENT_LOGOUT_SUCCESS;
@@ -101,6 +127,20 @@ export type IncomingEmbedMessage = MessageEvent;
 //     variables?: Record<string, string>;
 //     headers?: Record<string, string>;
 //     sandboxEndpointUrl?: string;
+//   }>
+// | MessageEvent<{
+//     name: typeof EXPLORER_SUBSCRIPTION_REQUEST;
+//     operationId: string;
+//     operation: string;
+//     variables?: Record<string, string>;
+//     operationName?: string;
+//     headers?: Record<string, string>;
+//     subscriptionUrl: string;
+//     protocol: GraphQLSubscriptionLibrary;
+//   }>
+// | MessageEvent<{
+//     name: typeof EXPLORER_SUBSCRIPTION_TERMINATION;
+//     operationId: string;
 //   }>
 // | MessageEvent<{
 //     name: typeof EXPLORER_LISTENING_FOR_SCHEMA;

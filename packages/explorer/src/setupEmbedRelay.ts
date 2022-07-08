@@ -4,6 +4,7 @@ import {
   EXPLORER_LISTENING_FOR_HANDSHAKE,
   EXPLORER_LISTENING_FOR_SCHEMA,
   EXPLORER_QUERY_MUTATION_REQUEST,
+  EXPLORER_SUBSCRIPTION_REQUEST,
   HANDSHAKE_RESPONSE,
 } from './helpers/constants';
 import {
@@ -13,6 +14,10 @@ import {
   IncomingEmbedMessage,
   sendPostMessageToEmbed,
 } from './helpers/postMessageRelayHelpers';
+import {
+  executeSubscription,
+  setParentSocketError,
+} from './helpers/subscriptionPostMessageRelayHelpers';
 
 export function setupEmbedRelay({
   endpointUrl,
@@ -75,9 +80,14 @@ export function setupEmbedRelay({
       // Check to see if the posted message indicates that the user is
       // executing a query or mutation or subscription in the Explorer
       const isQueryOrMutation = data.name === EXPLORER_QUERY_MUTATION_REQUEST;
+      const isSubscription = data.name === EXPLORER_SUBSCRIPTION_REQUEST;
 
       // If the user is executing a query or mutation or subscription...
-      if (isQueryOrMutation && data.operation && data.operationId) {
+      if (
+        (isQueryOrMutation || isSubscription) &&
+        data.operation &&
+        data.operationId
+      ) {
         // Extract the operation details from the event.data object
         const {
           operation,
@@ -99,6 +109,28 @@ export function setupEmbedRelay({
             operationId,
             embedUrl,
           });
+        } else if (isSubscription) {
+          if (!!schema) {
+            setParentSocketError({
+              error: new Error(
+                'you cannot run subscriptions from this embed, since you are not embedding with a registered Studio graph'
+              ),
+              embeddedIFrameElement: embeddedExplorerIFrameElement,
+              embedUrl,
+            });
+          } else {
+            executeSubscription({
+              operation,
+              operationName,
+              variables,
+              headers,
+              embeddedIFrameElement: embeddedExplorerIFrameElement,
+              operationId,
+              embedUrl,
+              subscriptionUrl: data.subscriptionUrl,
+              protocol: data.protocol,
+            });
+          }
         }
       }
     }
