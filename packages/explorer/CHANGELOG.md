@@ -1,5 +1,15 @@
 # @apollo/explorer
 
+## 1.1.0
+
+### Minor Changes
+
+- [#133](https://github.com/apollographql/embeddable-explorer/pull/133) [`e3029e8`](https://github.com/apollographql/embeddable-explorer/commit/e3029e8c6abcf456cb9ad85356c4747607d37917) Thanks [@William010x](https://github.com/William010x)! - Support subscriptions in the embed
+
+### Patch Changes
+
+- [#142](https://github.com/apollographql/embeddable-explorer/pull/142) [`7a4e8ad`](https://github.com/apollographql/embeddable-explorer/commit/7a4e8ad6711647e014ac769282d92fff67447605) Thanks [@William010x](https://github.com/William010x)! - Fix react-example alias
+
 ## 1.0.0
 
 ### Major Changes
