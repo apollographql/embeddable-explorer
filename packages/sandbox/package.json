@@ -60,5 +60,8 @@
       "optional": true
     }
   },
-  "dependencies": {}
+  "dependencies": {
+    "graphql-ws": "^5.9.0",
+    "subscriptions-transport-ws": "^0.11.0"
+  }
 }
