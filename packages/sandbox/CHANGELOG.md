@@ -1,5 +1,11 @@
 # @apollo/sandbox
 
+## 0.2.1
+
+### Patch Changes
+
+- [#144](https://github.com/apollographql/embeddable-explorer/pull/144) [`423182e`](https://github.com/apollographql/embeddable-explorer/commit/423182e50171c3468c34efaa7d65222ac794fabc) Thanks [@mayakoneval](https://github.com/mayakoneval)! - fix dependency issue - move required deps into individual package jsons, not root package jsons
+
 ## 0.2.0
 
 ### Minor Changes
