@@ -27,6 +27,7 @@ export function setupEmbedRelay({
   schema,
   graphRef,
   autoInviteOptions,
+  __testLocal__,
 }: {
   endpointUrl: string | undefined;
   handleRequest: HandleRequest;
@@ -42,8 +43,9 @@ export function setupEmbedRelay({
     accountId: string;
     inviteToken: string;
   };
+  __testLocal__: boolean;
 }) {
-  const embedUrl = EMBEDDABLE_EXPLORER_URL;
+  const embedUrl = EMBEDDABLE_EXPLORER_URL(__testLocal__);
   // Callback definition
   const onPostMessageReceived = (event: IncomingEmbedMessage) => {
     handleAuthenticationPostMessage({

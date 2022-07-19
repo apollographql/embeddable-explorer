@@ -1,8 +1,7 @@
-// URL for any embedded Explorer iframe
-export const EMBEDDABLE_EXPLORER_URL =
-  'https://explorer.embed.apollographql.com';
-export const EMBEDDABLE_SANDBOX_URL =
-  'https://sandbox.embed.apollographql.com/sandbox/explorer';
+export const EMBEDDABLE_SANDBOX_URL = (__testLocal__ = false) =>
+  __testLocal__
+    ? 'https://embed.apollo.local:3000/sandbox/explorer'
+    : 'https://sandbox.embed.apollographql.com/sandbox/explorer';
 
 // Message types for Explorer state
 export const EXPLORER_LISTENING_FOR_SCHEMA = 'ExplorerListeningForSchema';

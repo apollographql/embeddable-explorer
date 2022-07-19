@@ -19,11 +19,13 @@ import { executeSubscription } from './helpers/subscriptionPostMessageRelayHelpe
 export function setupSandboxEmbedRelay({
   handleRequest,
   embeddedSandboxIFrameElement,
+  __testLocal__,
 }: {
   handleRequest: HandleRequest;
   embeddedSandboxIFrameElement: HTMLIFrameElement;
+  __testLocal__: boolean;
 }) {
-  const embedUrl = EMBEDDABLE_SANDBOX_URL;
+  const embedUrl = EMBEDDABLE_SANDBOX_URL(__testLocal__);
   // Callback definition
   const onPostMessageReceived = (event: IncomingEmbedMessage) => {
     handleAuthenticationPostMessage({
@@ -61,6 +63,7 @@ export function setupSandboxEmbedRelay({
             introspectionRequestBody,
             headers: introspectionRequestHeaders,
             embeddedIFrameElement: embeddedSandboxIFrameElement,
+            embedUrl,
           });
         }
       }

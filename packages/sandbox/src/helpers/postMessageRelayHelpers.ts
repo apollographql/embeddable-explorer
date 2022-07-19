@@ -5,7 +5,6 @@ import type {
 } from 'graphql';
 import {
   PARTIAL_AUTHENTICATION_TOKEN_RESPONSE,
-  EMBEDDABLE_SANDBOX_URL,
   EXPLORER_QUERY_MUTATION_RESPONSE,
   HANDSHAKE_RESPONSE,
   SCHEMA_ERROR,
@@ -244,11 +243,13 @@ export function executeIntrospectionRequest({
   headers,
   introspectionRequestBody,
   embeddedIFrameElement,
+  embedUrl,
 }: {
   endpointUrl: string;
   embeddedIFrameElement: HTMLIFrameElement;
   headers?: Record<string, string>;
   introspectionRequestBody: string;
+  embedUrl: string;
 }) {
   const { query, operationName } = JSON.parse(introspectionRequestBody) as {
     query: string;
@@ -273,7 +274,7 @@ export function executeIntrospectionRequest({
             errors: response.errors,
           },
           embeddedIFrameElement,
-          embedUrl: EMBEDDABLE_SANDBOX_URL,
+          embedUrl,
         });
       }
       sendPostMessageToEmbed({
@@ -284,7 +285,7 @@ export function executeIntrospectionRequest({
           schema: response.data,
         },
         embeddedIFrameElement,
-        embedUrl: EMBEDDABLE_SANDBOX_URL,
+        embedUrl,
       });
     })
     .catch((error) => {
@@ -296,7 +297,7 @@ export function executeIntrospectionRequest({
           error: error,
         },
         embeddedIFrameElement,
-        embedUrl: EMBEDDABLE_SANDBOX_URL,
+        embedUrl,
       });
     });
 }
