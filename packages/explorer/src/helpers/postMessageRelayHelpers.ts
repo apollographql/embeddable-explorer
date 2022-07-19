@@ -5,7 +5,6 @@ import type {
 } from 'graphql';
 import {
   PARTIAL_AUTHENTICATION_TOKEN_RESPONSE,
-  EMBEDDABLE_SANDBOX_URL,
   EXPLORER_QUERY_MUTATION_RESPONSE,
   HANDSHAKE_RESPONSE,
   SCHEMA_ERROR,
@@ -235,62 +234,6 @@ export function executeOperation({
         },
         embeddedIFrameElement,
         embedUrl,
-      });
-    });
-}
-
-export function executeIntrospectionRequest({
-  endpointUrl,
-  headers,
-  introspectionRequestBody,
-  embeddedIFrameElement,
-}: {
-  endpointUrl: string;
-  embeddedIFrameElement: HTMLIFrameElement;
-  headers?: Record<string, string>;
-  introspectionRequestBody: string;
-}) {
-  const { query, operationName } = JSON.parse(introspectionRequestBody) as {
-    query: string;
-    operationName: string;
-  };
-  return fetch(endpointUrl, {
-    method: 'POST',
-    headers: getHeadersWithContentType(headers),
-    body: JSON.stringify({
-      query,
-      operationName,
-    }),
-  })
-    .then((response) => response.json())
-    .then((response) => {
-      if (response.errors && response.errors.length) {
-        sendPostMessageToEmbed({
-          message: {
-            name: SCHEMA_ERROR,
-            errors: response.errors,
-          },
-          embeddedIFrameElement,
-          embedUrl: EMBEDDABLE_SANDBOX_URL,
-        });
-      }
-      sendPostMessageToEmbed({
-        message: {
-          name: SCHEMA_RESPONSE,
-          schema: response.data,
-        },
-        embeddedIFrameElement,
-        embedUrl: EMBEDDABLE_SANDBOX_URL,
-      });
-    })
-    .catch((error) => {
-      sendPostMessageToEmbed({
-        message: {
-          name: SCHEMA_ERROR,
-          error: error,
-        },
-        embeddedIFrameElement,
-        embedUrl: EMBEDDABLE_SANDBOX_URL,
       });
     });
 }
