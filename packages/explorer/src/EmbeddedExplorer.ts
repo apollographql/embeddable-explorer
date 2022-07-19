@@ -59,17 +59,23 @@ export type EmbeddableExplorerOptions =
   | EmbeddableExplorerOptionsWithSchema
   | EmbeddableExplorerOptionsWithGraphRef;
 
+type InternalEmbeddableExplorerOptions = EmbeddableExplorerOptions & {
+  __testLocal__?: boolean;
+};
+
 let idCounter = 0;
 
 export class EmbeddedExplorer {
-  options: EmbeddableExplorerOptions;
+  options: InternalEmbeddableExplorerOptions;
   handleRequest: HandleRequest;
   embeddedExplorerURL: string;
   embeddedExplorerIFrameElement: HTMLIFrameElement;
   uniqueEmbedInstanceId: number;
+  __testLocal__: boolean;
   private disposable: { dispose: () => void };
   constructor(options: EmbeddableExplorerOptions) {
-    this.options = options;
+    this.options = options as InternalEmbeddableExplorerOptions;
+    this.__testLocal__ = !!this.options.__testLocal__;
     this.validateOptions();
     this.handleRequest =
       this.options.handleRequest ??
@@ -85,6 +91,7 @@ export class EmbeddedExplorer {
       schema: 'schema' in this.options ? this.options.schema : undefined,
       graphRef: 'graphRef' in this.options ? this.options.graphRef : undefined,
       autoInviteOptions: this.options.autoInviteOptions,
+      __testLocal__: this.__testLocal__,
     });
   }
 
@@ -172,7 +179,7 @@ export class EmbeddedExplorer {
       .filter(([_, value]) => value !== undefined)
       .map(([key, value]) => `${key}=${value}`)
       .join('&');
-    return `${EMBEDDABLE_EXPLORER_URL}?${queryString}`;
+    return `${EMBEDDABLE_EXPLORER_URL(this.__testLocal__)}?${queryString}`;
   };
 
   updateSchemaInEmbed({
@@ -186,7 +193,7 @@ export class EmbeddedExplorer {
         schema,
       },
       embeddedIFrameElement: this.embeddedExplorerIFrameElement,
-      embedUrl: EMBEDDABLE_EXPLORER_URL,
+      embedUrl: EMBEDDABLE_EXPLORER_URL(this.__testLocal__),
     });
   }
 }

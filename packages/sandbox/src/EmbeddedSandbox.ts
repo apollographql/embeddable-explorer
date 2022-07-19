@@ -29,16 +29,22 @@ export interface EmbeddableSandboxOptions {
   includeCookies?: boolean;
 }
 
+type InternalEmbeddableSandboxOptions = EmbeddableSandboxOptions & {
+  __testLocal__?: boolean;
+};
+
 let idCounter = 0;
 
 export class EmbeddedSandbox {
-  options: EmbeddableSandboxOptions;
+  options: InternalEmbeddableSandboxOptions;
   handleRequest: HandleRequest;
   embeddedSandboxIFrameElement: HTMLIFrameElement;
   uniqueEmbedInstanceId: number;
+  __testLocal__: boolean;
   private disposable: { dispose: () => void };
   constructor(options: EmbeddableSandboxOptions) {
-    this.options = options;
+    this.options = options as InternalEmbeddableSandboxOptions;
+    this.__testLocal__ = !!this.options.__testLocal__;
     this.validateOptions();
     this.handleRequest =
       this.options.handleRequest ??
@@ -48,6 +54,7 @@ export class EmbeddedSandbox {
     this.disposable = setupSandboxEmbedRelay({
       embeddedSandboxIFrameElement: this.embeddedSandboxIFrameElement,
       handleRequest: this.handleRequest,
+      __testLocal__: !!this.__testLocal__,
     });
   }
 
@@ -96,7 +103,9 @@ export class EmbeddedSandbox {
       element = target;
     }
     const iframeElement = document.createElement('iframe');
-    iframeElement.src = `${EMBEDDABLE_SANDBOX_URL}?${queryString}`;
+    iframeElement.src = `${EMBEDDABLE_SANDBOX_URL(
+      this.__testLocal__
+    )}?${queryString}`;
 
     iframeElement.id = IFRAME_DOM_ID(this.uniqueEmbedInstanceId);
     iframeElement.setAttribute(
@@ -126,7 +135,7 @@ export class EmbeddedSandbox {
         schema,
       },
       embeddedIFrameElement: this.embeddedSandboxIFrameElement,
-      embedUrl: EMBEDDABLE_SANDBOX_URL,
+      embedUrl: EMBEDDABLE_SANDBOX_URL(this.__testLocal__),
     });
   }
 }
