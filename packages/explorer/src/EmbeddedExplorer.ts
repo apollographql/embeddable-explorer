@@ -173,6 +173,7 @@ export class EmbeddedExplorer {
       shouldShowGlobalHeader: true,
       parentSupportsSubscriptions: !!graphRef,
       version: packageJSON.version,
+      runTelemetry: true,
     };
 
     const queryString = Object.entries(queryParams)

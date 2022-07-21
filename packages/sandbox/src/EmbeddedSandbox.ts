@@ -90,6 +90,7 @@ export class EmbeddedSandbox {
         : undefined,
       parentSupportsSubscriptions: true,
       version: packageJSON.version,
+      runTelemetry: true,
     };
 
     const queryString = Object.entries(queryParams)
