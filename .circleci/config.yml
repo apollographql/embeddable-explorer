@@ -136,6 +136,9 @@ jobs:
       - attach_workspace:
           at: ~/embeddable-explorer
       - run:
+          name: Copy public folder to dist
+          command: cp -R public packages/explorer/dist/public
+      - run:
           name: Upload build artifacts to CDN
           command: |
             gsutil -m rsync -r ~/embeddable-explorer/packages/explorer/dist gs://embeddable-explorer/_latest
@@ -191,6 +194,9 @@ jobs:
       - checkout
       - attach_workspace:
           at: ~/embeddable-explorer
+      - run:
+          name: Copy public folder to dist
+          command: cp -R public packages/sandbox/dist/public
       - run:
           name: Upload build artifacts to CDN
           command: |

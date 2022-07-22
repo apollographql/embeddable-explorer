@@ -116,6 +116,34 @@ export class EmbeddedSandbox {
 
     element?.appendChild(iframeElement);
 
+    // inject the Apollo favicon if there is not one on this page
+    fetch(`${window.location.origin}/favicon.ico`)
+      .then((response) => {
+        if (response.status === 404) {
+          var existingLink = document.querySelector('link[rel*="icon"]');
+          if (!existingLink) {
+            var darkMode = window.matchMedia(
+              '(prefers-color-scheme: dark)'
+            ).matches;
+            var link = document.createElement('link');
+            link.rel = 'icon';
+            link.href = `https://embeddable-sandbox.cdn.apollographql.com/_latest/public/assets/favicon${
+              darkMode ? '-dark' : ''
+            }.png`;
+            document.head.appendChild(link);
+            var touchLink = document.createElement('link');
+            touchLink.rel = 'apple-touch-icon';
+            touchLink.href = `https://embeddable-sandbox.cdn.apollographql.com/_latest/public/assets/favicon${
+              darkMode ? '-dark' : ''
+            }.png`;
+            document.head.appendChild(link);
+          }
+        }
+      })
+      .catch(() => {
+        // do nothing with the error
+      });
+
     return iframeElement;
   }
 
