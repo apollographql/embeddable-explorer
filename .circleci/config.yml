@@ -137,7 +137,8 @@ jobs:
           at: ~/embeddable-explorer
       - run:
           name: Copy public folder to dist
-          command: cp -R public packages/explorer/dist/public
+          command: |
+            cp -R public ~/embeddable-explorer/packages/explorer/dist/public
       - run:
           name: Upload build artifacts to CDN
           command: |
@@ -196,7 +197,8 @@ jobs:
           at: ~/embeddable-explorer
       - run:
           name: Copy public folder to dist
-          command: cp -R public packages/sandbox/dist/public
+          command: |
+            cp -R public ~/embeddable-explorer/packages/sandbox/dist/public
       - run:
           name: Upload build artifacts to CDN
           command: |
