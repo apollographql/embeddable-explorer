@@ -1,5 +1,15 @@
 # @apollo/explorer
 
+## 1.2.0
+
+### Minor Changes
+
+- [#153](https://github.com/apollographql/embeddable-explorer/pull/153) [`f0200e0`](https://github.com/apollographql/embeddable-explorer/commit/f0200e0a022e46017774e1e56870699d2a887817) Thanks [@mayakoneval](https://github.com/mayakoneval)! - Inject the Apollo Favicon if there is none on the page
+
+### Patch Changes
+
+- [#150](https://github.com/apollographql/embeddable-explorer/pull/150) [`a313cde`](https://github.com/apollographql/embeddable-explorer/commit/a313cdefaf5b3e8bfcc2fec2868ee49ab127b883) Thanks [@mayakoneval](https://github.com/mayakoneval)! - Add opt-in query param for Studio telemetry & cookie notice
+
 ## 1.1.1
 
 ### Patch Changes
