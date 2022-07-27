@@ -16,7 +16,14 @@ import {
   EXPLORER_SUBSCRIPTION_RESPONSE,
   EXPLORER_SET_SOCKET_ERROR,
   EXPLORER_SET_SOCKET_STATUS,
+  TRACE_KEY,
+  EXPLORER_QUERY_MUTATION_PARTIAL_RESPONSE,
 } from './constants';
+import {
+  MultipartResponse,
+  readMultipartWebStream,
+} from './readMultipartWebStream';
+import { Observable, Observer } from 'zen-observable-ts';
 import type { JSONObject, JSONValue } from './types';
 
 export type HandleRequest = (
@@ -89,6 +96,22 @@ export type OutgoingEmbedMessage =
         errors?: [ResponseError];
         status?: number;
         headers?: Headers;
+        hasNext?: boolean;
+      };
+    }
+  | {
+      name: typeof EXPLORER_QUERY_MUTATION_PARTIAL_RESPONSE;
+      operationId: string;
+      response: {
+        data?: JSONValue | Record<string, unknown> | unknown[];
+        error?: ResponseError;
+        errors?: ResponseError[];
+        status?: number;
+        headers?: Record<string, string>;
+        hasNext?: boolean;
+        extensions?: { [TRACE_KEY]?: string };
+        path?: Array<string | number>;
+        size?: number;
       };
     }
   | {
@@ -195,28 +218,95 @@ export function executeOperation({
     }),
   })
     .then(async (response) => {
-      const json = await response.json();
-
       const responseHeaders: Record<string, string> = {};
       response.headers.forEach((value, key) => {
         responseHeaders[key] = value;
       });
 
-      sendPostMessageToEmbed({
-        message: {
-          // Include the same operation ID in the response message's name
-          // so the Explorer knows which operation it's associated with
-          name: EXPLORER_QUERY_MUTATION_RESPONSE,
-          operationId,
-          response: {
-            ...json,
-            status: response.status,
-            headers: responseHeaders,
+      const contentType = response.headers?.get('content-type');
+      if (contentType !== null && /^multipart\/mixed/.test(contentType)) {
+        const observable = new Observable<MultipartResponse>(
+          (observer: Observer<MultipartResponse>) =>
+            readMultipartWebStream(response, contentType, observer)
+        );
+
+        observable.subscribe({
+          next(data) {
+            sendPostMessageToEmbed({
+              message: {
+                // Include the same operation ID in the response message's name
+                // so the Explorer knows which operation it's associated with
+                name: EXPLORER_QUERY_MUTATION_PARTIAL_RESPONSE,
+                operationId,
+                response: {
+                  data: data.data.data,
+                  errors: data.data.errors,
+                  status: response.status,
+                  headers: responseHeaders,
+                  hasNext: true,
+                  extensions: data.data.extensions,
+                  path: data.data.path,
+                  size: data.size,
+                },
+              },
+              embeddedIFrameElement,
+              embedUrl,
+            });
           },
-        },
-        embeddedIFrameElement,
-        embedUrl,
-      });
+          error(err) {
+            sendPostMessageToEmbed({
+              message: {
+                // Include the same operation ID in the response message's name
+                // so the Explorer knows which operation it's associated with
+                name: EXPLORER_QUERY_MUTATION_PARTIAL_RESPONSE,
+                operationId,
+                response: {
+                  error: { message: err },
+                  hasNext: false,
+                },
+              },
+              embeddedIFrameElement,
+              embedUrl,
+            });
+          },
+          complete() {
+            sendPostMessageToEmbed({
+              message: {
+                // Include the same operation ID in the response message's name
+                // so the Explorer knows which operation it's associated with
+                name: EXPLORER_QUERY_MUTATION_PARTIAL_RESPONSE,
+                operationId,
+                response: {
+                  status: response.status,
+                  headers: responseHeaders,
+                  hasNext: false,
+                },
+              },
+              embeddedIFrameElement,
+              embedUrl,
+            });
+          },
+        });
+      } else {
+        const json = await response.json();
+
+        sendPostMessageToEmbed({
+          message: {
+            // Include the same operation ID in the response message's name
+            // so the Explorer knows which operation it's associated with
+            name: EXPLORER_QUERY_MUTATION_RESPONSE,
+            operationId,
+            response: {
+              ...json,
+              status: response.status,
+              headers: responseHeaders,
+              hasNext: false,
+            },
+          },
+          embeddedIFrameElement,
+          embedUrl,
+        });
+      }
     })
     .catch((response) => {
       sendPostMessageToEmbed({
@@ -230,6 +320,7 @@ export function executeOperation({
               message: response.message,
               ...(response.stack ? { stack: response.stack } : {}),
             },
+            hasNext: false,
           },
         },
         embeddedIFrameElement,
