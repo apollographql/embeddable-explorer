@@ -1,15 +1,21 @@
 import type { Observer } from 'zen-observable-ts';
 import type { GraphQLError } from 'graphql';
+import type { JSONValue } from './types';
+import type { ResponseError } from './postMessageRelayHelpers';
 
 const TRACE_KEY = 'ftv1';
 export interface MultipartResponse {
   data: {
     path?: Array<string | number>;
-    data: Array<unknown> | Record<string, unknown>;
+    data: Array<unknown> | Record<string, unknown> | JSONValue | unknown[];
     errors?: Array<GraphQLError>;
+    error?: ResponseError;
     extensions?: { [TRACE_KEY]?: string };
   };
   size: number;
+  status?: number;
+  headers?: Record<string, string>;
+  hasNext?: boolean;
 }
 
 export function readMultipartWebStream(

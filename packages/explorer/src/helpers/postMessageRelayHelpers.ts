@@ -16,7 +16,6 @@ import {
   EXPLORER_SUBSCRIPTION_RESPONSE,
   EXPLORER_SET_SOCKET_ERROR,
   EXPLORER_SET_SOCKET_STATUS,
-  TRACE_KEY,
   EXPLORER_QUERY_MUTATION_PARTIAL_RESPONSE,
 } from './constants';
 import {
@@ -59,7 +58,7 @@ export function sendPostMessageToEmbed({
   embeddedIFrameElement?.contentWindow?.postMessage(message, embedUrl);
 }
 
-type ResponseError = {
+export type ResponseError = {
   message: string;
   stack?: string;
 };
@@ -102,17 +101,7 @@ export type OutgoingEmbedMessage =
   | {
       name: typeof EXPLORER_QUERY_MUTATION_PARTIAL_RESPONSE;
       operationId: string;
-      response: {
-        data?: JSONValue | Record<string, unknown> | unknown[];
-        error?: ResponseError;
-        errors?: ResponseError[];
-        status?: number;
-        headers?: Record<string, string>;
-        hasNext?: boolean;
-        extensions?: { [TRACE_KEY]?: string };
-        path?: Array<string | number>;
-        size?: number;
-      };
+      response: MultipartResponse;
     }
   | {
       name: typeof EXPLORER_SUBSCRIPTION_RESPONSE;
@@ -239,13 +228,15 @@ export function executeOperation({
                 name: EXPLORER_QUERY_MUTATION_PARTIAL_RESPONSE,
                 operationId,
                 response: {
-                  data: data.data.data,
-                  errors: data.data.errors,
+                  data: {
+                    data: data.data.data,
+                    errors: data.data.errors,
+                    extensions: data.data.extensions,
+                    path: data.data.path,
+                  },
                   status: response.status,
                   headers: responseHeaders,
                   hasNext: true,
-                  extensions: data.data.extensions,
-                  path: data.data.path,
                   size: data.size,
                 },
               },
@@ -261,7 +252,11 @@ export function executeOperation({
                 name: EXPLORER_QUERY_MUTATION_PARTIAL_RESPONSE,
                 operationId,
                 response: {
-                  error: { message: err },
+                  data: {
+                    data: null,
+                    error: { message: err },
+                  },
+                  size: 0,
                   hasNext: false,
                 },
               },
@@ -277,6 +272,8 @@ export function executeOperation({
                 name: EXPLORER_QUERY_MUTATION_PARTIAL_RESPONSE,
                 operationId,
                 response: {
+                  data: { data: null },
+                  size: 0,
                   status: response.status,
                   headers: responseHeaders,
                   hasNext: false,
