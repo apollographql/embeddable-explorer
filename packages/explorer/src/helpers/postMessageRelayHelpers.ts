@@ -16,7 +16,13 @@ import {
   EXPLORER_SUBSCRIPTION_RESPONSE,
   EXPLORER_SET_SOCKET_ERROR,
   EXPLORER_SET_SOCKET_STATUS,
+  TRACE_KEY,
 } from './constants';
+import {
+  MultipartResponse,
+  readMultipartWebStream,
+} from './readMultipartWebStream';
+import { Observable, Observer } from 'zen-observable-ts';
 import type { JSONObject, JSONValue } from './types';
 
 export type HandleRequest = (
@@ -52,7 +58,7 @@ export function sendPostMessageToEmbed({
   embeddedIFrameElement?.contentWindow?.postMessage(message, embedUrl);
 }
 
-type ResponseError = {
+export type ResponseError = {
   message: string;
   stack?: string;
 };
@@ -84,11 +90,15 @@ export type OutgoingEmbedMessage =
       name: typeof EXPLORER_QUERY_MUTATION_RESPONSE;
       operationId: string;
       response: {
-        data?: JSONValue;
+        data?: Record<string, unknown> | JSONValue;
         error?: ResponseError;
-        errors?: [ResponseError];
+        errors?: GraphQLError[];
         status?: number;
-        headers?: Headers;
+        headers?: Headers | Record<string, string>;
+        hasNext?: boolean;
+        path?: Array<string | number>;
+        size?: number;
+        extensions?: { [TRACE_KEY]?: string };
       };
     }
   | {
@@ -195,28 +205,102 @@ export function executeOperation({
     }),
   })
     .then(async (response) => {
-      const json = await response.json();
-
       const responseHeaders: Record<string, string> = {};
       response.headers.forEach((value, key) => {
         responseHeaders[key] = value;
       });
 
-      sendPostMessageToEmbed({
-        message: {
-          // Include the same operation ID in the response message's name
-          // so the Explorer knows which operation it's associated with
-          name: EXPLORER_QUERY_MUTATION_RESPONSE,
-          operationId,
-          response: {
-            ...json,
-            status: response.status,
-            headers: responseHeaders,
+      const contentType = response.headers?.get('content-type');
+      if (contentType !== null && /^multipart\/mixed/.test(contentType)) {
+        const observable = new Observable<MultipartResponse>(
+          (observer: Observer<MultipartResponse>) =>
+            readMultipartWebStream(response, contentType, observer)
+        );
+
+        observable.subscribe({
+          next(data) {
+            sendPostMessageToEmbed({
+              message: {
+                // Include the same operation ID in the response message's name
+                // so the Explorer knows which operation it's associated with
+                name: EXPLORER_QUERY_MUTATION_RESPONSE,
+                operationId,
+                response: {
+                  data: data.data.data,
+                  errors: data.data.errors,
+                  extensions: data.data.extensions,
+                  path: data.data.path,
+                  status: response.status,
+                  headers: responseHeaders,
+                  hasNext: true,
+                  size: data.size,
+                },
+              },
+              embeddedIFrameElement,
+              embedUrl,
+            });
           },
-        },
-        embeddedIFrameElement,
-        embedUrl,
-      });
+          error(err) {
+            sendPostMessageToEmbed({
+              message: {
+                // Include the same operation ID in the response message's name
+                // so the Explorer knows which operation it's associated with
+                name: EXPLORER_QUERY_MUTATION_RESPONSE,
+                operationId,
+                response: {
+                  data: null,
+                  error: {
+                    message: err.message,
+                    ...(err.stack ? { stack: err.stack } : {}),
+                  },
+                  size: 0,
+                  hasNext: false,
+                },
+              },
+              embeddedIFrameElement,
+              embedUrl,
+            });
+          },
+          complete() {
+            sendPostMessageToEmbed({
+              message: {
+                // Include the same operation ID in the response message's name
+                // so the Explorer knows which operation it's associated with
+                name: EXPLORER_QUERY_MUTATION_RESPONSE,
+                operationId,
+                response: {
+                  data: null,
+                  size: 0,
+                  status: response.status,
+                  headers: responseHeaders,
+                  hasNext: false,
+                },
+              },
+              embeddedIFrameElement,
+              embedUrl,
+            });
+          },
+        });
+      } else {
+        const json = await response.json();
+
+        sendPostMessageToEmbed({
+          message: {
+            // Include the same operation ID in the response message's name
+            // so the Explorer knows which operation it's associated with
+            name: EXPLORER_QUERY_MUTATION_RESPONSE,
+            operationId,
+            response: {
+              ...json,
+              status: response.status,
+              headers: responseHeaders,
+              hasNext: false,
+            },
+          },
+          embeddedIFrameElement,
+          embedUrl,
+        });
+      }
     })
     .catch((response) => {
       sendPostMessageToEmbed({
@@ -230,6 +314,7 @@ export function executeOperation({
               message: response.message,
               ...(response.stack ? { stack: response.stack } : {}),
             },
+            hasNext: false,
           },
         },
         embeddedIFrameElement,

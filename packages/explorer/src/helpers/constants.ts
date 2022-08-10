@@ -14,6 +14,7 @@ export const SCHEMA_RESPONSE = 'SchemaResponse';
 // Message types for queries and mutations
 export const EXPLORER_QUERY_MUTATION_REQUEST = 'ExplorerRequest';
 export const EXPLORER_QUERY_MUTATION_RESPONSE = 'ExplorerResponse';
+export const TRACE_KEY = 'ftv1';
 
 // Message types for subscriptions
 export const EXPLORER_SUBSCRIPTION_REQUEST = 'ExplorerSubscriptionRequest';
