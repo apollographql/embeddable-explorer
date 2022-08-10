@@ -16,7 +16,7 @@ import {
   EXPLORER_SUBSCRIPTION_RESPONSE,
   EXPLORER_SET_SOCKET_ERROR,
   EXPLORER_SET_SOCKET_STATUS,
-  EXPLORER_QUERY_MUTATION_PARTIAL_RESPONSE,
+  TRACE_KEY,
 } from './constants';
 import {
   MultipartResponse,
@@ -90,18 +90,16 @@ export type OutgoingEmbedMessage =
       name: typeof EXPLORER_QUERY_MUTATION_RESPONSE;
       operationId: string;
       response: {
-        data?: JSONValue;
+        data?: Record<string, unknown> | JSONValue;
         error?: ResponseError;
-        errors?: [ResponseError];
+        errors?: GraphQLError[];
         status?: number;
-        headers?: Headers;
+        headers?: Headers | Record<string, string>;
         hasNext?: boolean;
+        path?: Array<string | number>;
+        size?: number;
+        extensions?: { [TRACE_KEY]?: string };
       };
-    }
-  | {
-      name: typeof EXPLORER_QUERY_MUTATION_PARTIAL_RESPONSE;
-      operationId: string;
-      response: MultipartResponse;
     }
   | {
       name: typeof EXPLORER_SUBSCRIPTION_RESPONSE;
@@ -225,15 +223,13 @@ export function executeOperation({
               message: {
                 // Include the same operation ID in the response message's name
                 // so the Explorer knows which operation it's associated with
-                name: EXPLORER_QUERY_MUTATION_PARTIAL_RESPONSE,
+                name: EXPLORER_QUERY_MUTATION_RESPONSE,
                 operationId,
                 response: {
-                  data: {
-                    data: data.data.data,
-                    errors: data.data.errors,
-                    extensions: data.data.extensions,
-                    path: data.data.path,
-                  },
+                  data: data.data.data,
+                  errors: data.data.errors,
+                  extensions: data.data.extensions,
+                  path: data.data.path,
                   status: response.status,
                   headers: responseHeaders,
                   hasNext: true,
@@ -249,13 +245,11 @@ export function executeOperation({
               message: {
                 // Include the same operation ID in the response message's name
                 // so the Explorer knows which operation it's associated with
-                name: EXPLORER_QUERY_MUTATION_PARTIAL_RESPONSE,
+                name: EXPLORER_QUERY_MUTATION_RESPONSE,
                 operationId,
                 response: {
-                  data: {
-                    data: null,
-                    error: { message: err },
-                  },
+                  data: null,
+                  error: { message: err },
                   size: 0,
                   hasNext: false,
                 },
@@ -269,10 +263,10 @@ export function executeOperation({
               message: {
                 // Include the same operation ID in the response message's name
                 // so the Explorer knows which operation it's associated with
-                name: EXPLORER_QUERY_MUTATION_PARTIAL_RESPONSE,
+                name: EXPLORER_QUERY_MUTATION_RESPONSE,
                 operationId,
                 response: {
-                  data: { data: null },
+                  data: null,
                   size: 0,
                   status: response.status,
                   headers: responseHeaders,

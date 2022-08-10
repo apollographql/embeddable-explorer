@@ -2,12 +2,12 @@ import type { Observer } from 'zen-observable-ts';
 import type { GraphQLError } from 'graphql';
 import type { JSONValue } from './types';
 import type { ResponseError } from './postMessageRelayHelpers';
+import type { TRACE_KEY } from './constants';
 
-const TRACE_KEY = 'ftv1';
 export interface MultipartResponse {
   data: {
     path?: Array<string | number>;
-    data: Array<unknown> | Record<string, unknown> | JSONValue | unknown[];
+    data: Record<string, unknown> | JSONValue;
     errors?: Array<GraphQLError>;
     error?: ResponseError;
     extensions?: { [TRACE_KEY]?: string };
