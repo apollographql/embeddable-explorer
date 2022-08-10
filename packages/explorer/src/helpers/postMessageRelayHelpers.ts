@@ -249,7 +249,10 @@ export function executeOperation({
                 operationId,
                 response: {
                   data: null,
-                  error: { message: err },
+                  error: {
+                    message: err.message,
+                    ...(err.stack ? { stack: err.stack } : {}),
+                  },
                   size: 0,
                   hasNext: false,
                 },
