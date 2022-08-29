@@ -18,6 +18,7 @@ export interface EmbeddableSandboxOptions {
   initialEndpoint?: string;
 
   initialState?: {
+    requestQueryPlan?: boolean;
     document?: string;
     variables?: JSONObject;
     headers?: Record<string, string>;
@@ -91,6 +92,8 @@ export class EmbeddedSandbox {
       parentSupportsSubscriptions: true,
       version: packageJSON.version,
       runTelemetry: true,
+      initialRequestQueryPlan:
+        this.options.initialState?.requestQueryPlan ?? false,
     };
 
     const queryString = Object.entries(queryParams)
