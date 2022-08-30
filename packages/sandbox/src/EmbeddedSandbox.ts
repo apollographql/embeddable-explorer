@@ -14,7 +14,7 @@ import packageJSON from '../package.json';
 import type { JSONObject } from './helpers/types';
 
 export interface EmbeddableSandboxOptions {
-  target: string | HTMLElement; // HTMLElement is to accomodate people who might prefer to pass in a ref
+  target: string | HTMLElement; // HTMLElement is to accommodate people who might prefer to pass in a ref
   initialEndpoint?: string;
 
   initialState?: {
@@ -31,6 +31,7 @@ export interface EmbeddableSandboxOptions {
 
 type InternalEmbeddableSandboxOptions = EmbeddableSandboxOptions & {
   __testLocal__?: boolean;
+  initialRequestQueryPlan?: boolean;
 };
 
 let idCounter = 0;
@@ -91,6 +92,7 @@ export class EmbeddedSandbox {
       parentSupportsSubscriptions: true,
       version: packageJSON.version,
       runTelemetry: true,
+      initialRequestQueryPlan: this.options.initialRequestQueryPlan ?? false,
     };
 
     const queryString = Object.entries(queryParams)
