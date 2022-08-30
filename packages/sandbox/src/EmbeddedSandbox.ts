@@ -18,7 +18,6 @@ export interface EmbeddableSandboxOptions {
   initialEndpoint?: string;
 
   initialState?: {
-    requestQueryPlan?: boolean;
     document?: string;
     variables?: JSONObject;
     headers?: Record<string, string>;
@@ -32,6 +31,7 @@ export interface EmbeddableSandboxOptions {
 
 type InternalEmbeddableSandboxOptions = EmbeddableSandboxOptions & {
   __testLocal__?: boolean;
+  initialRequestQueryPlan?: boolean;
 };
 
 let idCounter = 0;
@@ -92,8 +92,7 @@ export class EmbeddedSandbox {
       parentSupportsSubscriptions: true,
       version: packageJSON.version,
       runTelemetry: true,
-      initialRequestQueryPlan:
-        this.options.initialState?.requestQueryPlan ?? false,
+      initialRequestQueryPlan: this.options.initialRequestQueryPlan ?? false,
     };
 
     const queryString = Object.entries(queryParams)
