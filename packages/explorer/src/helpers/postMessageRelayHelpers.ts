@@ -62,6 +62,28 @@ export type ResponseError = {
 
 export type SocketStatus = 'disconnected' | 'connecting' | 'connected';
 
+interface ResponseData {
+  data?: Record<string, unknown> | JSONValue;
+  path?: Array<string | number>;
+  errors?: Array<GraphQLError>;
+  extensions?: { [TRACE_KEY]?: string };
+}
+type ExplorerResponse = ResponseData & {
+  incremental?: Array<
+    ResponseData & { path: NonNullable<ResponseData['path']> }
+  >;
+  error?: {
+    message: string;
+    stack?: string;
+  };
+  status?: number;
+  headers?:
+    | Record<string, string>
+    | [Record<string, string>, ...Record<string, string>[]];
+  hasNext?: boolean;
+  size?: number;
+};
+
 export type OutgoingEmbedMessage =
   | {
       name: typeof SCHEMA_ERROR;
@@ -86,19 +108,7 @@ export type OutgoingEmbedMessage =
   | {
       name: typeof EXPLORER_QUERY_MUTATION_RESPONSE;
       operationId: string;
-      response: {
-        data?: Record<string, unknown> | JSONValue;
-        error?: ResponseError;
-        errors?: GraphQLError[];
-        status?: number;
-        headers?:
-          | Record<string, string>
-          | [Record<string, string>, ...Record<string, string>[]];
-        hasNext?: boolean;
-        path?: Array<string | number>;
-        size?: number;
-        extensions?: { [TRACE_KEY]?: string };
-      };
+      response: ExplorerResponse;
     }
   | {
       name: typeof EXPLORER_SUBSCRIPTION_RESPONSE;
@@ -228,6 +238,7 @@ export function executeOperation({
                 name: EXPLORER_QUERY_MUTATION_RESPONSE,
                 operationId,
                 response: {
+                  incremental: data.data.incremental,
                   data: data.data.data,
                   errors: data.data.errors,
                   extensions: data.data.extensions,
