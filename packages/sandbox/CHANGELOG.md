@@ -1,5 +1,21 @@
 # @apollo/sandbox
 
+## 0.3.0
+
+### Minor Changes
+
+- [#153](https://github.com/apollographql/embeddable-explorer/pull/153) [`f0200e0`](https://github.com/apollographql/embeddable-explorer/commit/f0200e0a022e46017774e1e56870699d2a887817) Thanks [@mayakoneval](https://github.com/mayakoneval)! - Inject the Apollo Favicon if there is none on the page
+
+* [#155](https://github.com/apollographql/embeddable-explorer/pull/155) [`102024e`](https://github.com/apollographql/embeddable-explorer/commit/102024e6fda9b83165d78fad5a0a9c11487e0ac9) Thanks [@William010x](https://github.com/William010x)! - Added support for @defer and @stream
+
+- [#162](https://github.com/apollographql/embeddable-explorer/pull/162) [`2542e4e`](https://github.com/apollographql/embeddable-explorer/commit/2542e4e6840ba9e134eaa934344b727b7670dac8) Thanks [@Jephuff](https://github.com/Jephuff)! - Update defer support
+
+### Patch Changes
+
+- [#150](https://github.com/apollographql/embeddable-explorer/pull/150) [`a313cde`](https://github.com/apollographql/embeddable-explorer/commit/a313cdefaf5b3e8bfcc2fec2868ee49ab127b883) Thanks [@mayakoneval](https://github.com/mayakoneval)! - Add opt-in query param for Studio telemetry & cookie notice
+
+* [#158](https://github.com/apollographql/embeddable-explorer/pull/158) [`2b345a0`](https://github.com/apollographql/embeddable-explorer/commit/2b345a07e5dd09eb517093ba69e4d7546287d918) Thanks [@Jephuff](https://github.com/Jephuff)! - Addded internal query plan initial value type and param
+
 ## 0.2.1
 
 ### Patch Changes
