@@ -18,11 +18,8 @@ import {
   EXPLORER_SET_SOCKET_STATUS,
   TRACE_KEY,
 } from './constants';
-import {
-  MultipartResponse,
-  readMultipartWebStream,
-} from './readMultipartWebStream';
-import { Observable, Observer } from 'zen-observable-ts';
+import MIMEType from 'whatwg-mimetype';
+import { readMultipartWebStream } from './readMultipartWebStream';
 import type { JSONObject, JSONValue } from './types';
 
 export type HandleRequest = (
@@ -211,11 +208,13 @@ export function executeOperation({
       });
 
       const contentType = response.headers?.get('content-type');
-      if (contentType !== null && /^multipart\/mixed/.test(contentType)) {
-        const observable = new Observable<MultipartResponse>(
-          (observer: Observer<MultipartResponse>) =>
-            readMultipartWebStream(response, contentType, observer)
-        );
+      const mimeType = contentType && new MIMEType(contentType);
+      if (
+        mimeType &&
+        mimeType.type === 'multipart' &&
+        mimeType.subtype === 'mixed'
+      ) {
+        const observable = readMultipartWebStream(response, mimeType);
 
         observable.subscribe({
           next(data) {
