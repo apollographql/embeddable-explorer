@@ -18,11 +18,8 @@ import {
   EXPLORER_SET_SOCKET_STATUS,
   TRACE_KEY,
 } from './constants';
-import {
-  MultipartResponse,
-  readMultipartWebStream,
-} from './readMultipartWebStream';
-import { Observable, Observer } from 'zen-observable-ts';
+import MIMEType from 'whatwg-mimetype';
+import { readMultipartWebStream } from './readMultipartWebStream';
 import type { JSONObject, JSONValue } from './types';
 
 export type HandleRequest = (
@@ -65,6 +62,28 @@ export type ResponseError = {
   stack?: string;
 };
 
+interface ResponseData {
+  data?: Record<string, unknown> | JSONValue;
+  path?: Array<string | number>;
+  errors?: Array<GraphQLError>;
+  extensions?: { [TRACE_KEY]?: string };
+}
+type ExplorerResponse = ResponseData & {
+  incremental?: Array<
+    ResponseData & { path: NonNullable<ResponseData['path']> }
+  >;
+  error?: {
+    message: string;
+    stack?: string;
+  };
+  status?: number;
+  headers?:
+    | Record<string, string>
+    | [Record<string, string>, ...Record<string, string>[]];
+  hasNext?: boolean;
+  size?: number;
+};
+
 export type OutgoingEmbedMessage =
   | {
       name: typeof SCHEMA_ERROR;
@@ -89,17 +108,7 @@ export type OutgoingEmbedMessage =
   | {
       name: typeof EXPLORER_QUERY_MUTATION_RESPONSE;
       operationId: string;
-      response: {
-        data?: Record<string, unknown> | JSONValue;
-        error?: ResponseError;
-        errors?: GraphQLError[];
-        status?: number;
-        headers?: Headers | Record<string, string>;
-        hasNext?: boolean;
-        path?: Array<string | number>;
-        size?: number;
-        extensions?: { [TRACE_KEY]?: string };
-      };
+      response: ExplorerResponse;
     }
   | {
       name: typeof EXPLORER_SUBSCRIPTION_RESPONSE;
@@ -211,12 +220,15 @@ export function executeOperation({
       });
 
       const contentType = response.headers?.get('content-type');
-      if (contentType !== null && /^multipart\/mixed/.test(contentType)) {
-        const observable = new Observable<MultipartResponse>(
-          (observer: Observer<MultipartResponse>) =>
-            readMultipartWebStream(response, contentType, observer)
-        );
+      const mimeType = contentType && new MIMEType(contentType);
+      if (
+        mimeType &&
+        mimeType.type === 'multipart' &&
+        mimeType.subtype === 'mixed'
+      ) {
+        const observable = readMultipartWebStream(response, mimeType);
 
+        let isFirst = true;
         observable.subscribe({
           next(data) {
             sendPostMessageToEmbed({
@@ -226,12 +238,15 @@ export function executeOperation({
                 name: EXPLORER_QUERY_MUTATION_RESPONSE,
                 operationId,
                 response: {
+                  incremental: data.data.incremental,
                   data: data.data.data,
                   errors: data.data.errors,
                   extensions: data.data.extensions,
                   path: data.data.path,
                   status: response.status,
-                  headers: responseHeaders,
+                  headers: isFirst
+                    ? [responseHeaders, ...(data.headers ? [data.headers] : [])]
+                    : data.headers,
                   hasNext: true,
                   size: data.size,
                 },
@@ -239,6 +254,7 @@ export function executeOperation({
               embeddedIFrameElement,
               embedUrl,
             });
+            isFirst = false;
           },
           error(err) {
             sendPostMessageToEmbed({
@@ -272,7 +288,7 @@ export function executeOperation({
                   data: null,
                   size: 0,
                   status: response.status,
-                  headers: responseHeaders,
+                  headers: isFirst ? responseHeaders : undefined,
                   hasNext: false,
                 },
               },
