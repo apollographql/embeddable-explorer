@@ -91,7 +91,9 @@ export type OutgoingEmbedMessage =
         error?: ResponseError;
         errors?: GraphQLError[];
         status?: number;
-        headers?: Headers | Record<string, string>;
+        headers?:
+          | Record<string, string>
+          | [Record<string, string>, ...Record<string, string>[]];
         hasNext?: boolean;
         path?: Array<string | number>;
         size?: number;
@@ -216,6 +218,7 @@ export function executeOperation({
       ) {
         const observable = readMultipartWebStream(response, mimeType);
 
+        let isFirst = true;
         observable.subscribe({
           next(data) {
             sendPostMessageToEmbed({
@@ -230,7 +233,9 @@ export function executeOperation({
                   extensions: data.data.extensions,
                   path: data.data.path,
                   status: response.status,
-                  headers: responseHeaders,
+                  headers: isFirst
+                    ? [responseHeaders, ...(data.headers ? [data.headers] : [])]
+                    : data.headers,
                   hasNext: true,
                   size: data.size,
                 },
@@ -238,6 +243,7 @@ export function executeOperation({
               embeddedIFrameElement,
               embedUrl,
             });
+            isFirst = false;
           },
           error(err) {
             sendPostMessageToEmbed({
@@ -271,7 +277,7 @@ export function executeOperation({
                   data: null,
                   size: 0,
                   status: response.status,
-                  headers: responseHeaders,
+                  headers: isFirst ? responseHeaders : undefined,
                   hasNext: false,
                 },
               },
