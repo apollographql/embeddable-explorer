@@ -1,0 +1,17 @@
+{
+  "editor.formatOnSave": false,
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "graphql",
+    "typescript",
+    "typescriptreact",  
+    "json",
+    "jsonc"
+  ],
+  "eslint.lintTask.enable": true,
+  "eslint.lintTask.options": "--ext .js,.jsx,.ts,.tsx,.json . --fix",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  },
+}
