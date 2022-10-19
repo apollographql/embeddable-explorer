@@ -22,4 +22,5 @@
       matchPackagePatterns: ['size-limit']
     },
   ],
+  rebaseWhen: 'behind-base-branch'
 }
