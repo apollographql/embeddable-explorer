@@ -9,6 +9,10 @@
   },
   "dependencies": {
   },
+  "volta": {
+    "node": "16.13.0",
+    "npm": "8.3.1"
+  },
   "alias": {
     "react": "../../../../../node_modules/react",
     "react-dom": "../../../../../node_modules/react-dom"
