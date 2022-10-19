@@ -127,18 +127,14 @@ export class EmbeddedSandbox {
             var darkMode = window.matchMedia(
               '(prefers-color-scheme: dark)'
             ).matches;
-            var link = document.createElement('link');
-            link.rel = 'icon';
-            link.href = `https://embeddable-sandbox.cdn.apollographql.com/_latest/public/assets/favicon${
-              darkMode ? '-dark' : ''
-            }.png`;
-            document.head.appendChild(link);
-            var touchLink = document.createElement('link');
-            touchLink.rel = 'apple-touch-icon';
-            touchLink.href = `https://embeddable-sandbox.cdn.apollographql.com/_latest/public/assets/favicon${
-              darkMode ? '-dark' : ''
-            }.png`;
-            document.head.appendChild(link);
+            ['icon', 'apple-touch-icon'].forEach((id) => {
+              var link = document.createElement('link');
+              link.rel = id;
+              link.href = `https://embeddable-explorer.cdn.apollographql.com/_latest/public/assets/favicon${
+                darkMode ? '-dark' : ''
+              }.png`;
+              document.head.appendChild(link);
+            });
           }
         }
       })
