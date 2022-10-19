@@ -4,9 +4,14 @@
   "license": "MIT",
   "scripts": {
     "start": "parcel index.html --no-cache",
-    "build": "parcel build index.html --no-cache"
+    "build": "parcel build index.html --no-cache",
+    "typescript:check": "tsc --noEmit"
   },
   "dependencies": {
+  },
+  "volta": {
+    "node": "16.13.0",
+    "npm": "8.3.1"
   },
   "alias": {
     "react": "../../../../../node_modules/react",
