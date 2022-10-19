@@ -15,6 +15,10 @@
     "node": ">=12.0",
     "npm": ">=7.0"
   },
+  "volta": {
+    "node": "16.13.0",
+    "npm": "8.3.1"
+  },
   "scripts": {
     "build": "npm run build:cjs-esm",
     "build:cjs-esm": "rm -rf dist && rollup -c buildHelpers/rollup.cjs-esm.config.js && cp src/index.cjs dist/index.cjs && cp src/react/index.cjs dist/react/index.cjs && node ./buildHelpers/prepareDist.js sandbox",
