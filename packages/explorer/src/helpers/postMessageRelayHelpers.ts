@@ -115,7 +115,7 @@ export type OutgoingEmbedMessage =
       name: typeof EXPLORER_SUBSCRIPTION_RESPONSE;
       operationId: string;
       response: {
-        data?: ExecutionResult<ObjMap<unknown>> | ExecutionResult<JSONValue>;
+        data?: ExecutionResult<JSONValue | ObjMap<unknown>>;
         error?: Error;
         errors?: [Error];
       };

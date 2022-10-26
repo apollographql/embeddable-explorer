@@ -5,7 +5,7 @@ import {
   OperationOptions,
   SubscriptionClient as TransportSubscriptionClient,
 } from 'subscriptions-transport-ws';
-import type { JSONObject } from './types';
+import type { JSONObject, JSONValue } from './types';
 import {
   EXPLORER_SET_SOCKET_ERROR,
   EXPLORER_SET_SOCKET_STATUS,
@@ -139,7 +139,7 @@ class SubscriptionClient {
   ) {
     return {
       subscribe: (
-        subscribeParams: Observer<ExecutionResult<ObjMap<unknown>>>
+        subscribeParams: Observer<ExecutionResult<ObjMap<unknown> | JSONValue>>
       ) => {
         if (this.protocol === 'graphql-ws') {
           this.unsubscribeFunctions.push(
@@ -147,7 +147,7 @@ class SubscriptionClient {
               ...subscribeParams,
               next: (data) =>
                 subscribeParams.next?.(
-                  data as ExecutionResult<ObjMap<unknown>>
+                  data as ExecutionResult<ObjMap<unknown> | JSONValue>
                 ),
               error: (error) => subscribeParams.error?.(error as Error),
               complete: () => {},
