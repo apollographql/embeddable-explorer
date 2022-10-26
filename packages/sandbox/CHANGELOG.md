@@ -1,5 +1,17 @@
 # @apollo/sandbox
 
+## 1.0.0
+
+### Major Changes
+
+- [#177](https://github.com/apollographql/embeddable-explorer/pull/177) [`bcff038`](https://github.com/apollographql/embeddable-explorer/commit/bcff038e9fbfffd0b215c94fefff319646114a85) Thanks [@bigman73](https://github.com/bigman73)! - This major release makes a small change to default functionality of the `includeCookies` configuration option for the embedded Sandbox & the embedded Explorer. Previously, when a user passed `includeCookies: false` or omitted this option, we would make fetch requests with `{ credentials: same-origin }`. However, embedded Sandbox often runs on the same origin as the endpoint users are fetching against, so cookies would still be included. This change passes `{ credentials: omit }` instead of `{ credentials: same-origin }` in the default & false case. No change to the `includeCookies: true` case.
+
+### Patch Changes
+
+- [#168](https://github.com/apollographql/embeddable-explorer/pull/168) [`cb50087`](https://github.com/apollographql/embeddable-explorer/commit/cb50087679bbd51115133fd74bfcd82f7f9d2069) Thanks [@mayakoneval](https://github.com/mayakoneval)! - lil logic cleanup
+
+* [#171](https://github.com/apollographql/embeddable-explorer/pull/171) [`4ea1cd9`](https://github.com/apollographql/embeddable-explorer/commit/4ea1cd93c1e8f4b30814ffcf80bd0e07b4abb9f6) Thanks [@mayakoneval](https://github.com/mayakoneval)! - TS 3.6 -> 4.8!
+
 ## 0.3.0
 
 ### Minor Changes
