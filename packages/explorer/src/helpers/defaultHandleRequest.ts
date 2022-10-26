@@ -8,7 +8,9 @@ export const defaultHandleRequest = ({
   const handleRequestWithCookiePref: HandleRequest = (endpointUrl, options) =>
     fetch(endpointUrl, {
       ...options,
-      ...(includeCookies ? { credentials: 'include' } : { credentials: 'omit' }),
+      ...(includeCookies
+        ? { credentials: 'include' }
+        : { credentials: 'omit' }),
     });
   return handleRequestWithCookiePref;
 };
