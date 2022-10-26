@@ -20,7 +20,8 @@ import {
 } from './constants';
 import MIMEType from 'whatwg-mimetype';
 import { readMultipartWebStream } from './readMultipartWebStream';
-import type { JSONObject, JSONValue } from './types';
+import type { JSONValue } from './types';
+import type { ObjMap } from 'graphql/jsutils/ObjMap';
 
 export type HandleRequest = (
   endpointUrl: string,
@@ -63,7 +64,7 @@ export type ResponseError = {
 };
 
 interface ResponseData {
-  data?: Record<string, unknown> | JSONValue;
+  data?: Record<string, unknown> | JSONValue | ObjMap<unknown>;
   path?: Array<string | number>;
   errors?: Array<GraphQLError>;
   extensions?: { [TRACE_KEY]?: string };
@@ -114,7 +115,7 @@ export type OutgoingEmbedMessage =
       name: typeof EXPLORER_SUBSCRIPTION_RESPONSE;
       operationId: string;
       response: {
-        data?: ExecutionResult<JSONObject>;
+        data?: ExecutionResult<JSONValue | ObjMap<unknown>>;
         error?: Error;
         errors?: [Error];
       };

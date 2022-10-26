@@ -5,7 +5,7 @@ import {
   OperationOptions,
   SubscriptionClient as TransportSubscriptionClient,
 } from 'subscriptions-transport-ws';
-import type { JSONObject } from './types';
+import type { JSONObject, JSONValue } from './types';
 import {
   EXPLORER_SET_SOCKET_STATUS,
   EXPLORER_SET_SOCKET_ERROR,
@@ -16,6 +16,7 @@ import {
   sendPostMessageToEmbed,
   SocketStatus,
 } from './postMessageRelayHelpers';
+import type { ObjMap } from 'graphql/jsutils/ObjMap';
 
 export type GraphQLSubscriptionLibrary =
   | 'subscriptions-transport-ws'
@@ -137,13 +138,17 @@ class SubscriptionClient {
     }
   ) {
     return {
-      subscribe: (subscribeParams: Observer<ExecutionResult<JSONObject>>) => {
+      subscribe: (
+        subscribeParams: Observer<ExecutionResult<ObjMap<unknown> | JSONValue>>
+      ) => {
         if (this.protocol === 'graphql-ws') {
           this.unsubscribeFunctions.push(
             this.graphWsClient.subscribe(params, {
               ...subscribeParams,
               next: (data) =>
-                subscribeParams.next?.(data as ExecutionResult<JSONObject>),
+                subscribeParams.next?.(
+                  data as ExecutionResult<ObjMap<unknown> | JSONValue>
+                ),
               error: (error) => subscribeParams.error?.(error as Error),
               complete: () => {},
             })
