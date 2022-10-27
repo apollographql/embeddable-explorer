@@ -346,12 +346,14 @@ export function executeIntrospectionRequest({
   introspectionRequestBody,
   embeddedIFrameElement,
   embedUrl,
+  includeCookies,
 }: {
   endpointUrl: string;
   embeddedIFrameElement: HTMLIFrameElement;
   headers?: Record<string, string>;
   introspectionRequestBody: string;
   embedUrl: string;
+  includeCookies: boolean;
 }) {
   const { query, operationName } = JSON.parse(introspectionRequestBody) as {
     query: string;
@@ -364,6 +366,7 @@ export function executeIntrospectionRequest({
       query,
       operationName,
     }),
+    ...(includeCookies ? { credentials: 'include' } : { credentials: 'omit' }),
   })
     .then((response) => response.json())
     .then((response) => {

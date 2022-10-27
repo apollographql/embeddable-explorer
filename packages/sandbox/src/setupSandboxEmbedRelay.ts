@@ -19,10 +19,12 @@ import { executeSubscription } from './helpers/subscriptionPostMessageRelayHelpe
 export function setupSandboxEmbedRelay({
   handleRequest,
   embeddedSandboxIFrameElement,
+  includeCookies,
   __testLocal__,
 }: {
   handleRequest: HandleRequest;
   embeddedSandboxIFrameElement: HTMLIFrameElement;
+  includeCookies: boolean;
   __testLocal__: boolean;
 }) {
   const embedUrl = EMBEDDABLE_SANDBOX_URL(__testLocal__);
@@ -64,6 +66,7 @@ export function setupSandboxEmbedRelay({
             headers: introspectionRequestHeaders,
             embeddedIFrameElement: embeddedSandboxIFrameElement,
             embedUrl,
+            includeCookies,
           });
         }
       }

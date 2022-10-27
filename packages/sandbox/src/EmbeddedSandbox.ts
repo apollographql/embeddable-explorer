@@ -55,6 +55,7 @@ export class EmbeddedSandbox {
     this.disposable = setupSandboxEmbedRelay({
       embeddedSandboxIFrameElement: this.embeddedSandboxIFrameElement,
       handleRequest: this.handleRequest,
+      includeCookies: !!this.options.includeCookies,
       __testLocal__: !!this.__testLocal__,
     });
   }
