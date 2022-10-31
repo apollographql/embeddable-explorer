@@ -64,6 +64,7 @@ export function setupSandboxEmbedRelay({
             headers: introspectionRequestHeaders,
             embeddedIFrameElement: embeddedSandboxIFrameElement,
             embedUrl,
+            handleRequest,
           });
         }
       }

@@ -346,18 +346,20 @@ export function executeIntrospectionRequest({
   introspectionRequestBody,
   embeddedIFrameElement,
   embedUrl,
+  handleRequest,
 }: {
   endpointUrl: string;
   embeddedIFrameElement: HTMLIFrameElement;
   headers?: Record<string, string>;
   introspectionRequestBody: string;
   embedUrl: string;
+  handleRequest: HandleRequest;
 }) {
   const { query, operationName } = JSON.parse(introspectionRequestBody) as {
     query: string;
     operationName: string;
   };
-  return fetch(endpointUrl, {
+  return handleRequest(endpointUrl, {
     method: 'POST',
     headers: getHeadersWithContentType(headers),
     body: JSON.stringify({
