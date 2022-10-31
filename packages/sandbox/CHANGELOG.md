@@ -1,5 +1,11 @@
 # @apollo/sandbox
 
+## 1.0.1
+
+### Patch Changes
+
+- [#182](https://github.com/apollographql/embeddable-explorer/pull/182) [`58eda3b`](https://github.com/apollographql/embeddable-explorer/commit/58eda3bd2b6cf03bb3997e97dd14c67a14d2a763) Thanks [@bigman73](https://github.com/bigman73)! - fix: Issue 181, use handleRequest to perform introspection queries
+
 ## 1.0.0
 
 ### Major Changes
