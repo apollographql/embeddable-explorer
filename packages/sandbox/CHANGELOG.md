@@ -1,5 +1,13 @@
 # @apollo/sandbox
 
+## 1.0.2
+
+### Patch Changes
+
+- [#183](https://github.com/apollographql/embeddable-explorer/pull/183) [`8f9038a`](https://github.com/apollographql/embeddable-explorer/commit/8f9038a0d36a50afeff4c465d2705b006af1dfec) Thanks [@mayakoneval](https://github.com/mayakoneval)! - 🐛 Fixes Issue#160: name cjs files .cjs so they don't conflict with type:module
+
+* [#179](https://github.com/apollographql/embeddable-explorer/pull/179) [`d8c7096`](https://github.com/apollographql/embeddable-explorer/commit/d8c709608ea2a65ce048733589f3e67750a7c33f) Thanks [@mayakoneval](https://github.com/mayakoneval)! - Support Generic MessageEvent type now that we are on TS4 :)
+
 ## 1.0.1
 
 ### Patch Changes
