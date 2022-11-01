@@ -17,11 +17,18 @@ import {
   EXPLORER_SET_SOCKET_ERROR,
   EXPLORER_SET_SOCKET_STATUS,
   TRACE_KEY,
+  EXPLORER_LISTENING_FOR_HANDSHAKE,
+  EXPLORER_QUERY_MUTATION_REQUEST,
+  EXPLORER_SUBSCRIPTION_REQUEST,
+  EXPLORER_SUBSCRIPTION_TERMINATION,
+  EXPLORER_LISTENING_FOR_SCHEMA,
+  INTROSPECTION_QUERY_WITH_HEADERS,
 } from './constants';
 import MIMEType from 'whatwg-mimetype';
 import { readMultipartWebStream } from './readMultipartWebStream';
 import type { JSONValue } from './types';
 import type { ObjMap } from 'graphql/jsutils/ObjMap';
+import type { GraphQLSubscriptionLibrary } from './subscriptionPostMessageRelayHelpers';
 
 export type HandleRequest = (
   endpointUrl: string,
@@ -132,57 +139,58 @@ export type OutgoingEmbedMessage =
       name: typeof PARENT_LOGOUT_SUCCESS;
     };
 
-// TODO(Maya) uncomment and switch to MessageEvent as a generic when tsdx supports Typescript V4.
-// https://github.com/jaredpalmer/tsdx/issues/926
-export type IncomingEmbedMessage = MessageEvent;
-// | MessageEvent<{
-//     name: typeof EXPLORER_LISTENING_FOR_HANDSHAKE;
-//   }>
-// | MessageEvent<{
-//     name: typeof EXPLORER_QUERY_MUTATION_REQUEST;
-//     operationName?: string;
-//     operation: string;
-//     operationId: string;
-//     variables?: Record<string, string>;
-//     headers?: Record<string, string>;
-//     sandboxEndpointUrl?: string;
-//   }>
-// | MessageEvent<{
-//     name: typeof EXPLORER_SUBSCRIPTION_REQUEST;
-//     operationId: string;
-//     operation: string;
-//     variables?: Record<string, string>;
-//     operationName?: string;
-//     headers?: Record<string, string>;
-//     subscriptionUrl: string;
-//     protocol: GraphQLSubscriptionLibrary;
-//   }>
-// | MessageEvent<{
-//     name: typeof EXPLORER_SUBSCRIPTION_TERMINATION;
-//     operationId: string;
-//   }>
-// | MessageEvent<{
-//     name: typeof EXPLORER_LISTENING_FOR_SCHEMA;
-//   }>
-// | MessageEvent<{
-//     name: typeof SET_PARTIAL_AUTHENTICATION_TOKEN_FOR_PARENT;
-//     localStorageKey: string;
-//     partialToken: string;
-//   }>
-// | MessageEvent<{
-//     name: typeof TRIGGER_LOGOUT_IN_PARENT;
-//     localStorageKey: string;
-//   }>
-// | MessageEvent<{
-//     name: typeof EXPLORER_LISTENING_FOR_PARTIAL_TOKEN;
-//     localStorageKey?: string;
-//   }>
-// | MessageEvent<{
-//     name: typeof INTROSPECTION_QUERY_WITH_HEADERS;
-//     introspectionRequestBody: string;
-//     introspectionRequestHeaders: Record<string, string>;
-//     sandboxEndpointUrl?: string;
-//   }>;
+export type IncomingEmbedMessage =
+  | MessageEvent<{
+      name: typeof EXPLORER_LISTENING_FOR_HANDSHAKE;
+    }>
+  | MessageEvent<{
+      name: typeof EXPLORER_QUERY_MUTATION_REQUEST;
+      operationName?: string;
+      operation: string;
+      operationId: string;
+      variables?: Record<string, string>;
+      headers?: Record<string, string>;
+      // This should be deleted fall 2022. Studio has been updated to only send
+      // endpointUrl, but we kept this around for service workers
+      sandboxEndpointUrl?: string;
+      endpointUrl?: string;
+    }>
+  | MessageEvent<{
+      name: typeof EXPLORER_SUBSCRIPTION_REQUEST;
+      operationId: string;
+      operation: string;
+      variables?: Record<string, string>;
+      operationName?: string;
+      headers?: Record<string, string>;
+      subscriptionUrl: string;
+      protocol: GraphQLSubscriptionLibrary;
+    }>
+  | MessageEvent<{
+      name: typeof EXPLORER_SUBSCRIPTION_TERMINATION;
+      operationId: string;
+    }>
+  | MessageEvent<{
+      name: typeof EXPLORER_LISTENING_FOR_SCHEMA;
+    }>
+  | MessageEvent<{
+      name: typeof SET_PARTIAL_AUTHENTICATION_TOKEN_FOR_PARENT;
+      localStorageKey: string;
+      partialToken: string;
+    }>
+  | MessageEvent<{
+      name: typeof TRIGGER_LOGOUT_IN_PARENT;
+      localStorageKey: string;
+    }>
+  | MessageEvent<{
+      name: typeof EXPLORER_LISTENING_FOR_PARTIAL_TOKEN;
+      localStorageKey?: string;
+    }>
+  | MessageEvent<{
+      name: typeof INTROSPECTION_QUERY_WITH_HEADERS;
+      introspectionRequestBody: string;
+      introspectionRequestHeaders: Record<string, string>;
+      sandboxEndpointUrl?: string;
+    }>;
 
 export function executeOperation({
   endpointUrl,

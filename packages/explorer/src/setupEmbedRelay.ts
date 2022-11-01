@@ -91,17 +91,21 @@ export function setupEmbedRelay({
         data.operationId
       ) {
         // Extract the operation details from the event.data object
-        const {
-          operation,
-          operationId,
-          operationName,
-          variables,
-          headers,
-          endpointUrl: studioGraphEndpointUrl,
-        } = data;
+        const { operation, operationId, operationName, variables, headers } =
+          data;
+
         if (isQueryOrMutation) {
+          // we support the old way of using the embed when we didn't require folks to have
+          // studio graphs, which is to pass in an endpoint manually. However, we use the
+          // endpoint sent to us from studio if there is no endpoint passed in manually
+          const endpointUrlToUseInExecution = endpointUrl ?? data.endpointUrl;
+          if (!endpointUrlToUseInExecution) {
+            throw new Error(
+              'Something went wrong, we should not have gotten here. Please double check that you are passing `endpointUrl` in your config if you are using an older version of embedded Explorer'
+            );
+          }
           executeOperation({
-            endpointUrl: endpointUrl ?? studioGraphEndpointUrl,
+            endpointUrl: endpointUrlToUseInExecution,
             handleRequest,
             operation,
             operationName,

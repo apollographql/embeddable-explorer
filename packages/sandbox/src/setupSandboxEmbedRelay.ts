@@ -81,21 +81,24 @@ export function setupSandboxEmbedRelay({
         data.operationId
       ) {
         // Extract the operation details from the event.data object
-        const {
-          operation,
-          operationId,
-          operationName,
-          variables,
-          headers,
-          endpointUrl,
-          // this can be deleted in Fall 2022
-          // it is just here to be backwards compatible with old
-          // studio versions (service workers)
-          sandboxEndpointUrl,
-        } = data;
-        if (isQueryOrMutation && endpointUrl) {
+        const { operation, operationId, operationName, variables, headers } =
+          data;
+        if (isQueryOrMutation) {
+          const {
+            endpointUrl,
+            // this can be deleted in Fall 2022
+            // it is just here to be backwards compatible with old
+            // studio versions (service workers)
+            sandboxEndpointUrl,
+          } = data;
+          const endpointUrlToUseInExecution = endpointUrl ?? sandboxEndpointUrl;
+          if (!endpointUrlToUseInExecution) {
+            throw new Error(
+              'Something went wrong, we should not have gotten here. The sandbox endpoint url was not sent.'
+            );
+          }
           executeOperation({
-            endpointUrl: endpointUrl ?? sandboxEndpointUrl,
+            endpointUrl: endpointUrlToUseInExecution,
             handleRequest,
             operation,
             operationName,
