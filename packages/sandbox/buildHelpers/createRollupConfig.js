@@ -91,14 +91,14 @@ function createCJS_ESMRollupConfig(options) {
           ? '[name].mjs'
           : // we only make production & development builds in cjs, so we need to name the chunks accordingly
           options.environment === 'production'
-          ? '[name].production.min.js'
-          : '[name].development.js',
+          ? '[name].production.min.cjs'
+          : '[name].development.cjs',
       // we only make production & development builds in cjs, so we need to name the chunks accordingly
       ...(options.format === 'cjs' && {
         chunkFileNames:
           options.environment === 'production'
-            ? '[name].production.min.js'
-            : '[name].development.js',
+            ? '[name].production.min.cjs'
+            : '[name].development.cjs',
       }),
     },
     external: ['use-deep-compare-effect', 'react'],
