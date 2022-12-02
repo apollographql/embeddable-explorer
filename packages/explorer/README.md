@@ -95,3 +95,31 @@ Install the `Live Server` extension on VSCode, then go to `localDevelopmentExamp
 `cd` into `packages/explorer` and run `npm run build:cjs-esm` to build cjs & esm files where ApolloExplorer & ApolloExplorer React are named exports.
 
 We have a React example app that uses our ApolloExplorer React component to render the embedded Explorer located in src/examples/react-example. To run this example, `npm run build` and `npm run start` in `react-example`. Make sure you delete the .parcel-cache folder before you rebuild for new changes. (TODO remove parcel caching)
+
+### Sequence Diagrams
+
+#### Connecting to unregistered graphs by directly passing in schema
+```mermaid
+sequenceDiagram
+    participant Parent as Parent Page
+    participant Embed as Embedded Explorer
+
+    Parent->>Embed: Load embed and start listening for messages
+
+    note over Embed: Begin listening for schema and state
+
+    par #parallel
+      Embed->>Parent: Message ready for schema
+      Embed->>Parent: Message ready for state
+    end
+    par #parallel
+      Parent->>Embed: Send schema
+      Parent->>Embed: Send state 
+    end 
+    
+    note over Embed: User submits operation
+    Embed->>Parent: messages with request contents
+    note over Parent: Makes actual network via `handleRequest()`
+    Parent->>Embed: Send network response back
+    note over Embed: Processes and renders response
+```
