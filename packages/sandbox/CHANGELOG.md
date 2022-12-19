@@ -1,5 +1,11 @@
 # @apollo/sandbox
 
+## 1.0.3
+
+### Patch Changes
+
+- [#196](https://github.com/apollographql/embeddable-explorer/pull/196) [`3101b4f`](https://github.com/apollographql/embeddable-explorer/commit/3101b4f5b059d2f1854fc20413b7a3f0a2f7beb7) Thanks [@mayakoneval](https://github.com/mayakoneval)! - Fix cjs build to point to correct file names
+
 ## 1.0.2
 
 ### Patch Changes
