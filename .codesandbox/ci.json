@@ -1,5 +1,5 @@
 {
-  "sandboxes": ["npm-embeddable-explorer-zotwkv", "npm-embeddable-sandbox-q0zv0e"],
+  "sandboxes": ["npm-embeddable-explorer-forked-68onns", "npm-embeddable-sandbox-q0zv0e", "npm-embeddable-explorer-next-js-forked-jvhff5", "npm-embeddable-sandbox-next-js-forked-tbwur8"],
   "buildCommand": "build-all-cjs-esm",
   "publishDirectory": {
     "@apollo/explorer": "packages/explorer/dist",
