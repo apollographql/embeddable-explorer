@@ -4,7 +4,7 @@ This repo hosts the source for Apollo Studio's Embeddable Explorer
 
 [See docs for usage details](https://www.apollographql.com/docs/studio/embed-explorer/)
 
-### Using the [@apollo/explorer npm package](https://www.npmjs.com/package/@apollo/explorer)
+## Using the [@apollo/explorer npm package](https://www.npmjs.com/package/@apollo/explorer)
 
 You can download the @apollo/explorer npm package with `npm install @apollo/explorer`. Then, you can import the ApolloExplorer class or ApolloExplorer component like so:
 
@@ -15,7 +15,7 @@ import { ApolloExplorer } from '@apollo/explorer/react';
 
 When you call the EmbeddedExplorer constructor with a `target` of an html div you have in your app, the Explorer will show up in an iframe in that element. Check out all the [configuration options](https://www.apollographql.com/docs/studio/explorer/embed-explorer/#options) for your graph.
 
-#### React
+### React
 
 ```
 import { ApolloExplorer } from '@apollo/explorer/react';
@@ -44,7 +44,7 @@ me {
 }
 ```
 
-#### Vanilla JS
+### Vanilla JS
 
 ```
 import { ApolloExplorer } from '@apollo/explorer';
@@ -104,21 +104,70 @@ sequenceDiagram
     participant Parent as Parent Page
     participant Embed as Embedded Explorer
 
-    Parent->>Embed: Load embed and start listening for messages
+    note over Parent: Render iframe loading embed and start listening for messages.
+    Parent->>Embed: Embed loads with initial state <br>(gql operation, variables, headers, persistence preference etc) <br>in the query params of the iframe.
+    note over Embed: Loaded and sets initial state<br> from query params.
+    note over Embed: Start listening for messages
 
-    note over Embed: Begin listening for schema and state
+    Embed->>Parent: Handshake message asking for schema
+    Parent->>Embed: Responds with schema
 
-    par #parallel
-      Embed->>Parent: Message ready for schema
-      Embed->>Parent: Message ready for state
-    end
-    par #parallel
-      Parent->>Embed: Send schema
-      Parent->>Embed: Send state 
-    end 
+    note over Embed: Loads in given schema to explorer
+
+    Embed --> Parent: Set up finished
     
     note over Embed: User submits operation
-    Embed->>Parent: messages with request contents
+    Embed->>Parent: Send request contents
+    note over Parent: Makes actual network via `handleRequest()`
+    Parent->>Embed: Send network response back
+    note over Embed: Processes and renders response
+```
+
+
+#### Connecting to registered graphs by authentication
+
+```mermaid
+sequenceDiagram
+    participant Parent as Parent Page
+    participant Embed as Embedded Explorer
+    participant Login as Studio Login Page at <br>studio.apollographql.com
+
+    note over Parent: Render iframe loading embed and start listening for messages.
+    Parent->>Embed: Embed loads with initial state <br>(gql operation, variables, headers, persistence preference etc) <br>in the query params of the iframe.
+    note over Embed: Loaded and sets initial state<br> from query params.
+    note over Embed: Start listening for messages
+
+    Embed->>Parent: Handshake message asking for graphRef, <br>account id & account invite token if provided
+        
+    Parent->>Embed: Responds with graphRef, account id, account invite token
+
+    Embed->>Parent: Authentication message asking for second half of<br> authentication token from parent page local storage
+
+    alt parent page has authentication token or graph is public
+        Parent->>Embed: Responds with half auth token<br> from parent page local storage
+    else parent page doesn't have authentication token
+        note over Embed: Renders login page
+        note over Embed: User clicks 'login' on embed
+        Embed ->>Login: Embed opens a new tab to <br>login page via window.open
+        note over Login: Asks user to authenticate and<br> authorize this embed to use account
+        note over Login: User accepts
+        note over Login: Login page generates new <br>Studio API Key for this user
+        Login ->> Embed: Sends Studio API Key over <br>postMessage via window.opener
+        note over Embed: Splits key in 2, <br>stores half in local storage
+        Embed ->> Parent: Sends other half of key to parent page
+        note over Parent: Stores half of key in local storage
+        Parent->>Embed: Responds with half auth token<br> from parent page local storage
+    end
+
+
+    note over Embed: Merges half key from parent page & half from embed local storage. <br>Uses this key for all future requests to Studio backend.
+
+    note over Embed: Loads in schema & operation <br>collections for given graphRef from Studio servers
+
+    Parent --> Login: Set up finished
+    
+    note over Embed: User submits operation
+    Embed->>Parent: Send request contents
     note over Parent: Makes actual network via `handleRequest()`
     Parent->>Embed: Send network response back
     note over Embed: Processes and renders response
