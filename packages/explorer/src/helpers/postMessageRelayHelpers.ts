@@ -7,7 +7,6 @@ import {
   PARTIAL_AUTHENTICATION_TOKEN_RESPONSE,
   EXPLORER_QUERY_MUTATION_RESPONSE,
   HANDSHAKE_RESPONSE,
-  SCHEMA_ERROR,
   SCHEMA_RESPONSE,
   SET_PARTIAL_AUTHENTICATION_TOKEN_FOR_PARENT,
   EXPLORER_LISTENING_FOR_PARTIAL_TOKEN,
@@ -22,7 +21,6 @@ import {
   EXPLORER_SUBSCRIPTION_REQUEST,
   EXPLORER_SUBSCRIPTION_TERMINATION,
   EXPLORER_LISTENING_FOR_SCHEMA,
-  INTROSPECTION_QUERY_WITH_HEADERS,
 } from './constants';
 import MIMEType from 'whatwg-mimetype';
 import { readMultipartWebStream } from './readMultipartWebStream';
@@ -93,11 +91,6 @@ type ExplorerResponse = ResponseData & {
 };
 
 export type OutgoingEmbedMessage =
-  | {
-      name: typeof SCHEMA_ERROR;
-      error?: string;
-      errors?: Array<GraphQLError>;
-    }
   | {
       name: typeof SCHEMA_RESPONSE;
       schema: IntrospectionQuery | string | undefined;
@@ -181,12 +174,6 @@ export type IncomingEmbedMessage =
   | MessageEvent<{
       name: typeof EXPLORER_LISTENING_FOR_PARTIAL_TOKEN;
       localStorageKey?: string;
-    }>
-  | MessageEvent<{
-      name: typeof INTROSPECTION_QUERY_WITH_HEADERS;
-      introspectionRequestBody: string;
-      introspectionRequestHeaders: Record<string, string>;
-      sandboxEndpointUrl?: string;
     }>;
 
 export function executeOperation({
