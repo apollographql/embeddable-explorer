@@ -152,10 +152,7 @@ export type IncomingEmbedMessage =
       operationId: string;
       variables?: Record<string, string>;
       headers?: Record<string, string>;
-      // This should be deleted fall 2022. Studio has been updated to only send
-      // endpointUrl, but we kept this around for service workers
-      sandboxEndpointUrl?: string;
-      endpointUrl?: string;
+      endpointUrl: string;
     }>
   | MessageEvent<{
       name: typeof EXPLORER_SUBSCRIPTION_REQUEST;

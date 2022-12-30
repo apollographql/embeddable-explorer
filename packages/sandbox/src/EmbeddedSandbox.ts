@@ -1,14 +1,6 @@
-import type { IntrospectionQuery } from 'graphql';
-import {
-  EMBEDDABLE_SANDBOX_URL,
-  IFRAME_DOM_ID,
-  SCHEMA_RESPONSE,
-} from './helpers/constants';
+import { EMBEDDABLE_SANDBOX_URL, IFRAME_DOM_ID } from './helpers/constants';
 import { defaultHandleRequest } from './helpers/defaultHandleRequest';
-import {
-  HandleRequest,
-  sendPostMessageToEmbed,
-} from './helpers/postMessageRelayHelpers';
+import type { HandleRequest } from './helpers/postMessageRelayHelpers';
 import { setupSandboxEmbedRelay } from './setupSandboxEmbedRelay';
 import packageJSON from '../package.json';
 import type { JSONObject } from './helpers/types';
@@ -149,20 +141,5 @@ export class EmbeddedSandbox {
     if (!this.options.target) {
       throw new Error('"target" is required');
     }
-  }
-
-  updateSchemaInEmbed({
-    schema,
-  }: {
-    schema?: string | IntrospectionQuery | undefined;
-  }) {
-    sendPostMessageToEmbed({
-      message: {
-        name: SCHEMA_RESPONSE,
-        schema,
-      },
-      embeddedIFrameElement: this.embeddedSandboxIFrameElement,
-      embedUrl: EMBEDDABLE_SANDBOX_URL(this.__testLocal__),
-    });
   }
 }
