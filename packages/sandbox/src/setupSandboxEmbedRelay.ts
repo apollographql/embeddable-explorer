@@ -56,6 +56,7 @@ export function setupSandboxEmbedRelay({
           introspectionRequestBody,
           introspectionRequestHeaders,
           sandboxEndpointUrl,
+          operationId,
         } = data;
         if (sandboxEndpointUrl) {
           executeIntrospectionRequest({
@@ -65,6 +66,7 @@ export function setupSandboxEmbedRelay({
             embeddedIFrameElement: embeddedSandboxIFrameElement,
             embedUrl,
             handleRequest,
+            operationId,
           });
         }
       }

@@ -97,10 +97,12 @@ export type OutgoingEmbedMessage =
       name: typeof SCHEMA_ERROR;
       error?: string;
       errors?: Array<GraphQLError>;
+      operationId: string;
     }
   | {
       name: typeof SCHEMA_RESPONSE;
       schema: IntrospectionQuery | string | undefined;
+      operationId: string;
     }
   | {
       name: typeof HANDSHAKE_RESPONSE;
@@ -190,6 +192,7 @@ export type IncomingEmbedMessage =
       introspectionRequestBody: string;
       introspectionRequestHeaders: Record<string, string>;
       sandboxEndpointUrl?: string;
+      operationId: string;
     }>;
 
 export function executeOperation({
@@ -355,6 +358,7 @@ export function executeIntrospectionRequest({
   embeddedIFrameElement,
   embedUrl,
   handleRequest,
+  operationId,
 }: {
   endpointUrl: string;
   embeddedIFrameElement: HTMLIFrameElement;
@@ -362,6 +366,7 @@ export function executeIntrospectionRequest({
   introspectionRequestBody: string;
   embedUrl: string;
   handleRequest: HandleRequest;
+  operationId: string;
 }) {
   const { query, operationName } = JSON.parse(introspectionRequestBody) as {
     query: string;
@@ -382,6 +387,7 @@ export function executeIntrospectionRequest({
           message: {
             name: SCHEMA_ERROR,
             errors: response.errors,
+            operationId,
           },
           embeddedIFrameElement,
           embedUrl,
@@ -391,6 +397,7 @@ export function executeIntrospectionRequest({
         message: {
           name: SCHEMA_RESPONSE,
           schema: response.data,
+          operationId,
         },
         embeddedIFrameElement,
         embedUrl,
@@ -401,6 +408,7 @@ export function executeIntrospectionRequest({
         message: {
           name: SCHEMA_ERROR,
           error: error,
+          operationId,
         },
         embeddedIFrameElement,
         embedUrl,
