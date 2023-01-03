@@ -4,7 +4,7 @@ This repo hosts the source for Apollo Studio's Embeddable Sandbox
 
 [See docs for usage details](https://www.apollographql.com/docs/studio/explorer/sandbox/#embedding-sandbox)
 
-### Using the [@apollo/sandbox npm package](https://www.npmjs.com/package/@apollo/sandbox)
+## Using the [@apollo/sandbox npm package](https://www.npmjs.com/package/@apollo/sandbox)
 
 You can download the @apollo/sandbox npm package with `npm install @apollo/sandbox`. Then, you can import the ApolloSandbox class or ApolloSandbox React component like so:
 
@@ -15,7 +15,7 @@ import { ApolloSandbox } from '@apollo/sandbox/react';
 
 When you call the EmbeddedSandbox constructor with a `target` of an html div you have in your app, the Sandbox will show up in an iframe in that element. Check out all the [configuration options](https://www.apollographql.com/docs/studio/explorer/sandbox/#options) for your graph.
 
-#### React
+### React
 
 ```
 import { ApolloSandbox } from '@apollo/sandbox/react';
@@ -28,7 +28,7 @@ function App() {
 }
 ```
 
-#### Vanilla JS
+### Vanilla JS
 
 ```
 import { ApolloSandbox } from '@apollo/sandbox';

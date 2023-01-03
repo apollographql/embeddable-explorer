@@ -118,7 +118,7 @@ sequenceDiagram
     
     note over Embed: User submits operation
     Embed->>Parent: Send request contents
-    note over Parent: Makes actual network via `handleRequest()`
+    note over Parent: Makes actual network request via `handleRequest()`
     Parent->>Embed: Send network response back
     note over Embed: Processes and renders response
 ```
@@ -143,9 +143,9 @@ sequenceDiagram
 
     Embed->>Parent: Authentication message asking for second half of<br> authentication token from parent page local storage
 
-    alt parent page has authentication token or graph is public
+    alt when parent page has authentication token or graph is public
         Parent->>Embed: Responds with half auth token<br> from parent page local storage
-    else parent page doesn't have authentication token
+    else when parent page doesn't have authentication token
         note over Embed: Renders login page
         note over Embed: User clicks 'login' on embed
         Embed ->>Login: Embed opens a new tab to <br>login page via window.open
@@ -168,7 +168,7 @@ sequenceDiagram
     
     note over Embed: User submits operation
     Embed->>Parent: Send request contents
-    note over Parent: Makes actual network via `handleRequest()`
+    note over Parent: Makes actual network request via `handleRequest()`
     Parent->>Embed: Send network response back
     note over Embed: Processes and renders response
 ```
