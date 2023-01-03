@@ -8,7 +8,6 @@ export const EMBEDDABLE_EXPLORER_URL = (__testLocal__ = false) =>
 export const EXPLORER_LISTENING_FOR_SCHEMA = 'ExplorerListeningForSchema';
 export const EXPLORER_LISTENING_FOR_STATE = 'ExplorerListeningForState';
 export const SET_OPERATION = 'SetOperation';
-export const SCHEMA_ERROR = 'SchemaError';
 export const SCHEMA_RESPONSE = 'SchemaResponse';
 
 // Message types for queries and mutations
@@ -36,5 +35,4 @@ export const EXPLORER_LISTENING_FOR_PARTIAL_TOKEN =
   'ExplorerListeningForPartialToken';
 export const PARTIAL_AUTHENTICATION_TOKEN_RESPONSE =
   'PartialAuthenticationTokenResponse';
-export const INTROSPECTION_QUERY_WITH_HEADERS = 'IntrospectionQueryWithHeaders';
 export const PARENT_LOGOUT_SUCCESS = 'ParentLogoutSuccess';
