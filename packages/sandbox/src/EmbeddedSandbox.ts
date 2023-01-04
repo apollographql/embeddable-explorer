@@ -21,6 +21,7 @@ export interface EmbeddableSandboxOptions {
     document?: string;
     variables?: JSONObject;
     headers?: Record<string, string>;
+    // defaults to true. If false, sandbox will not poll your endpoint for your schema.
     pollForSchemaUpdates?: boolean;
   };
 
