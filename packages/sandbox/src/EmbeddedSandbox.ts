@@ -27,6 +27,8 @@ export interface EmbeddableSandboxOptions {
   handleRequest?: HandleRequest;
   // defaults to false. If you pass `handleRequest` that will override this.
   includeCookies?: boolean;
+  // defaults to true. If false, the endpoint box at the top of sandbox will be `initialEndpoint` or `localhost:4000` permanently
+  endpointIsEditable?: boolean;
 }
 
 type InternalEmbeddableSandboxOptions = EmbeddableSandboxOptions & {
@@ -93,6 +95,7 @@ export class EmbeddedSandbox {
       version: packageJSON.version,
       runTelemetry: true,
       initialRequestQueryPlan: this.options.initialRequestQueryPlan ?? false,
+      endpointIsEditable: this.options.endpointIsEditable,
     };
 
     const queryString = Object.entries(queryParams)
