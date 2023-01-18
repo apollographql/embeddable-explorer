@@ -56,6 +56,7 @@ export function setupSandboxEmbedRelay({
           introspectionRequestBody,
           introspectionRequestHeaders,
           sandboxEndpointUrl,
+          operationId,
         } = data;
         if (sandboxEndpointUrl) {
           executeIntrospectionRequest({
@@ -65,6 +66,7 @@ export function setupSandboxEmbedRelay({
             embeddedIFrameElement: embeddedSandboxIFrameElement,
             embedUrl,
             handleRequest,
+            operationId,
           });
         }
       }
@@ -84,21 +86,14 @@ export function setupSandboxEmbedRelay({
         const { operation, operationId, operationName, variables, headers } =
           data;
         if (isQueryOrMutation) {
-          const {
-            endpointUrl,
-            // this can be deleted in Fall 2022
-            // it is just here to be backwards compatible with old
-            // studio versions (service workers)
-            sandboxEndpointUrl,
-          } = data;
-          const endpointUrlToUseInExecution = endpointUrl ?? sandboxEndpointUrl;
-          if (!endpointUrlToUseInExecution) {
+          const { endpointUrl } = data;
+          if (!endpointUrl) {
             throw new Error(
               'Something went wrong, we should not have gotten here. The sandbox endpoint url was not sent.'
             );
           }
           executeOperation({
-            endpointUrl: endpointUrlToUseInExecution,
+            endpointUrl,
             handleRequest,
             operation,
             operationName,

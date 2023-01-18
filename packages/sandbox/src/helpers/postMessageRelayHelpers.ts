@@ -97,10 +97,12 @@ export type OutgoingEmbedMessage =
       name: typeof SCHEMA_ERROR;
       error?: string;
       errors?: Array<GraphQLError>;
+      operationId: string;
     }
   | {
       name: typeof SCHEMA_RESPONSE;
       schema: IntrospectionQuery | string | undefined;
+      operationId: string;
     }
   | {
       name: typeof HANDSHAKE_RESPONSE;
@@ -150,10 +152,7 @@ export type IncomingEmbedMessage =
       operationId: string;
       variables?: Record<string, string>;
       headers?: Record<string, string>;
-      // This should be deleted fall 2022. Studio has been updated to only send
-      // endpointUrl, but we kept this around for service workers
-      sandboxEndpointUrl?: string;
-      endpointUrl?: string;
+      endpointUrl: string;
     }>
   | MessageEvent<{
       name: typeof EXPLORER_SUBSCRIPTION_REQUEST;
@@ -190,6 +189,7 @@ export type IncomingEmbedMessage =
       introspectionRequestBody: string;
       introspectionRequestHeaders: Record<string, string>;
       sandboxEndpointUrl?: string;
+      operationId: string;
     }>;
 
 export function executeOperation({
@@ -355,6 +355,7 @@ export function executeIntrospectionRequest({
   embeddedIFrameElement,
   embedUrl,
   handleRequest,
+  operationId,
 }: {
   endpointUrl: string;
   embeddedIFrameElement: HTMLIFrameElement;
@@ -362,6 +363,7 @@ export function executeIntrospectionRequest({
   introspectionRequestBody: string;
   embedUrl: string;
   handleRequest: HandleRequest;
+  operationId: string;
 }) {
   const { query, operationName } = JSON.parse(introspectionRequestBody) as {
     query: string;
@@ -382,6 +384,7 @@ export function executeIntrospectionRequest({
           message: {
             name: SCHEMA_ERROR,
             errors: response.errors,
+            operationId,
           },
           embeddedIFrameElement,
           embedUrl,
@@ -391,6 +394,7 @@ export function executeIntrospectionRequest({
         message: {
           name: SCHEMA_RESPONSE,
           schema: response.data,
+          operationId,
         },
         embeddedIFrameElement,
         embedUrl,
@@ -401,6 +405,7 @@ export function executeIntrospectionRequest({
         message: {
           name: SCHEMA_ERROR,
           error: error,
+          operationId,
         },
         embeddedIFrameElement,
         embedUrl,
