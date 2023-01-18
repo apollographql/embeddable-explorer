@@ -33,6 +33,11 @@ export interface EmbeddableSandboxOptions {
    * to include cookies in their request from their connection settings.
    */
   hideCookieToggle?: boolean;
+  /**
+   * optional. defaults to true.
+   * If false, the endpoint box at the top of sandbox will be `initialEndpoint` permanently
+   */
+  endpointIsEditable?: boolean;
 }
 
 type InternalEmbeddableSandboxOptions = EmbeddableSandboxOptions & {
@@ -104,6 +109,7 @@ export class EmbeddedSandbox {
       version: packageJSON.version,
       runTelemetry: true,
       initialRequestQueryPlan: this.options.initialRequestQueryPlan ?? false,
+      endpointIsEditable: this.options.endpointIsEditable,
     };
 
     const queryString = Object.entries(queryParams)
