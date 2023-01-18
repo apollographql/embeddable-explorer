@@ -21,6 +21,8 @@ export interface EmbeddableSandboxOptions {
     document?: string;
     variables?: JSONObject;
     headers?: Record<string, string>;
+    // defaults to true. If false, sandbox will not poll your endpoint for your schema.
+    pollForSchemaUpdates?: boolean;
   };
 
   // optional. defaults to `return fetch(url, fetchOptions)`
@@ -95,6 +97,8 @@ export class EmbeddedSandbox {
       version: packageJSON.version,
       runTelemetry: true,
       initialRequestQueryPlan: this.options.initialRequestQueryPlan ?? false,
+      shouldDefaultAutoupdateSchema:
+        this.options.initialState?.pollForSchemaUpdates ?? true,
       endpointIsEditable: this.options.endpointIsEditable,
     };
 
