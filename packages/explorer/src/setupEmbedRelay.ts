@@ -95,6 +95,7 @@ export function setupEmbedRelay({
           data;
 
         if (isQueryOrMutation) {
+          const { includeCookies } = data;
           // we support the old way of using the embed when we didn't require folks to have
           // studio graphs, which is to pass in an endpoint manually. However, we use the
           // endpoint sent to us from studio if there is no endpoint passed in manually
@@ -111,6 +112,7 @@ export function setupEmbedRelay({
             operationName,
             variables,
             headers,
+            includeCookies,
             embeddedIFrameElement: embeddedExplorerIFrameElement,
             operationId,
             embedUrl,

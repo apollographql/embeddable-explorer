@@ -20,6 +20,7 @@ export interface BaseEmbeddableExplorerOptions {
     document?: string;
     variables?: JSONObject;
     headers?: Record<string, string>;
+    includeCookies?: boolean;
     displayOptions: {
       docsPanelState?: 'open' | 'closed'; // default to 'open',
       showHeadersAndEnvVars?: boolean; // default to `false`
@@ -30,8 +31,14 @@ export interface BaseEmbeddableExplorerOptions {
 
   // optional. defaults to `return fetch(url, fetchOptions)`
   handleRequest?: HandleRequest;
-  // defaults to false. If you pass `handleRequest` that will override this.
+  /**
+   * defaults to false. If you pass `handleRequest` that will override this.
+   *
+   * @deprecated Use `initialState.includeCookies` instead
+   */
   includeCookies?: boolean;
+  // optional. defaults to true
+  hideCookieToggle?: boolean;
   // If this object has values for `inviteToken` and `accountId`,
   // any users who can see your embeddable Explorer are automatically
   // invited to the account your graph is under with the role specified by the `inviteToken`.
@@ -176,9 +183,9 @@ export class EmbeddedExplorer {
   }
 
   getEmbeddedExplorerURL = () => {
-    const { document, variables, headers, displayOptions } =
+    const { document, variables, headers, includeCookies, displayOptions } =
       this.options.initialState || {};
-    const { persistExplorerState } = this.options;
+    const { persistExplorerState, hideCookieToggle } = this.options;
     const graphRef =
       'graphRef' in this.options ? this.options.graphRef : undefined;
     const queryParams = {
@@ -190,6 +197,8 @@ export class EmbeddedExplorer {
       defaultHeaders: headers
         ? encodeURIComponent(JSON.stringify(headers))
         : undefined,
+      defaultIncludeCookies: includeCookies,
+      hideCookieToggle: hideCookieToggle ?? true,
       shouldPersistState: !!persistExplorerState,
       docsPanelState: displayOptions?.docsPanelState ?? 'open',
       showHeadersAndEnvVars: displayOptions?.showHeadersAndEnvVars !== false,
