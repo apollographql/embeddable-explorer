@@ -3,14 +3,16 @@ import type { HandleRequest } from './postMessageRelayHelpers';
 export const defaultHandleRequest = ({
   includeCookies,
 }: {
-  includeCookies: boolean;
+  includeCookies?: boolean;
 }): HandleRequest => {
   const handleRequestWithCookiePref: HandleRequest = (endpointUrl, options) =>
     fetch(endpointUrl, {
       ...options,
       ...(includeCookies
         ? { credentials: 'include' }
-        : { credentials: 'omit' }),
+        : includeCookies !== undefined
+        ? { credentials: 'omit' }
+        : {}),
     });
   return handleRequestWithCookiePref;
 };

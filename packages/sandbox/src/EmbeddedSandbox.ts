@@ -50,7 +50,7 @@ export class EmbeddedSandbox {
     this.validateOptions();
     this.handleRequest =
       this.options.handleRequest ??
-      defaultHandleRequest({ includeCookies: !!this.options.includeCookies });
+      defaultHandleRequest({ includeCookies: this.options.includeCookies });
     this.uniqueEmbedInstanceId = idCounter++;
     this.embeddedSandboxIFrameElement = this.injectEmbed();
     this.disposable = setupSandboxEmbedRelay({
