@@ -13,12 +13,21 @@ export interface EmbeddableSandboxOptions {
     document?: string;
     variables?: JSONObject;
     headers?: Record<string, string>;
+    includeCookies?: boolean;
   };
 
   // optional. defaults to `return fetch(url, fetchOptions)`
   handleRequest?: HandleRequest;
-  // defaults to false. If you pass `handleRequest` that will override this.
+
+  /**
+   * optional. If you pass `handleRequest` that will override this.
+   *
+   * @deprecated Use `initialState.includeCookies` instead
+   */
   includeCookies?: boolean;
+
+  // optional. defaults to true
+  hideCookieToggle?: boolean;
 }
 
 type InternalEmbeddableSandboxOptions = EmbeddableSandboxOptions & {
@@ -68,6 +77,7 @@ export class EmbeddedSandbox {
       document: initialDocument,
       variables,
       headers,
+      includeCookies,
     } = this.options.initialState || {};
 
     const queryParams = {
@@ -81,6 +91,8 @@ export class EmbeddedSandbox {
       defaultHeaders: headers
         ? encodeURIComponent(JSON.stringify(headers))
         : undefined,
+      defaultIncludeCookies: includeCookies,
+      hideCookieToggle: this.options.hideCookieToggle ?? true,
       parentSupportsSubscriptions: true,
       version: packageJSON.version,
       runTelemetry: true,

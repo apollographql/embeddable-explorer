@@ -152,6 +152,7 @@ export type IncomingEmbedMessage =
       operationId: string;
       variables?: Record<string, string>;
       headers?: Record<string, string>;
+      includeCookies: boolean;
       endpointUrl: string;
     }>
   | MessageEvent<{
@@ -199,6 +200,7 @@ export function executeOperation({
   operationName,
   variables,
   headers,
+  includeCookies,
   embeddedIFrameElement,
   operationId,
   embedUrl,
@@ -211,6 +213,7 @@ export function executeOperation({
   operationName: string | undefined;
   variables?: Record<string, string>;
   headers?: Record<string, string>;
+  includeCookies: boolean;
   embedUrl: string;
 }) {
   return handleRequest(endpointUrl, {
@@ -221,6 +224,7 @@ export function executeOperation({
       variables,
       operationName,
     }),
+    ...(includeCookies ? { credentials: 'include' } : { credentials: 'omit' }),
   })
     .then(async (response) => {
       const responseHeaders: Record<string, string> = {};
