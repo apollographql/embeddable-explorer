@@ -55,6 +55,7 @@ export function setupSandboxEmbedRelay({
         const {
           introspectionRequestBody,
           introspectionRequestHeaders,
+          includeCookies,
           sandboxEndpointUrl,
           operationId,
         } = data;
@@ -63,6 +64,7 @@ export function setupSandboxEmbedRelay({
             endpointUrl: sandboxEndpointUrl,
             introspectionRequestBody,
             headers: introspectionRequestHeaders,
+            includeCookies,
             embeddedIFrameElement: embeddedSandboxIFrameElement,
             embedUrl,
             handleRequest,

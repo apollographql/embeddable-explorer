@@ -189,6 +189,7 @@ export type IncomingEmbedMessage =
       name: typeof INTROSPECTION_QUERY_WITH_HEADERS;
       introspectionRequestBody: string;
       introspectionRequestHeaders: Record<string, string>;
+      includeCookies: boolean;
       sandboxEndpointUrl?: string;
       operationId: string;
     }>;
@@ -355,6 +356,7 @@ export function executeOperation({
 export function executeIntrospectionRequest({
   endpointUrl,
   headers,
+  includeCookies,
   introspectionRequestBody,
   embeddedIFrameElement,
   embedUrl,
@@ -364,6 +366,7 @@ export function executeIntrospectionRequest({
   endpointUrl: string;
   embeddedIFrameElement: HTMLIFrameElement;
   headers?: Record<string, string>;
+  includeCookies: boolean;
   introspectionRequestBody: string;
   embedUrl: string;
   handleRequest: HandleRequest;
@@ -380,6 +383,7 @@ export function executeIntrospectionRequest({
       query,
       operationName,
     }),
+    ...(includeCookies ? { credentials: 'include' } : { credentials: 'omit' }),
   })
     .then((response) => response.json())
     .then((response) => {
