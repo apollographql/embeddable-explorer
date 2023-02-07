@@ -1,16 +1,18 @@
 import type { HandleRequest } from './postMessageRelayHelpers';
 
 export const defaultHandleRequest = ({
-  includeCookies,
+  legacyIncludeCookies,
 }: {
-  includeCookies?: boolean;
+  legacyIncludeCookies?: boolean;
 }): HandleRequest => {
   const handleRequestWithCookiePref: HandleRequest = (endpointUrl, options) =>
     fetch(endpointUrl, {
       ...options,
-      ...(includeCookies
+      ...(legacyIncludeCookies
         ? { credentials: 'include' }
-        : includeCookies !== undefined
+        : // if the user doesn't pass this value then we should use the credentials option sent from the
+        // studio postMessage request. otherwise this would overwrite it.
+        legacyIncludeCookies !== undefined
         ? { credentials: 'omit' }
         : {}),
     });

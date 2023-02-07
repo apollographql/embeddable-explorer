@@ -20,7 +20,6 @@ export interface BaseEmbeddableExplorerOptions {
     document?: string;
     variables?: JSONObject;
     headers?: Record<string, string>;
-    includeCookies?: boolean;
     displayOptions: {
       docsPanelState?: 'open' | 'closed'; // default to 'open',
       showHeadersAndEnvVars?: boolean; // default to `false`
@@ -32,13 +31,12 @@ export interface BaseEmbeddableExplorerOptions {
   // optional. defaults to `return fetch(url, fetchOptions)`
   handleRequest?: HandleRequest;
   /**
-   * defaults to false. If you pass `handleRequest` that will override this.
+   * If this is passed, its value will take precedence over your variant's default `includeCookies` value.
+   * If you pass `handleRequest`, that will override this value and its behavior.
    *
    * @deprecated Use `initialState.includeCookies` instead
    */
   includeCookies?: boolean;
-  // optional. defaults to true
-  hideCookieToggle?: boolean;
   // If this object has values for `inviteToken` and `accountId`,
   // any users who can see your embeddable Explorer are automatically
   // invited to the account your graph is under with the role specified by the `inviteToken`.
@@ -86,7 +84,9 @@ export class EmbeddedExplorer {
     this.validateOptions();
     this.handleRequest =
       this.options.handleRequest ??
-      defaultHandleRequest({ includeCookies: this.options.includeCookies });
+      defaultHandleRequest({
+        legacyIncludeCookies: this.options.includeCookies,
+      });
     this.uniqueEmbedInstanceId = idCounter++;
     this.embeddedExplorerURL = this.getEmbeddedExplorerURL();
     this.embeddedExplorerIFrameElement = this.injectEmbed();
@@ -163,6 +163,12 @@ export class EmbeddedExplorer {
       throw new Error('"target" is required');
     }
 
+    if (this.options.includeCookies !== undefined) {
+      console.warn(
+        'Passing `includeCookies` is deprecated. If you would like to use the default includeCookies option for this variant, you must remove this config option.'
+      );
+    }
+
     if ('endpointUrl' in this.options && 'graphRef' in this.options) {
       // we can't throw here for backwards compat reasons. Folks on the cdn _latest bundle
       // will still be passing this
@@ -183,9 +189,9 @@ export class EmbeddedExplorer {
   }
 
   getEmbeddedExplorerURL = () => {
-    const { document, variables, headers, includeCookies, displayOptions } =
+    const { document, variables, headers, displayOptions } =
       this.options.initialState || {};
-    const { persistExplorerState, hideCookieToggle } = this.options;
+    const { persistExplorerState } = this.options;
     const graphRef =
       'graphRef' in this.options ? this.options.graphRef : undefined;
     const queryParams = {
@@ -197,8 +203,6 @@ export class EmbeddedExplorer {
       defaultHeaders: headers
         ? encodeURIComponent(JSON.stringify(headers))
         : undefined,
-      defaultIncludeCookies: includeCookies,
-      hideCookieToggle: hideCookieToggle ?? true,
       shouldPersistState: !!persistExplorerState,
       docsPanelState: displayOptions?.docsPanelState ?? 'open',
       showHeadersAndEnvVars: displayOptions?.showHeadersAndEnvVars !== false,
