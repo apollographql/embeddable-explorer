@@ -34,7 +34,7 @@ export interface BaseEmbeddableExplorerOptions {
    * If this is passed, its value will take precedence over your variant's default `includeCookies` value.
    * If you pass `handleRequest`, that will override this value and its behavior.
    *
-   * @deprecated Use `initialState.includeCookies` instead
+   * @deprecated Use the connection setting on your variant in Studio to choose whether or not to include cookies
    */
   includeCookies?: boolean;
   // If this object has values for `inviteToken` and `accountId`,
