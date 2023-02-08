@@ -165,7 +165,7 @@ export class EmbeddedExplorer {
 
     if (this.options.includeCookies !== undefined) {
       console.warn(
-        'Passing `includeCookies` is deprecated. If you would like to use the default includeCookies option for this variant, you must remove this config option.'
+        'Passing `includeCookies` is deprecated. Remove `includeCookies` from your config, and use the setting for your variant on Studio to set whether or not to include cookies.
       );
     }
 
