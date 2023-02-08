@@ -1,6 +1,0 @@
----
-'@apollo/explorer': major
-'@apollo/sandbox': major
----
-
-This major release affects how we send cookies to your embedded Sandbox and embedded Explorer. Previously, when a user passed the `includeCookies` config option we would set cookies on the default `fetch` request. However, when working in Sandbox or Explorer in Studio we let users set `includeCookies` in their connection settings. This change deprecates the old `includeCookies` option and passes the `includeCookies` value set in Explorer to your embedded Explorer or embedded Sandbox. In embedded Sandbox, you can configure whether cookies are initially on or off for your users on first load with the new config option `initialState.includeCookies`. You can decide to show or hide the connection settings toggle for your users with the config option `hideCookieToggle`. This change is backwards compatible, so if you are using the deprecated `includeCookies` config option, that overrides all other config options & your Studio settings.
