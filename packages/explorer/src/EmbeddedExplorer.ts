@@ -30,7 +30,12 @@ export interface BaseEmbeddableExplorerOptions {
 
   // optional. defaults to `return fetch(url, fetchOptions)`
   handleRequest?: HandleRequest;
-  // defaults to false. If you pass `handleRequest` that will override this.
+  /**
+   * If this is passed, its value will take precedence over your variant's default `includeCookies` value.
+   * If you pass `handleRequest`, that will override this value and its behavior.
+   *
+   * @deprecated Use the connection setting on your variant in Studio to choose whether or not to include cookies
+   */
   includeCookies?: boolean;
   // If this object has values for `inviteToken` and `accountId`,
   // any users who can see your embeddable Explorer are automatically
@@ -79,7 +84,9 @@ export class EmbeddedExplorer {
     this.validateOptions();
     this.handleRequest =
       this.options.handleRequest ??
-      defaultHandleRequest({ includeCookies: !!this.options.includeCookies });
+      defaultHandleRequest({
+        legacyIncludeCookies: this.options.includeCookies,
+      });
     this.uniqueEmbedInstanceId = idCounter++;
     this.embeddedExplorerURL = this.getEmbeddedExplorerURL();
     this.embeddedExplorerIFrameElement = this.injectEmbed();
@@ -154,6 +161,12 @@ export class EmbeddedExplorer {
   validateOptions() {
     if (!this.options.target) {
       throw new Error('"target" is required');
+    }
+
+    if (this.options.includeCookies !== undefined) {
+      console.warn(
+        'Passing `includeCookies` is deprecated. Remove `includeCookies` from your config, and use the setting for your variant on Studio to set whether or not to include cookies.'
+      );
     }
 
     if ('endpointUrl' in this.options && 'graphRef' in this.options) {

@@ -55,6 +55,7 @@ export function setupSandboxEmbedRelay({
         const {
           introspectionRequestBody,
           introspectionRequestHeaders,
+          includeCookies,
           sandboxEndpointUrl,
           operationId,
         } = data;
@@ -63,6 +64,7 @@ export function setupSandboxEmbedRelay({
             endpointUrl: sandboxEndpointUrl,
             introspectionRequestBody,
             headers: introspectionRequestHeaders,
+            includeCookies,
             embeddedIFrameElement: embeddedSandboxIFrameElement,
             embedUrl,
             handleRequest,
@@ -86,7 +88,7 @@ export function setupSandboxEmbedRelay({
         const { operation, operationId, operationName, variables, headers } =
           data;
         if (isQueryOrMutation) {
-          const { endpointUrl } = data;
+          const { endpointUrl, includeCookies } = data;
           if (!endpointUrl) {
             throw new Error(
               'Something went wrong, we should not have gotten here. The sandbox endpoint url was not sent.'
@@ -99,6 +101,7 @@ export function setupSandboxEmbedRelay({
             operationName,
             variables,
             headers,
+            includeCookies,
             embeddedIFrameElement: embeddedSandboxIFrameElement,
             operationId,
             embedUrl,

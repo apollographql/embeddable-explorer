@@ -13,12 +13,26 @@ export interface EmbeddableSandboxOptions {
     document?: string;
     variables?: JSONObject;
     headers?: Record<string, string>;
+    includeCookies?: boolean; // defaults to false
   };
 
   // optional. defaults to `return fetch(url, fetchOptions)`
   handleRequest?: HandleRequest;
-  // defaults to false. If you pass `handleRequest` that will override this.
+
+  /**
+   * optional. If this is passed, its value will take precedence over your sandbox connection settings `includeCookies` value.
+   * If you pass `handleRequest`, that will override this value and its behavior.
+   *
+   * @deprecated Use `initialState.includeCookies` instead
+   */
   includeCookies?: boolean;
+
+  /**
+   * optional. defaults to `true`.
+   * Set this to `false` if you want individual users to be able to choose whether
+   * to include cookies in their request from their connection settings.
+   */
+  hideCookieToggle?: boolean;
 }
 
 type InternalEmbeddableSandboxOptions = EmbeddableSandboxOptions & {
@@ -41,7 +55,9 @@ export class EmbeddedSandbox {
     this.validateOptions();
     this.handleRequest =
       this.options.handleRequest ??
-      defaultHandleRequest({ includeCookies: !!this.options.includeCookies });
+      defaultHandleRequest({
+        legacyIncludeCookies: this.options.includeCookies,
+      });
     this.uniqueEmbedInstanceId = idCounter++;
     this.embeddedSandboxIFrameElement = this.injectEmbed();
     this.disposable = setupSandboxEmbedRelay({
@@ -68,6 +84,7 @@ export class EmbeddedSandbox {
       document: initialDocument,
       variables,
       headers,
+      includeCookies,
     } = this.options.initialState || {};
 
     const queryParams = {
@@ -81,6 +98,8 @@ export class EmbeddedSandbox {
       defaultHeaders: headers
         ? encodeURIComponent(JSON.stringify(headers))
         : undefined,
+      defaultIncludeCookies: includeCookies,
+      hideCookieToggle: this.options.hideCookieToggle ?? true,
       parentSupportsSubscriptions: true,
       version: packageJSON.version,
       runTelemetry: true,
@@ -140,6 +159,22 @@ export class EmbeddedSandbox {
   validateOptions() {
     if (!this.options.target) {
       throw new Error('"target" is required');
+    }
+
+    if (this.options.includeCookies !== undefined) {
+      console.warn(
+        'Passing `includeCookies` is deprecated. If you would like to set a default includeCookies value, please use `initialState.includeCookies` instead.'
+      );
+    }
+
+    if (
+      this.options.includeCookies !== undefined &&
+      (this.options.hideCookieToggle !== undefined ||
+        this.options.initialState?.includeCookies !== undefined)
+    ) {
+      throw new Error(
+        'Passing `includeCookies` is deprecated and will override your sandbox connection settings configuration.'
+      );
     }
   }
 }

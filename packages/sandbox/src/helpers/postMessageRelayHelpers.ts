@@ -152,6 +152,8 @@ export type IncomingEmbedMessage =
       operationId: string;
       variables?: Record<string, string>;
       headers?: Record<string, string>;
+      // TODO (evan, 2023-02): We should make includeCookies non-optional in a few months to account for service workers refreshing
+      includeCookies?: boolean;
       endpointUrl: string;
     }>
   | MessageEvent<{
@@ -188,6 +190,8 @@ export type IncomingEmbedMessage =
       name: typeof INTROSPECTION_QUERY_WITH_HEADERS;
       introspectionRequestBody: string;
       introspectionRequestHeaders: Record<string, string>;
+      // TODO (evan, 2023-02): We should make includeCookies non-optional in a few months to account for service workers refreshing
+      includeCookies?: boolean;
       sandboxEndpointUrl?: string;
       operationId: string;
     }>;
@@ -199,6 +203,7 @@ export function executeOperation({
   operationName,
   variables,
   headers,
+  includeCookies,
   embeddedIFrameElement,
   operationId,
   embedUrl,
@@ -211,6 +216,7 @@ export function executeOperation({
   operationName: string | undefined;
   variables?: Record<string, string>;
   headers?: Record<string, string>;
+  includeCookies?: boolean;
   embedUrl: string;
 }) {
   return handleRequest(endpointUrl, {
@@ -221,6 +227,9 @@ export function executeOperation({
       variables,
       operationName,
     }),
+    ...(!!includeCookies
+      ? { credentials: 'include' }
+      : { credentials: 'omit' }),
   })
     .then(async (response) => {
       const responseHeaders: Record<string, string> = {};
@@ -351,6 +360,7 @@ export function executeOperation({
 export function executeIntrospectionRequest({
   endpointUrl,
   headers,
+  includeCookies,
   introspectionRequestBody,
   embeddedIFrameElement,
   embedUrl,
@@ -360,6 +370,7 @@ export function executeIntrospectionRequest({
   endpointUrl: string;
   embeddedIFrameElement: HTMLIFrameElement;
   headers?: Record<string, string>;
+  includeCookies?: boolean;
   introspectionRequestBody: string;
   embedUrl: string;
   handleRequest: HandleRequest;
@@ -376,6 +387,9 @@ export function executeIntrospectionRequest({
       query,
       operationName,
     }),
+    ...(!!includeCookies
+      ? { credentials: 'include' }
+      : { credentials: 'omit' }),
   })
     .then((response) => response.json())
     .then((response) => {
