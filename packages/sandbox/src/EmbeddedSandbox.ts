@@ -14,6 +14,8 @@ export interface EmbeddableSandboxOptions {
     variables?: JSONObject;
     headers?: Record<string, string>;
     includeCookies?: boolean; // defaults to false
+    // defaults to true. If false, sandbox will not poll your endpoint for your schema.
+    pollForSchemaUpdates?: boolean;
   };
 
   // optional. defaults to `return fetch(url, fetchOptions)`
@@ -33,6 +35,11 @@ export interface EmbeddableSandboxOptions {
    * to include cookies in their request from their connection settings.
    */
   hideCookieToggle?: boolean;
+  /**
+   * defaults to true. If false, the endpoint box at the top of sandbox will be
+   * `initialEndpoint` or `localhost:4000` permanently
+   */
+  endpointIsEditable?: boolean;
 }
 
 type InternalEmbeddableSandboxOptions = EmbeddableSandboxOptions & {
@@ -104,6 +111,9 @@ export class EmbeddedSandbox {
       version: packageJSON.version,
       runTelemetry: true,
       initialRequestQueryPlan: this.options.initialRequestQueryPlan ?? false,
+      shouldDefaultAutoupdateSchema:
+        this.options.initialState?.pollForSchemaUpdates ?? true,
+      endpointIsEditable: this.options.endpointIsEditable,
     };
 
     const queryString = Object.entries(queryParams)
