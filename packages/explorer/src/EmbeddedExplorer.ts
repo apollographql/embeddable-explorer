@@ -20,15 +20,27 @@ export interface BaseEmbeddableExplorerOptions {
     document?: string;
     variables?: JSONObject;
     headers?: Record<string, string>;
+    /**
+     * If you pass a collectionId & operationId, we ignore document, variables, headers
+     * above, and embed the document, headers, variables associated with this operation id
+     * if you have access to the operation via your collections.
+     */
+    collectionId?: string;
+    operationId?: string;
     displayOptions: {
       docsPanelState?: 'open' | 'closed'; // default to 'open',
       showHeadersAndEnvVars?: boolean; // default to `false`
       theme?: 'dark' | 'light';
     };
   };
-  persistExplorerState?: boolean; // defaults to 'false'
+  /**
+   * defaults to 'false'
+   */
+  persistExplorerState?: boolean;
 
-  // optional. defaults to `return fetch(url, fetchOptions)`
+  /**
+   * optional. defaults to `return fetch(url, fetchOptions)`
+   */
   handleRequest?: HandleRequest;
   /**
    * If this is passed, its value will take precedence over your variant's default `includeCookies` value.
@@ -37,9 +49,12 @@ export interface BaseEmbeddableExplorerOptions {
    * @deprecated Use the connection setting on your variant in Studio to choose whether or not to include cookies
    */
   includeCookies?: boolean;
-  // If this object has values for `inviteToken` and `accountId`,
-  // any users who can see your embeddable Explorer are automatically
-  // invited to the account your graph is under with the role specified by the `inviteToken`.
+
+  /**
+   * If this object has values for `inviteToken` and `accountId`,
+   * any users who can see your embeddable Explorer are automatically
+   * invited to the account your graph is under with the role specified by the `inviteToken`.
+   */
   autoInviteOptions?: {
     accountId: string;
     inviteToken: string;
@@ -189,13 +204,21 @@ export class EmbeddedExplorer {
   }
 
   getEmbeddedExplorerURL = () => {
-    const { document, variables, headers, displayOptions } =
-      this.options.initialState || {};
+    const {
+      document,
+      variables,
+      headers,
+      displayOptions,
+      operationId,
+      collectionId,
+    } = this.options.initialState || {};
     const { persistExplorerState } = this.options;
     const graphRef =
       'graphRef' in this.options ? this.options.graphRef : undefined;
     const queryParams = {
       graphRef,
+      defaultCollectionEntryId: operationId,
+      defaultCollectionId: collectionId,
       defaultDocument: document ? encodeURIComponent(document) : undefined,
       defaultVariables: variables
         ? encodeURIComponent(JSON.stringify(variables, null, 2))
