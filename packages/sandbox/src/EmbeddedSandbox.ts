@@ -14,6 +14,13 @@ export interface EmbeddableSandboxOptions {
     variables?: JSONObject;
     headers?: Record<string, string>;
     /**
+     * If you pass a collectionId & operationId, we ignore document, variables, headers
+     * above, and embed the document, headers, variables associated with this operation id
+     * if you have access to the operation via your collections.
+     */
+    collectionId?: string;
+    operationId?: string;
+    /**
      * optional. Set headers for every operation a user triggers from this Sandbox.
      * Users can check and uncheck these headers, but not edit them.
      */
@@ -105,10 +112,14 @@ export class EmbeddedSandbox {
       headers,
       includeCookies,
       sharedHeaders,
+      operationId,
+      collectionId,
     } = this.options.initialState || {};
 
     const queryParams = {
       endpoint: this.options.initialEndpoint,
+      defaultCollectionId: collectionId,
+      defaultCollectionEntryId: operationId,
       defaultDocument: initialDocument
         ? encodeURIComponent(initialDocument)
         : undefined,
