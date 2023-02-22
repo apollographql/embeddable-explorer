@@ -13,12 +13,24 @@ export interface EmbeddableSandboxOptions {
     document?: string;
     variables?: JSONObject;
     headers?: Record<string, string>;
-    includeCookies?: boolean; // defaults to false
-    // defaults to true. If false, sandbox will not poll your endpoint for your schema.
+    /**
+     * optional. Set headers for every operation a user triggers from this Sandbox.
+     * Users can check and uncheck these headers, but not edit them.
+     */
+    sharedHeaders?: Record<string, string>;
+    /**
+     * defaults to false
+     */
+    includeCookies?: boolean;
+    /**
+     * defaults to true. If false, sandbox will not poll your endpoint for your schema.
+     * */
     pollForSchemaUpdates?: boolean;
   };
 
-  // optional. defaults to `return fetch(url, fetchOptions)`
+  /**
+   * optional. defaults to `return fetch(url, fetchOptions)`
+   * */
   handleRequest?: HandleRequest;
 
   /**
@@ -92,6 +104,7 @@ export class EmbeddedSandbox {
       variables,
       headers,
       includeCookies,
+      sharedHeaders,
     } = this.options.initialState || {};
 
     const queryParams = {
@@ -104,6 +117,9 @@ export class EmbeddedSandbox {
         : undefined,
       defaultHeaders: headers
         ? encodeURIComponent(JSON.stringify(headers))
+        : undefined,
+      sharedHeaders: sharedHeaders
+        ? encodeURIComponent(JSON.stringify(sharedHeaders))
         : undefined,
       defaultIncludeCookies: includeCookies,
       hideCookieToggle: this.options.hideCookieToggle ?? true,
