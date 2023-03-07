@@ -13,10 +13,31 @@ export interface EmbeddableSandboxOptions {
     document?: string;
     variables?: JSONObject;
     headers?: Record<string, string>;
-    includeCookies?: boolean; // defaults to false
+    /**
+     * If you pass a collectionId & operationId, we ignore document, variables, headers
+     * above, and embed the document, headers, variables associated with this operation id
+     * if you have access to the operation via your collections.
+     */
+    collectionId?: string;
+    operationId?: string;
+    /**
+     * optional. Set headers for every operation a user triggers from this Sandbox.
+     * Users can check and uncheck these headers, but not edit them.
+     */
+    sharedHeaders?: Record<string, string>;
+    /**
+     * optional. defaults to false
+     */
+    includeCookies?: boolean;
+    /**
+     * defaults to true. If false, sandbox will not poll your endpoint for your schema.
+     * */
+    pollForSchemaUpdates?: boolean;
   };
 
-  // optional. defaults to `return fetch(url, fetchOptions)`
+  /**
+   * optional. defaults to `return fetch(url, fetchOptions)`
+   */
   handleRequest?: HandleRequest;
 
   /**
@@ -33,6 +54,11 @@ export interface EmbeddableSandboxOptions {
    * to include cookies in their request from their connection settings.
    */
   hideCookieToggle?: boolean;
+  /**
+   * optional. defaults to true.
+   * If false, the endpoint box at the top of sandbox will be `initialEndpoint` permanently
+   */
+  endpointIsEditable?: boolean;
 }
 
 type InternalEmbeddableSandboxOptions = EmbeddableSandboxOptions & {
@@ -85,10 +111,15 @@ export class EmbeddedSandbox {
       variables,
       headers,
       includeCookies,
+      sharedHeaders,
+      operationId,
+      collectionId,
     } = this.options.initialState || {};
 
     const queryParams = {
       endpoint: this.options.initialEndpoint,
+      defaultCollectionId: collectionId,
+      defaultCollectionEntryId: operationId,
       defaultDocument: initialDocument
         ? encodeURIComponent(initialDocument)
         : undefined,
@@ -98,12 +129,18 @@ export class EmbeddedSandbox {
       defaultHeaders: headers
         ? encodeURIComponent(JSON.stringify(headers))
         : undefined,
+      sharedHeaders: sharedHeaders
+        ? encodeURIComponent(JSON.stringify(sharedHeaders))
+        : undefined,
       defaultIncludeCookies: includeCookies,
       hideCookieToggle: this.options.hideCookieToggle ?? true,
       parentSupportsSubscriptions: true,
       version: packageJSON.version,
       runTelemetry: true,
       initialRequestQueryPlan: this.options.initialRequestQueryPlan ?? false,
+      shouldDefaultAutoupdateSchema:
+        this.options.initialState?.pollForSchemaUpdates ?? true,
+      endpointIsEditable: this.options.endpointIsEditable,
     };
 
     const queryString = Object.entries(queryParams)
