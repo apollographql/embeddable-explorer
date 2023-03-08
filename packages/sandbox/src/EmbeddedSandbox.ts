@@ -63,7 +63,7 @@ export interface EmbeddableSandboxOptions {
 type InternalEmbeddableSandboxOptions = EmbeddableSandboxOptions & {
   __testLocal__?: boolean;
   initialRequestQueryPlan?: boolean;
-  referrer?: string;
+  runtime?: string;
 };
 
 let idCounter = 0;
@@ -117,7 +117,7 @@ export class EmbeddedSandbox {
     } = this.options.initialState || {};
 
     const queryParams = {
-      referrer: this.options.referrer,
+      runtime: this.options.runtime,
       endpoint: this.options.initialEndpoint,
       defaultCollectionId: collectionId,
       defaultCollectionEntryId: operationId,
