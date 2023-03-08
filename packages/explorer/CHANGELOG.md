@@ -1,5 +1,11 @@
 # @apollo/explorer
 
+## 3.1.0
+
+### Minor Changes
+
+- [#206](https://github.com/apollographql/embeddable-explorer/pull/206) [`a7a3315`](https://github.com/apollographql/embeddable-explorer/commit/a7a3315471b58b65cdd4e82dec7f85006d3baf1c) Thanks [@mayakoneval](https://github.com/mayakoneval)! - _New features!!_: Now users have the ability to set the initial autopoll state, set whether or not your sandbox endpoint is editable, be able to embed an Apollo operation collection, and set sharedHeaders in Sandbox for all folks using your embed.
+
 ## 3.0.0
 
 ### Major Changes
