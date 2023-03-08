@@ -8,7 +8,6 @@ import type { JSONObject } from './helpers/types';
 export interface EmbeddableSandboxOptions {
   target: string | HTMLElement; // HTMLElement is to accommodate people who might prefer to pass in a ref
   initialEndpoint?: string;
-
   initialState?: {
     document?: string;
     variables?: JSONObject;
@@ -64,6 +63,7 @@ export interface EmbeddableSandboxOptions {
 type InternalEmbeddableSandboxOptions = EmbeddableSandboxOptions & {
   __testLocal__?: boolean;
   initialRequestQueryPlan?: boolean;
+  referrer?: string;
 };
 
 let idCounter = 0;
@@ -117,6 +117,7 @@ export class EmbeddedSandbox {
     } = this.options.initialState || {};
 
     const queryParams = {
+      referrer: this.options.referrer,
       endpoint: this.options.initialEndpoint,
       defaultCollectionId: collectionId,
       defaultCollectionEntryId: operationId,
