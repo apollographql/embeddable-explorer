@@ -13,6 +13,20 @@ import { setupEmbedRelay } from './setupEmbedRelay';
 import packageJSON from '../package.json';
 import type { JSONObject } from './helpers/types';
 
+/**
+ * Pass collectionId, operationId to embed the document, headers, variables associated
+ * with this operation id if you have access to the operation via your collections.
+ */
+type InitialCollectionOperationId =
+  | {
+      collectionId: string;
+      operationId: string;
+    }
+  | {
+      collectionId?: never;
+      operationId?: never;
+    };
+
 type InitialState = {
   displayOptions: {
     docsPanelState?: 'open' | 'closed'; // default to 'open',
@@ -20,14 +34,7 @@ type InitialState = {
     theme?: 'dark' | 'light';
   };
 } & (
-  | {
-      /**
-       * Pass collectionId, operationId to embed the document, headers, variables associated
-       * with this operation id if you have access to the operation via your collections.
-       */
-      collectionId?: string;
-      operationId?: string;
-    }
+  | InitialCollectionOperationId
   | {
       document?: string;
       variables?: JSONObject;
