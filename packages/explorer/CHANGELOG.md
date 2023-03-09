@@ -1,5 +1,11 @@
 # @apollo/explorer
 
+## 3.1.1
+
+### Patch Changes
+
+- [#221](https://github.com/apollographql/embeddable-explorer/pull/221) [`58165cf`](https://github.com/apollographql/embeddable-explorer/commit/58165cf7452dbad480c7cb85e7acba085b3bac1d) Thanks [@mayakoneval](https://github.com/mayakoneval)! - send referrer to studio via query param
+
 ## 3.1.0
 
 ### Minor Changes
