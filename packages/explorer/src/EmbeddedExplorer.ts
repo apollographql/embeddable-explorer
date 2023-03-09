@@ -81,6 +81,7 @@ export type EmbeddableExplorerOptions =
 
 type InternalEmbeddableExplorerOptions = EmbeddableExplorerOptions & {
   __testLocal__?: boolean;
+  runtime?: string;
 };
 
 let idCounter = 0;
@@ -216,6 +217,7 @@ export class EmbeddedExplorer {
     const graphRef =
       'graphRef' in this.options ? this.options.graphRef : undefined;
     const queryParams = {
+      runtime: this.options.runtime,
       graphRef,
       defaultCollectionEntryId: operationId,
       defaultCollectionId: collectionId,
