@@ -13,26 +13,34 @@ import { setupEmbedRelay } from './setupEmbedRelay';
 import packageJSON from '../package.json';
 import type { JSONObject } from './helpers/types';
 
+type InitialState = {
+  displayOptions?: {
+    docsPanelState?: 'open' | 'closed'; // default to 'open',
+    showHeadersAndEnvVars?: boolean; // default to `false`
+    theme?: 'dark' | 'light';
+  };
+} & (
+  | /**
+   * Pass collectionId, operationId to embed the document, headers, variables associated
+   * with this operation id if you have access to the operation via your collections.
+   */
+  {
+      collectionId: string;
+      operationId: string;
+    }
+  | {
+      document?: string;
+      variables?: JSONObject;
+      headers?: Record<string, string>;
+
+      collectionId?: never;
+      operationId?: never;
+    }
+);
 export interface BaseEmbeddableExplorerOptions {
   target: string | HTMLElement; // HTMLElement is to accomodate people who might prefer to pass in a ref
 
-  initialState?: {
-    document?: string;
-    variables?: JSONObject;
-    headers?: Record<string, string>;
-    /**
-     * If you pass a collectionId & operationId, we ignore document, variables, headers
-     * above, and embed the document, headers, variables associated with this operation id
-     * if you have access to the operation via your collections.
-     */
-    collectionId?: string;
-    operationId?: string;
-    displayOptions: {
-      docsPanelState?: 'open' | 'closed'; // default to 'open',
-      showHeadersAndEnvVars?: boolean; // default to `false`
-      theme?: 'dark' | 'light';
-    };
-  };
+  initialState?: InitialState;
   /**
    * defaults to 'false'
    */
@@ -205,29 +213,38 @@ export class EmbeddedExplorer {
   }
 
   getEmbeddedExplorerURL = () => {
-    const {
-      document,
-      variables,
-      headers,
-      displayOptions,
-      operationId,
-      collectionId,
-    } = this.options.initialState || {};
+    const { displayOptions } = this.options.initialState || {};
+
     const { persistExplorerState } = this.options;
     const graphRef =
       'graphRef' in this.options ? this.options.graphRef : undefined;
     const queryParams = {
       runtime: this.options.runtime,
       graphRef,
-      defaultCollectionEntryId: operationId,
-      defaultCollectionId: collectionId,
-      defaultDocument: document ? encodeURIComponent(document) : undefined,
-      defaultVariables: variables
-        ? encodeURIComponent(JSON.stringify(variables, null, 2))
-        : undefined,
-      defaultHeaders: headers
-        ? encodeURIComponent(JSON.stringify(headers))
-        : undefined,
+      ...(this.options.initialState &&
+      'collectionId' in this.options.initialState
+        ? {
+            defaultCollectionEntryId: this.options.initialState.operationId,
+            defaultCollectionId: this.options.initialState.collectionId,
+          }
+        : {}),
+      ...(this.options.initialState && 'document' in this.options.initialState
+        ? {
+            defaultDocument: this.options.initialState.document
+              ? encodeURIComponent(this.options.initialState.document)
+              : undefined,
+            defaultVariables: this.options.initialState.variables
+              ? encodeURIComponent(
+                  JSON.stringify(this.options.initialState.variables, null, 2)
+                )
+              : undefined,
+            defaultHeaders: this.options.initialState.headers
+              ? encodeURIComponent(
+                  JSON.stringify(this.options.initialState.headers)
+                )
+              : undefined,
+          }
+        : {}),
       shouldPersistState: !!persistExplorerState,
       docsPanelState: displayOptions?.docsPanelState ?? 'open',
       showHeadersAndEnvVars: displayOptions?.showHeadersAndEnvVars !== false,
