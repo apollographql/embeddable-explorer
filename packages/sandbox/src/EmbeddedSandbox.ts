@@ -4,35 +4,39 @@ import type { HandleRequest } from './helpers/postMessageRelayHelpers';
 import { setupSandboxEmbedRelay } from './setupSandboxEmbedRelay';
 import packageJSON from '../package.json';
 import type { JSONObject } from './helpers/types';
-
+type InitialState = {
+  /**
+   * optional. Set headers for every operation a user triggers from this Sandbox.
+   * Users can check and uncheck these headers, but not edit them.
+   */
+  sharedHeaders?: Record<string, string>;
+  /**
+   * optional. defaults to false
+   */
+  includeCookies?: boolean;
+  /**
+   * defaults to true. If false, sandbox will not poll your endpoint for your schema.
+   * */
+  pollForSchemaUpdates?: boolean;
+} & (
+  | {
+      /**
+       * Pass collectionId, operationId to embed the document, headers, variables associated
+       * with this operation id if you have access to the operation via your collections.
+       */
+      collectionId?: string;
+      operationId?: string;
+    }
+  | {
+      document?: string;
+      variables?: JSONObject;
+      headers?: Record<string, string>;
+    }
+);
 export interface EmbeddableSandboxOptions {
   target: string | HTMLElement; // HTMLElement is to accommodate people who might prefer to pass in a ref
   initialEndpoint?: string;
-  initialState?: {
-    document?: string;
-    variables?: JSONObject;
-    headers?: Record<string, string>;
-    /**
-     * If you pass a collectionId & operationId, we ignore document, variables, headers
-     * above, and embed the document, headers, variables associated with this operation id
-     * if you have access to the operation via your collections.
-     */
-    collectionId?: string;
-    operationId?: string;
-    /**
-     * optional. Set headers for every operation a user triggers from this Sandbox.
-     * Users can check and uncheck these headers, but not edit them.
-     */
-    sharedHeaders?: Record<string, string>;
-    /**
-     * optional. defaults to false
-     */
-    includeCookies?: boolean;
-    /**
-     * defaults to true. If false, sandbox will not poll your endpoint for your schema.
-     * */
-    pollForSchemaUpdates?: boolean;
-  };
+  initialState?: InitialState;
 
   /**
    * optional. defaults to `return fetch(url, fetchOptions)`
@@ -106,30 +110,35 @@ export class EmbeddedSandbox {
     let element: HTMLElement | null;
     const { target } = this.options;
 
-    const {
-      document: initialDocument,
-      variables,
-      headers,
-      includeCookies,
-      sharedHeaders,
-      operationId,
-      collectionId,
-    } = this.options.initialState || {};
+    const { includeCookies, sharedHeaders } = this.options.initialState || {};
 
     const queryParams = {
       runtime: this.options.runtime,
       endpoint: this.options.initialEndpoint,
-      defaultCollectionId: collectionId,
-      defaultCollectionEntryId: operationId,
-      defaultDocument: initialDocument
-        ? encodeURIComponent(initialDocument)
-        : undefined,
-      defaultVariables: variables
-        ? encodeURIComponent(JSON.stringify(variables, null, 2))
-        : undefined,
-      defaultHeaders: headers
-        ? encodeURIComponent(JSON.stringify(headers))
-        : undefined,
+      ...(this.options.initialState &&
+      'collectionId' in this.options.initialState
+        ? {
+            defaultCollectionEntryId: this.options.initialState.operationId,
+            defaultCollectionId: this.options.initialState.collectionId,
+          }
+        : {}),
+      ...(this.options.initialState && 'document' in this.options.initialState
+        ? {
+            defaultDocument: this.options.initialState.document
+              ? encodeURIComponent(this.options.initialState.document)
+              : undefined,
+            defaultVariables: this.options.initialState.variables
+              ? encodeURIComponent(
+                  JSON.stringify(this.options.initialState.variables, null, 2)
+                )
+              : undefined,
+            defaultHeaders: this.options.initialState.headers
+              ? encodeURIComponent(
+                  JSON.stringify(this.options.initialState.headers)
+                )
+              : undefined,
+          }
+        : {}),
       sharedHeaders: sharedHeaders
         ? encodeURIComponent(JSON.stringify(sharedHeaders))
         : undefined,
