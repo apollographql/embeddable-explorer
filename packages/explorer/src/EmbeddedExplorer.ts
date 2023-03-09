@@ -13,32 +13,28 @@ import { setupEmbedRelay } from './setupEmbedRelay';
 import packageJSON from '../package.json';
 import type { JSONObject } from './helpers/types';
 
-/**
- * Pass collectionId, operationId to embed the document, headers, variables associated
- * with this operation id if you have access to the operation via your collections.
- */
-type InitialCollectionOperationId =
-  | {
-      collectionId: string;
-      operationId: string;
-    }
-  | {
-      collectionId?: never;
-      operationId?: never;
-    };
-
 type InitialState = {
-  displayOptions: {
+  displayOptions?: {
     docsPanelState?: 'open' | 'closed'; // default to 'open',
     showHeadersAndEnvVars?: boolean; // default to `false`
     theme?: 'dark' | 'light';
   };
 } & (
-  | InitialCollectionOperationId
+  | /**
+   * Pass collectionId, operationId to embed the document, headers, variables associated
+   * with this operation id if you have access to the operation via your collections.
+   */
+  {
+      collectionId: string;
+      operationId: string;
+    }
   | {
       document?: string;
       variables?: JSONObject;
       headers?: Record<string, string>;
+
+      collectionId?: never;
+      operationId?: never;
     }
 );
 export interface BaseEmbeddableExplorerOptions {
