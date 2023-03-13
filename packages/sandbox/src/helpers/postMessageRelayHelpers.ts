@@ -70,10 +70,10 @@ export type ResponseError = {
   stack?: string;
 };
 
-interface ResponseData {
+export interface ResponseData {
   data?: Record<string, unknown> | JSONValue | ObjMap<unknown>;
   path?: Array<string | number>;
-  errors?: Array<GraphQLError>;
+  errors?: readonly GraphQLError[];
   extensions?: { [TRACE_KEY]?: string };
 }
 type ExplorerResponse = ResponseData & {
@@ -85,12 +85,27 @@ type ExplorerResponse = ResponseData & {
     stack?: string;
   };
   status?: number;
-  headers?:
-    | Record<string, string>
-    | [Record<string, string>, ...Record<string, string>[]];
+  headers?: Record<string, string> | Record<string, string>[];
   hasNext?: boolean;
   size?: number;
 };
+
+export type ExplorerSubscriptionResponse =
+  // websocket responses
+  | {
+      data?: ExecutionResult<JSONValue | ObjMap<unknown>>;
+      error?: Error;
+    }
+  // http multipart response
+  | (ResponseData & {
+      error?: {
+        message: string;
+        stack?: string;
+      };
+      headers?: Record<string, string> | Record<string, string>[];
+      status?: number;
+      size?: number;
+    });
 
 export type OutgoingEmbedMessage =
   | {
@@ -123,11 +138,7 @@ export type OutgoingEmbedMessage =
   | {
       name: typeof EXPLORER_SUBSCRIPTION_RESPONSE;
       operationId: string;
-      response: {
-        data?: ExecutionResult<JSONValue | ObjMap<unknown>>;
-        error?: Error;
-        errors?: [Error];
-      };
+      response: ExplorerSubscriptionResponse;
     }
   | {
       name: typeof EXPLORER_SET_SOCKET_ERROR;
@@ -165,6 +176,10 @@ export type IncomingEmbedMessage =
       headers?: Record<string, string>;
       subscriptionUrl: string;
       protocol: GraphQLSubscriptionLibrary;
+      // only used for multipart protocol
+      httpMultipartParams: {
+        includeCookies: boolean | undefined;
+      };
     }>
   | MessageEvent<{
       name: typeof EXPLORER_SUBSCRIPTION_TERMINATION;
@@ -196,7 +211,7 @@ export type IncomingEmbedMessage =
       operationId: string;
     }>;
 
-export function executeOperation({
+export async function executeOperation({
   endpointUrl,
   handleRequest,
   operation,
@@ -207,6 +222,7 @@ export function executeOperation({
   embeddedIFrameElement,
   operationId,
   embedUrl,
+  isMultipartSubscription,
 }: {
   endpointUrl: string;
   handleRequest: HandleRequest;
@@ -218,6 +234,7 @@ export function executeOperation({
   headers?: Record<string, string>;
   includeCookies?: boolean;
   embedUrl: string;
+  isMultipartSubscription: boolean;
 }) {
   return handleRequest(endpointUrl, {
     method: 'POST',
@@ -247,39 +264,107 @@ export function executeOperation({
         const observable = readMultipartWebStream(response, mimeType);
 
         let isFirst = true;
-        observable.subscribe({
+        const observableSubscription = observable.subscribe({
           next(data) {
-            sendPostMessageToEmbed({
-              message: {
-                // Include the same operation ID in the response message's name
-                // so the Explorer knows which operation it's associated with
-                name: EXPLORER_QUERY_MUTATION_RESPONSE,
-                operationId,
-                response: {
-                  incremental: data.data.incremental,
-                  data: data.data.data,
-                  errors: data.data.errors,
-                  extensions: data.data.extensions,
-                  path: data.data.path,
-                  status: response.status,
-                  headers: isFirst
-                    ? [responseHeaders, ...(data.headers ? [data.headers] : [])]
-                    : data.headers,
-                  hasNext: true,
-                  size: data.size,
+            if ('payload' in data.data) {
+              if (data.data.done) {
+                observableSubscription.unsubscribe();
+                sendPostMessageToEmbed({
+                  message: {
+                    name: EXPLORER_SET_SOCKET_STATUS,
+                    status: 'disconnected',
+                  },
+                  embeddedIFrameElement,
+                  embedUrl,
+                });
+                sendPostMessageToEmbed({
+                  message: {
+                    name: EXPLORER_SUBSCRIPTION_RESPONSE,
+                    // Include the same operation ID in the response message's name
+                    // so the Explorer knows which operation it's associated with
+                    operationId,
+                    response: {
+                      errors: data.data.errors,
+                      size: data.size,
+                    },
+                  },
+                  embeddedIFrameElement,
+                  embedUrl,
+                });
+              } else {
+                const unwrappedPayload = data.data.payload;
+
+                sendPostMessageToEmbed({
+                  message: {
+                    name: EXPLORER_SUBSCRIPTION_RESPONSE,
+                    // Include the same operation ID in the response message's name
+                    // so the Explorer knows which operation it's associated with
+                    operationId,
+                    response: {
+                      data: unwrappedPayload.data,
+                      errors: data.data.errors ?? unwrappedPayload.errors,
+                      error: unwrappedPayload.error,
+                      extensions: unwrappedPayload.extensions,
+                      status: response.status,
+                      headers: isFirst
+                        ? [
+                            responseHeaders,
+                            ...(Array.isArray(data.headers)
+                              ? data.headers
+                              : data.headers
+                              ? [data.headers]
+                              : []),
+                          ]
+                        : data.headers,
+                      size: data.size,
+                    },
+                  },
+                  embeddedIFrameElement,
+                  embedUrl,
+                });
+              }
+            } else {
+              sendPostMessageToEmbed({
+                message: {
+                  name: EXPLORER_QUERY_MUTATION_RESPONSE,
+                  // Include the same operation ID in the response message's name
+                  // so the Explorer knows which operation it's associated with
+                  operationId,
+                  response: {
+                    incremental: data.data.incremental,
+                    data: data.data.data,
+                    errors: data.data.errors,
+                    extensions: data.data.extensions,
+                    path: data.data.path,
+                    status: response.status,
+                    headers: isFirst
+                      ? [
+                          responseHeaders,
+                          ...(Array.isArray(data.headers)
+                            ? data.headers
+                            : data.headers
+                            ? [data.headers]
+                            : []),
+                        ]
+                      : data.headers,
+                    hasNext: true,
+                    size: data.size,
+                  },
                 },
-              },
-              embeddedIFrameElement,
-              embedUrl,
-            });
+                embeddedIFrameElement,
+                embedUrl,
+              });
+            }
             isFirst = false;
           },
           error(err) {
             sendPostMessageToEmbed({
               message: {
+                name: isMultipartSubscription
+                  ? EXPLORER_SUBSCRIPTION_RESPONSE
+                  : EXPLORER_QUERY_MUTATION_RESPONSE,
                 // Include the same operation ID in the response message's name
                 // so the Explorer knows which operation it's associated with
-                name: EXPLORER_QUERY_MUTATION_RESPONSE,
                 operationId,
                 response: {
                   data: null,
@@ -288,7 +373,7 @@ export function executeOperation({
                     ...(err.stack ? { stack: err.stack } : {}),
                   },
                   size: 0,
-                  hasNext: false,
+                  ...(!isMultipartSubscription ? { hasNext: false } : {}),
                 },
               },
               embeddedIFrameElement,
@@ -298,16 +383,18 @@ export function executeOperation({
           complete() {
             sendPostMessageToEmbed({
               message: {
+                name: isMultipartSubscription
+                  ? EXPLORER_SUBSCRIPTION_RESPONSE
+                  : EXPLORER_QUERY_MUTATION_RESPONSE,
                 // Include the same operation ID in the response message's name
                 // so the Explorer knows which operation it's associated with
-                name: EXPLORER_QUERY_MUTATION_RESPONSE,
                 operationId,
                 response: {
                   data: null,
                   size: 0,
                   status: response.status,
                   headers: isFirst ? responseHeaders : undefined,
-                  hasNext: false,
+                  ...(!isMultipartSubscription ? { hasNext: false } : {}),
                 },
               },
               embeddedIFrameElement,
@@ -315,14 +402,15 @@ export function executeOperation({
             });
           },
         });
+        return { unsubscribe: () => observableSubscription.unsubscribe() };
       } else {
         const json = await response.json();
 
         sendPostMessageToEmbed({
           message: {
+            name: EXPLORER_QUERY_MUTATION_RESPONSE,
             // Include the same operation ID in the response message's name
             // so the Explorer knows which operation it's associated with
-            name: EXPLORER_QUERY_MUTATION_RESPONSE,
             operationId,
             response: {
               ...json,
@@ -334,30 +422,34 @@ export function executeOperation({
           embeddedIFrameElement,
           embedUrl,
         });
+        return null;
       }
     })
     .catch((response) => {
       sendPostMessageToEmbed({
         message: {
+          name: isMultipartSubscription
+            ? EXPLORER_SUBSCRIPTION_RESPONSE
+            : EXPLORER_QUERY_MUTATION_RESPONSE,
           // Include the same operation ID in the response message's name
           // so the Explorer knows which operation it's associated with
-          name: EXPLORER_QUERY_MUTATION_RESPONSE,
           operationId,
           response: {
             error: {
               message: response.message,
               ...(response.stack ? { stack: response.stack } : {}),
             },
-            hasNext: false,
+            ...(!isMultipartSubscription ? { hasNext: false } : {}),
           },
         },
         embeddedIFrameElement,
         embedUrl,
       });
+      return null;
     });
 }
 
-export function executeIntrospectionRequest({
+export async function executeIntrospectionRequest({
   endpointUrl,
   headers,
   includeCookies,

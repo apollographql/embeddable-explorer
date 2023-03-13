@@ -1,11 +1,11 @@
 import type { ExecutionResult } from 'graphql';
 import { Client, createClient as createGraphQLWSClient } from 'graphql-ws';
+import type { ObjMap } from 'graphql/jsutils/ObjMap';
 import {
   Observer,
   OperationOptions,
   SubscriptionClient as TransportSubscriptionClient,
 } from 'subscriptions-transport-ws';
-import type { JSONObject, JSONValue } from './types';
 import {
   EXPLORER_SET_SOCKET_ERROR,
   EXPLORER_SET_SOCKET_STATUS,
@@ -13,10 +13,12 @@ import {
   EXPLORER_SUBSCRIPTION_TERMINATION,
 } from './constants';
 import {
+  executeOperation,
+  HandleRequest,
   sendPostMessageToEmbed,
   SocketStatus,
 } from './postMessageRelayHelpers';
-import type { ObjMap } from 'graphql/jsutils/ObjMap';
+import type { JSONObject, JSONValue } from './types';
 
 export type GraphQLSubscriptionLibrary =
   | 'subscriptions-transport-ws'
@@ -27,19 +29,33 @@ function assertUnreachable(x: never): never {
   throw new Error(`Didn't expect to get here ${x}`);
 }
 
-class SubscriptionClient {
-  protocol: GraphQLSubscriptionLibrary;
+type HTTPMultipartParams = {
+  includeCookies?: boolean;
+  handleRequest: HandleRequest;
+};
+
+class SubscriptionClient<
+  Protocol extends GraphQLSubscriptionLibrary | 'http-multipart'
+> {
+  protocol: Protocol;
   unsubscribeFunctions: Array<() => void> = [];
   url: string;
   headers: Record<string, string> | undefined;
   // Private variables
+  private _multipartClient:
+    | {
+        stopListeningCallback: (() => void) | undefined;
+        onConnectedCallback: (() => void) | undefined;
+        connected: boolean | undefined;
+      }
+    | undefined;
   private _graphWsClient: Client | undefined;
   private _transportSubscriptionClient: undefined | TransportSubscriptionClient;
 
   constructor(
     url: string,
     headers: Record<string, string> | undefined,
-    protocol: GraphQLSubscriptionLibrary
+    protocol: Protocol
   ) {
     this.protocol = protocol;
     this.url = url;
@@ -71,7 +87,25 @@ class SubscriptionClient {
     return client;
   }
 
+  public get multipartClient() {
+    return this._multipartClient;
+  }
+
+  public set multipartClient(val: typeof this._multipartClient) {
+    this._multipartClient = val;
+  }
+
   onConnected(callback: () => void) {
+    if (this.protocol === 'http-multipart') {
+      this.multipartClient = {
+        ...(this.multipartClient ?? {
+          stopListeningCallback: undefined,
+        }),
+        connected: true,
+        onConnectedCallback: callback,
+      };
+      return;
+    }
     if (this.protocol === 'graphql-ws') {
       return this.graphWsClient.on('connected', callback);
     }
@@ -81,6 +115,9 @@ class SubscriptionClient {
     assertUnreachable(this.protocol);
   }
   onConnecting(callback: () => void) {
+    if (this.protocol === 'http-multipart') {
+      return;
+    }
     if (this.protocol === 'graphql-ws') {
       return this.graphWsClient.on('connecting', callback);
     }
@@ -90,6 +127,9 @@ class SubscriptionClient {
     assertUnreachable(this.protocol);
   }
   onError(callback: (e: Error) => void) {
+    if (this.protocol === 'http-multipart') {
+      return;
+    }
     if (this.protocol === 'graphql-ws') {
       return this.graphWsClient.on('error', (error: unknown) =>
         callback(error as Error)
@@ -103,6 +143,9 @@ class SubscriptionClient {
     assertUnreachable(this.protocol);
   }
   onReconnecting(callback: () => void) {
+    if (this.protocol === 'http-multipart') {
+      return;
+    }
     if (this.protocol === 'graphql-ws') {
       return;
     }
@@ -112,6 +155,9 @@ class SubscriptionClient {
     assertUnreachable(this.protocol);
   }
   onReconnected(callback: () => void) {
+    if (this.protocol === 'http-multipart') {
+      return;
+    }
     if (this.protocol === 'graphql-ws') {
       return;
     }
@@ -121,6 +167,9 @@ class SubscriptionClient {
     assertUnreachable(this.protocol);
   }
   onDisconnected(callback: () => void) {
+    if (this.protocol === 'http-multipart') {
+      return;
+    }
     if (this.protocol === 'graphql-ws') {
       return this.graphWsClient.on('closed', callback);
     }
@@ -129,26 +178,77 @@ class SubscriptionClient {
     }
     assertUnreachable(this.protocol);
   }
+  onStopListening() {
+    if (this.protocol === 'http-multipart') {
+      this.multipartClient = {
+        connected: false,
+        onConnectedCallback: this.multipartClient?.onConnectedCallback,
+        stopListeningCallback: this.multipartClient?.stopListeningCallback,
+      };
+      this.multipartClient?.stopListeningCallback?.();
+      return;
+    }
+    if (this.protocol === 'graphql-ws') {
+      return this.graphWsClient.dispose();
+    }
+    if (this.protocol === 'subscriptions-transport-ws') {
+      return this.transportSubscriptionClient.close();
+    }
+    assertUnreachable(this.protocol);
+  }
 
   request(
     params: OperationOptions & {
       query: string;
-      variables: JSONObject;
+      variables: Record<string, string> | undefined;
       operationName: string | undefined;
+      httpMultipartParams?: HTTPMultipartParams;
+      embeddedIFrameElement: HTMLIFrameElement;
+      embedUrl: string;
+      operationId: string;
     }
   ) {
     return {
-      subscribe: (
+      subscribe: async (
         subscribeParams: Observer<ExecutionResult<ObjMap<unknown> | JSONValue>>
       ) => {
+        if (this.protocol === 'http-multipart' && params.httpMultipartParams) {
+          // TODO(Maya): right now the way the execute / repond is set up is confusing for
+          // subscriptions with this addition. We don't call `subscribeParams` in this
+          // branch, we respond in `executeOperation` with pm's to the embed.
+          // I would like to clean this up in both the explorer & sandbox, but first I would
+          // like to move the shared code (subscription code, request code) into a shared npm package
+          const response = await executeOperation({
+            operation: params.query,
+            operationName: params.operationName,
+            variables: params.variables,
+            headers: this.headers ?? {},
+            includeCookies: params.httpMultipartParams?.includeCookies ?? false,
+            endpointUrl: this.url,
+            embeddedIFrameElement: params.embeddedIFrameElement,
+            embedUrl: params.embedUrl,
+            operationId: params.operationId,
+            handleRequest: params.httpMultipartParams?.handleRequest,
+            isMultipartSubscription: true,
+          });
+          this.multipartClient?.onConnectedCallback?.();
+          this.multipartClient = {
+            ...(this.multipartClient ?? {
+              connected: undefined,
+              onConnectedCallback: undefined,
+            }),
+            stopListeningCallback:
+              response && 'unsubscribe' in response
+                ? response.unsubscribe
+                : undefined,
+          };
+        }
         if (this.protocol === 'graphql-ws') {
           this.unsubscribeFunctions.push(
             this.graphWsClient.subscribe(params, {
               ...subscribeParams,
               next: (data) =>
-                subscribeParams.next?.(
-                  data as ExecutionResult<ObjMap<unknown> | JSONValue>
-                ),
+                subscribeParams.next?.(data as ExecutionResult<JSONObject>),
               error: (error) => subscribeParams.error?.(error as Error),
               complete: () => {},
             })
@@ -166,6 +266,9 @@ class SubscriptionClient {
   }
 
   unsubscribeAll() {
+    if (this.protocol === 'http-multipart') {
+      this.multipartClient?.stopListeningCallback?.();
+    }
     if (this.protocol === 'graphql-ws') {
       this.unsubscribeFunctions.forEach((off) => {
         off();
@@ -227,16 +330,18 @@ export function executeSubscription({
   embedUrl,
   subscriptionUrl,
   protocol,
+  httpMultipartParams,
 }: {
   operation: string;
   operationId: string;
   embeddedIFrameElement: HTMLIFrameElement;
   operationName: string | undefined;
-  variables?: JSONObject;
+  variables?: Record<string, string>;
   headers?: Record<string, string>;
   embedUrl: string;
   subscriptionUrl: string;
   protocol: GraphQLSubscriptionLibrary;
+  httpMultipartParams: HTTPMultipartParams;
 }) {
   const client = new SubscriptionClient(
     subscriptionUrl,
@@ -311,6 +416,10 @@ export function executeSubscription({
       query: operation,
       variables: variables ?? {},
       operationName,
+      embeddedIFrameElement,
+      embedUrl,
+      httpMultipartParams,
+      operationId,
     })
     .subscribe({
       next(data) {
