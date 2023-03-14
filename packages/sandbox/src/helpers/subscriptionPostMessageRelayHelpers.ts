@@ -1,3 +1,4 @@
+import EventEmitter from 'eventemitter3';
 import type { ExecutionResult } from 'graphql';
 import { Client, createClient as createGraphQLWSClient } from 'graphql-ws';
 import type { ObjMap } from 'graphql/jsutils/ObjMap';
@@ -22,7 +23,8 @@ import type { JSONObject, JSONValue } from './types';
 
 export type GraphQLSubscriptionLibrary =
   | 'subscriptions-transport-ws'
-  | 'graphql-ws';
+  | 'graphql-ws'
+  | 'http-multipart';
 
 // @see https://www.typescriptlang.org/docs/handbook/advanced-types.html#exhaustiveness-checking
 function assertUnreachable(x: never): never {
@@ -34,21 +36,19 @@ type HTTPMultipartParams = {
   handleRequest: HandleRequest;
 };
 
-class SubscriptionClient<
-  Protocol extends GraphQLSubscriptionLibrary | 'http-multipart'
-> {
+type HTTPMultipartClient = EventEmitter<
+  'connected' | 'error' | 'disconnected'
+> & {
+  stopListeningCallback: (() => void) | undefined;
+};
+
+class SubscriptionClient<Protocol extends GraphQLSubscriptionLibrary> {
   protocol: Protocol;
   unsubscribeFunctions: Array<() => void> = [];
   url: string;
   headers: Record<string, string> | undefined;
   // Private variables
-  private _multipartClient:
-    | {
-        stopListeningCallback: (() => void) | undefined;
-        onConnectedCallback: (() => void) | undefined;
-        connected: boolean | undefined;
-      }
-    | undefined;
+  private _multipartClient: HTTPMultipartClient | undefined;
   private _graphWsClient: Client | undefined;
   private _transportSubscriptionClient: undefined | TransportSubscriptionClient;
 
@@ -87,24 +87,23 @@ class SubscriptionClient<
     return client;
   }
 
-  public get multipartClient() {
-    return this._multipartClient;
-  }
-
-  public set multipartClient(val: typeof this._multipartClient) {
-    this._multipartClient = val;
+  public get multipartClient(): HTTPMultipartClient {
+    const client =
+      this._multipartClient ??
+      Object.assign(
+        new EventEmitter<'connected' | 'error' | 'disconnected'>(),
+        {
+          stopListeningCallback: undefined,
+        }
+      );
+    this._multipartClient = client;
+    return client;
   }
 
   onConnected(callback: () => void) {
     if (this.protocol === 'http-multipart') {
-      this.multipartClient = {
-        ...(this.multipartClient ?? {
-          stopListeningCallback: undefined,
-        }),
-        connected: true,
-        onConnectedCallback: callback,
-      };
-      return;
+      this.multipartClient.on('connected', callback);
+      return () => this.multipartClient.off('connected', callback);
     }
     if (this.protocol === 'graphql-ws') {
       return this.graphWsClient.on('connected', callback);
@@ -128,7 +127,8 @@ class SubscriptionClient<
   }
   onError(callback: (e: Error) => void) {
     if (this.protocol === 'http-multipart') {
-      return;
+      this.multipartClient.on('error', callback);
+      return () => this.multipartClient.off('error', callback);
     }
     if (this.protocol === 'graphql-ws') {
       return this.graphWsClient.on('error', (error: unknown) =>
@@ -168,7 +168,8 @@ class SubscriptionClient<
   }
   onDisconnected(callback: () => void) {
     if (this.protocol === 'http-multipart') {
-      return;
+      this.multipartClient.on('disconnected', callback);
+      return () => this.multipartClient.off('disconnected', callback);
     }
     if (this.protocol === 'graphql-ws') {
       return this.graphWsClient.on('closed', callback);
@@ -178,14 +179,9 @@ class SubscriptionClient<
     }
     assertUnreachable(this.protocol);
   }
-  onStopListening() {
+  dispose() {
     if (this.protocol === 'http-multipart') {
-      this.multipartClient = {
-        connected: false,
-        onConnectedCallback: this.multipartClient?.onConnectedCallback,
-        stopListeningCallback: this.multipartClient?.stopListeningCallback,
-      };
-      this.multipartClient?.stopListeningCallback?.();
+      this.multipartClient.stopListeningCallback?.();
       return;
     }
     if (this.protocol === 'graphql-ws') {
@@ -214,10 +210,20 @@ class SubscriptionClient<
       ) => {
         if (this.protocol === 'http-multipart' && params.httpMultipartParams) {
           // TODO(Maya): right now the way the execute / repond is set up is confusing for
-          // subscriptions with this addition. We don't call `subscribeParams` in this
-          // branch, we respond in `executeOperation` with pm's to the embed.
-          // I would like to clean this up in both the explorer & sandbox, but first I would
-          // like to move the shared code (subscription code, request code) into a shared npm package
+          // subscriptions with the addition of http-multipart.
+          // We don't call `subscribeParams` in this branch,
+          // instead we respond in `executeOperation` with pm's to the embed.
+          // I would like to clean this up by moving callback to the call sites
+          // in both the explorer & sandbox, but first I would like to move the shared code
+          // (subscription code, request code) into a shared npm package. I am going to wait to do
+          // both at the same time.
+
+          // Cleanup check list
+          // 1. multipart subscriptions handle responding to pms in executeOperation, websocket subscriptions
+          // handle responding to pms via callbacks from subscribeParams
+          // 2. multipart subscriptions handle error responding in pms in executeOperation (done: true)
+          // , websocket subscriptions handle errors via subscribeParams.error
+
           const response = await executeOperation({
             operation: params.query,
             operationName: params.operationName,
@@ -231,17 +237,11 @@ class SubscriptionClient<
             handleRequest: params.httpMultipartParams?.handleRequest,
             isMultipartSubscription: true,
           });
-          this.multipartClient?.onConnectedCallback?.();
-          this.multipartClient = {
-            ...(this.multipartClient ?? {
-              connected: undefined,
-              onConnectedCallback: undefined,
-            }),
-            stopListeningCallback:
-              response && 'unsubscribe' in response
-                ? response.unsubscribe
-                : undefined,
-          };
+          this.multipartClient.emit('connected');
+          this.multipartClient.stopListeningCallback =
+            response && 'unsubscribe' in response
+              ? response.unsubscribe
+              : undefined;
         }
         if (this.protocol === 'graphql-ws') {
           this.unsubscribeFunctions.push(
@@ -267,7 +267,7 @@ class SubscriptionClient<
 
   unsubscribeAll() {
     if (this.protocol === 'http-multipart') {
-      this.multipartClient?.stopListeningCallback?.();
+      this.multipartClient.stopListeningCallback?.();
     }
     if (this.protocol === 'graphql-ws') {
       this.unsubscribeFunctions.forEach((off) => {
