@@ -66,6 +66,7 @@
   },
   "dependencies": {
     "@types/whatwg-mimetype": "^3.0.0",
+    "eventemitter3": "^5.0.0",
     "graphql-ws": "^5.9.0",
     "subscriptions-transport-ws": "^0.11.0",
     "whatwg-mimetype": "^3.0.0",
