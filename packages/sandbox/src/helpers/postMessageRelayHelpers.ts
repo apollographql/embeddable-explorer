@@ -26,7 +26,7 @@ import {
 } from './constants';
 import MIMEType from 'whatwg-mimetype';
 import { readMultipartWebStream } from './readMultipartWebStream';
-import type { JSONValue } from './types';
+import type { JSONObject, JSONValue } from './types';
 import type { ObjMap } from 'graphql/jsutils/ObjMap';
 import type { GraphQLSubscriptionLibrary } from './subscriptionPostMessageRelayHelpers';
 
@@ -80,32 +80,45 @@ type ExplorerResponse = ResponseData & {
   incremental?: Array<
     ResponseData & { path: NonNullable<ResponseData['path']> }
   >;
-  error?: {
-    message: string;
-    stack?: string;
-  };
+  error?: ResponseError;
   status?: number;
   headers?: Record<string, string> | Record<string, string>[];
   hasNext?: boolean;
   size?: number;
 };
 
+// https://apollographql.quip.com/mkWRAJfuxa7L/Multipart-subscriptions-protocol-spec
+export interface MultipartSubscriptionResponse {
+  data: {
+    done?: boolean;
+    errors?: Array<GraphQLError>;
+    payload: ResponseData & {
+      error?: { message: string; stack?: string };
+    };
+  };
+  headers?: Record<string, string> | Record<string, string>[];
+  size: number;
+  status?: number;
+}
+
 export type ExplorerSubscriptionResponse =
-  // websocket responses
+  // websocket response
   | {
-      data?: ExecutionResult<JSONValue | ObjMap<unknown>>;
+      data?: ExecutionResult<JSONObject>;
       error?: Error;
+      errors?: GraphQLError[];
     }
-  // http multipart response
-  | (ResponseData & {
-      error?: {
-        message: string;
-        stack?: string;
-      };
-      headers?: Record<string, string> | Record<string, string>[];
+  // http multipart response options below
+  | MultipartSubscriptionResponse
+  | {
+      data: null;
+      // this only exists in the PM MultipartSubscriptionResponse
+      // type, not in the one in explorer, because we want to send
+      // caught errors like CORS errors through to the embed
+      error?: ResponseError;
       status?: number;
-      size?: number;
-    });
+      headers?: Record<string, string> | Record<string, string>[];
+    };
 
 export type OutgoingEmbedMessage =
   | {
@@ -266,9 +279,15 @@ export async function executeOperation({
         let isFirst = true;
         const observableSubscription = observable.subscribe({
           next(data) {
+            // if payload.done is true, we got a server error
+            // we handle this in Explorer, but we need to disconnect from
+            // the readableStream & subscription here
             if ('payload' in data.data) {
               if (data.data.done) {
                 observableSubscription.unsubscribe();
+                data.closeReadableStream();
+                // the status being disconnected will be handled in the Explorer
+                // but we send a pm just in case
                 sendPostMessageToEmbed({
                   message: {
                     name: EXPLORER_SET_SOCKET_STATUS,
@@ -277,52 +296,32 @@ export async function executeOperation({
                   embeddedIFrameElement,
                   embedUrl,
                 });
-                sendPostMessageToEmbed({
-                  message: {
-                    name: EXPLORER_SUBSCRIPTION_RESPONSE,
-                    // Include the same operation ID in the response message's name
-                    // so the Explorer knows which operation it's associated with
-                    operationId,
-                    response: {
-                      errors: data.data.errors,
-                      size: data.size,
-                    },
-                  },
-                  embeddedIFrameElement,
-                  embedUrl,
-                });
-              } else {
-                const unwrappedPayload = data.data.payload;
-
-                sendPostMessageToEmbed({
-                  message: {
-                    name: EXPLORER_SUBSCRIPTION_RESPONSE,
-                    // Include the same operation ID in the response message's name
-                    // so the Explorer knows which operation it's associated with
-                    operationId,
-                    response: {
-                      data: unwrappedPayload.data,
-                      errors: data.data.errors ?? unwrappedPayload.errors,
-                      error: unwrappedPayload.error,
-                      extensions: unwrappedPayload.extensions,
-                      status: response.status,
-                      headers: isFirst
-                        ? [
-                            responseHeaders,
-                            ...(Array.isArray(data.headers)
-                              ? data.headers
-                              : data.headers
-                              ? [data.headers]
-                              : []),
-                          ]
-                        : data.headers,
-                      size: data.size,
-                    },
-                  },
-                  embeddedIFrameElement,
-                  embedUrl,
-                });
               }
+              sendPostMessageToEmbed({
+                message: {
+                  name: EXPLORER_SUBSCRIPTION_RESPONSE,
+                  // Include the same operation ID in the response message's name
+                  // so the Explorer knows which operation it's associated with
+                  operationId,
+                  response: {
+                    data: data.data,
+                    status: response.status,
+                    headers: isFirst
+                      ? [
+                          responseHeaders,
+                          ...(Array.isArray(data.headers)
+                            ? data.headers
+                            : data.headers
+                            ? [data.headers]
+                            : []),
+                        ]
+                      : data.headers,
+                    size: data.size,
+                  },
+                },
+                embeddedIFrameElement,
+                embedUrl,
+              });
             } else {
               sendPostMessageToEmbed({
                 message: {
@@ -357,7 +356,19 @@ export async function executeOperation({
             }
             isFirst = false;
           },
-          error(err) {
+          error(err: unknown) {
+            const error =
+              err &&
+              typeof err === 'object' &&
+              'message' in err &&
+              typeof err.message === 'string'
+                ? {
+                    message: err.message,
+                    ...('stack' in err && typeof err.stack === 'string'
+                      ? { stack: err.stack }
+                      : {}),
+                  }
+                : undefined;
             sendPostMessageToEmbed({
               message: {
                 name: isMultipartSubscription
@@ -368,11 +379,7 @@ export async function executeOperation({
                 operationId,
                 response: {
                   data: null,
-                  error: {
-                    message: err.message,
-                    ...(err.stack ? { stack: err.stack } : {}),
-                  },
-                  size: 0,
+                  error,
                   ...(!isMultipartSubscription ? { hasNext: false } : {}),
                 },
               },
@@ -391,7 +398,6 @@ export async function executeOperation({
                 operationId,
                 response: {
                   data: null,
-                  size: 0,
                   status: response.status,
                   headers: isFirst ? responseHeaders : undefined,
                   ...(!isMultipartSubscription ? { hasNext: false } : {}),
@@ -425,7 +431,19 @@ export async function executeOperation({
         return null;
       }
     })
-    .catch((response) => {
+    .catch((err) => {
+      const error =
+        err &&
+        typeof err === 'object' &&
+        'message' in err &&
+        typeof err.message === 'string'
+          ? {
+              message: err.message,
+              ...('stack' in err && typeof err.stack === 'string'
+                ? { stack: err.stack }
+                : {}),
+            }
+          : undefined;
       sendPostMessageToEmbed({
         message: {
           name: isMultipartSubscription
@@ -435,10 +453,8 @@ export async function executeOperation({
           // so the Explorer knows which operation it's associated with
           operationId,
           response: {
-            error: {
-              message: response.message,
-              ...(response.stack ? { stack: response.stack } : {}),
-            },
+            data: null,
+            error,
             ...(!isMultipartSubscription ? { hasNext: false } : {}),
           },
         },

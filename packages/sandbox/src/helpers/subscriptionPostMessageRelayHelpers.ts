@@ -1,7 +1,6 @@
 import EventEmitter from 'eventemitter3';
 import type { ExecutionResult } from 'graphql';
 import { Client, createClient as createGraphQLWSClient } from 'graphql-ws';
-import type { ObjMap } from 'graphql/jsutils/ObjMap';
 import {
   Observer,
   OperationOptions,
@@ -19,7 +18,7 @@ import {
   sendPostMessageToEmbed,
   SocketStatus,
 } from './postMessageRelayHelpers';
-import type { JSONObject, JSONValue } from './types';
+import type { JSONObject } from './types';
 
 export type GraphQLSubscriptionLibrary =
   | 'subscriptions-transport-ws'
@@ -206,7 +205,7 @@ class SubscriptionClient<Protocol extends GraphQLSubscriptionLibrary> {
   ) {
     return {
       subscribe: async (
-        subscribeParams: Observer<ExecutionResult<ObjMap<unknown> | JSONValue>>
+        subscribeParams: Observer<ExecutionResult<Record<string, unknown>>>
       ) => {
         if (this.protocol === 'http-multipart' && params.httpMultipartParams) {
           // TODO(Maya): right now the way the execute / repond is set up is confusing for
@@ -248,7 +247,7 @@ class SubscriptionClient<Protocol extends GraphQLSubscriptionLibrary> {
             this.graphWsClient.subscribe(params, {
               ...subscribeParams,
               next: (data) =>
-                subscribeParams.next?.(data as ExecutionResult<JSONObject>),
+                subscribeParams.next?.(data as Record<string, unknown>),
               error: (error) => subscribeParams.error?.(error as Error),
               complete: () => {},
             })
@@ -425,11 +424,13 @@ export function executeSubscription({
       next(data) {
         sendPostMessageToEmbed({
           message: {
+            name: EXPLORER_SUBSCRIPTION_RESPONSE,
             // Include the same operation ID in the response message's name
             // so the Explorer knows which operation it's associated with
-            name: EXPLORER_SUBSCRIPTION_RESPONSE,
             operationId,
-            response: { data },
+            // we use different versions of graphql in Explorer & here,
+            // Explorer expects an Object, which is what this is in reality
+            response: { data: data as JSONObject },
           },
           embeddedIFrameElement,
           embedUrl,
@@ -438,9 +439,9 @@ export function executeSubscription({
       error: (error) => {
         sendPostMessageToEmbed({
           message: {
+            name: EXPLORER_SUBSCRIPTION_RESPONSE,
             // Include the same operation ID in the response message's name
             // so the Explorer knows which operation it's associated with
-            name: EXPLORER_SUBSCRIPTION_RESPONSE,
             operationId,
             response: { error: JSON.parse(JSON.stringify(error)) },
           },
