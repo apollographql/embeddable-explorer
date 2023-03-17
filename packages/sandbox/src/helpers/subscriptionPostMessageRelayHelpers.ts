@@ -35,7 +35,7 @@ type HTTPMultipartParams = {
   handleRequest: HandleRequest;
 };
 
-type HTTPMultipartClient = EventEmitter<
+export type HTTPMultipartClient = EventEmitter<
   'connected' | 'error' | 'disconnected'
 > & {
   stopListeningCallback: (() => void) | undefined;
@@ -208,22 +208,10 @@ class SubscriptionClient<Protocol extends GraphQLSubscriptionLibrary> {
         subscribeParams: Observer<ExecutionResult<Record<string, unknown>>>
       ) => {
         if (this.protocol === 'http-multipart' && params.httpMultipartParams) {
-          // TODO(Maya): right now the way the execute / repond is set up is confusing for
-          // subscriptions with the addition of http-multipart.
-          // We don't call `subscribeParams` in this branch,
-          // instead we respond in `executeOperation` with pm's to the embed.
-          // I would like to clean this up by moving callback to the call sites
-          // in both the explorer & sandbox, but first I would like to move the shared code
-          // (subscription code, request code) into a shared npm package. I am going to wait to do
-          // both at the same time.
-
-          // Cleanup check list
-          // 1. multipart subscriptions handle responding to pms in executeOperation, websocket subscriptions
-          // handle responding to pms via callbacks from subscribeParams
-          // 2. multipart subscriptions handle error responding in pms in executeOperation (done: true)
-          // , websocket subscriptions handle errors via subscribeParams.error
-
-          const response = await executeOperation({
+          // we only use subscribeParams for websockets, for http multipart subs
+          // we do all responding in executeOperation, since this is where we set
+          // up the Observable
+          await executeOperation({
             operation: params.query,
             operationName: params.operationName,
             variables: params.variables,
@@ -235,12 +223,8 @@ class SubscriptionClient<Protocol extends GraphQLSubscriptionLibrary> {
             operationId: params.operationId,
             handleRequest: params.httpMultipartParams?.handleRequest,
             isMultipartSubscription: true,
+            multipartSubscriptionClient: this.multipartClient,
           });
-          this.multipartClient.emit('connected');
-          this.multipartClient.stopListeningCallback =
-            response && 'unsubscribe' in response
-              ? response.unsubscribe
-              : undefined;
         }
         if (this.protocol === 'graphql-ws') {
           this.unsubscribeFunctions.push(
@@ -420,36 +404,41 @@ export function executeSubscription({
       httpMultipartParams,
       operationId,
     })
-    .subscribe({
-      next(data) {
-        sendPostMessageToEmbed({
-          message: {
-            name: EXPLORER_SUBSCRIPTION_RESPONSE,
-            // Include the same operation ID in the response message's name
-            // so the Explorer knows which operation it's associated with
-            operationId,
-            // we use different versions of graphql in Explorer & here,
-            // Explorer expects an Object, which is what this is in reality
-            response: { data: data as JSONObject },
-          },
-          embeddedIFrameElement,
-          embedUrl,
-        });
-      },
-      error: (error) => {
-        sendPostMessageToEmbed({
-          message: {
-            name: EXPLORER_SUBSCRIPTION_RESPONSE,
-            // Include the same operation ID in the response message's name
-            // so the Explorer knows which operation it's associated with
-            operationId,
-            response: { error: JSON.parse(JSON.stringify(error)) },
-          },
-          embeddedIFrameElement,
-          embedUrl,
-        });
-      },
-    });
+    .subscribe(
+      // we only use these callbacks for websockets, for http multipart subs
+      // we do all responding in executeOperation, since this is where we set
+      // up the Observable
+      {
+        next(data) {
+          sendPostMessageToEmbed({
+            message: {
+              name: EXPLORER_SUBSCRIPTION_RESPONSE,
+              // Include the same operation ID in the response message's name
+              // so the Explorer knows which operation it's associated with
+              operationId,
+              // we use different versions of graphql in Explorer & here,
+              // Explorer expects an Object, which is what this is in reality
+              response: { data: data as JSONObject },
+            },
+            embeddedIFrameElement,
+            embedUrl,
+          });
+        },
+        error: (error) => {
+          sendPostMessageToEmbed({
+            message: {
+              name: EXPLORER_SUBSCRIPTION_RESPONSE,
+              // Include the same operation ID in the response message's name
+              // so the Explorer knows which operation it's associated with
+              operationId,
+              response: { error: JSON.parse(JSON.stringify(error)) },
+            },
+            embeddedIFrameElement,
+            embedUrl,
+          });
+        },
+      }
+    );
 
   return {
     dispose: () =>

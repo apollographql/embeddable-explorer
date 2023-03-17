@@ -28,7 +28,10 @@ import MIMEType from 'whatwg-mimetype';
 import { readMultipartWebStream } from './readMultipartWebStream';
 import type { JSONObject, JSONValue } from './types';
 import type { ObjMap } from 'graphql/jsutils/ObjMap';
-import type { GraphQLSubscriptionLibrary } from './subscriptionPostMessageRelayHelpers';
+import type {
+  GraphQLSubscriptionLibrary,
+  HTTPMultipartClient,
+} from './subscriptionPostMessageRelayHelpers';
 
 export type HandleRequest = (
   endpointUrl: string,
@@ -236,6 +239,7 @@ export async function executeOperation({
   operationId,
   embedUrl,
   isMultipartSubscription,
+  multipartSubscriptionClient,
 }: {
   endpointUrl: string;
   handleRequest: HandleRequest;
@@ -248,6 +252,7 @@ export async function executeOperation({
   includeCookies?: boolean;
   embedUrl: string;
   isMultipartSubscription: boolean;
+  multipartSubscriptionClient?: HTTPMultipartClient;
 }) {
   return handleRequest(endpointUrl, {
     method: 'POST',
@@ -279,6 +284,13 @@ export async function executeOperation({
         let isFirst = true;
         const observableSubscription = observable.subscribe({
           next(data) {
+            if (multipartSubscriptionClient) {
+              multipartSubscriptionClient.stopListeningCallback = () => {
+                data.closeReadableStream();
+                observableSubscription.unsubscribe();
+              };
+            }
+            multipartSubscriptionClient?.emit('connected');
             // if payload.done is true, we got a server error
             // we handle this in Explorer, but we need to disconnect from
             // the readableStream & subscription here
@@ -408,7 +420,6 @@ export async function executeOperation({
             });
           },
         });
-        return { unsubscribe: () => observableSubscription.unsubscribe() };
       } else {
         const json = await response.json();
 
@@ -428,10 +439,11 @@ export async function executeOperation({
           embeddedIFrameElement,
           embedUrl,
         });
-        return null;
       }
     })
     .catch((err) => {
+      multipartSubscriptionClient?.emit('error', err);
+      multipartSubscriptionClient?.emit('disconnected');
       const error =
         err &&
         typeof err === 'object' &&
@@ -461,7 +473,6 @@ export async function executeOperation({
         embeddedIFrameElement,
         embedUrl,
       });
-      return null;
     });
 }
 
