@@ -279,25 +279,23 @@ export async function executeOperation({
         mimeType.type === 'multipart' &&
         mimeType.subtype === 'mixed'
       ) {
-        const observable = readMultipartWebStream(response, mimeType);
+        multipartSubscriptionClient?.emit('connected');
+        const { observable, closeReadableStream } = readMultipartWebStream(
+          response,
+          mimeType
+        );
 
         let isFirst = true;
+
         const observableSubscription = observable.subscribe({
           next(data) {
-            if (multipartSubscriptionClient) {
-              multipartSubscriptionClient.stopListeningCallback = () => {
-                data.closeReadableStream();
-                observableSubscription.unsubscribe();
-              };
-            }
-            multipartSubscriptionClient?.emit('connected');
             // if payload.done is true, we got a server error
             // we handle this in Explorer, but we need to disconnect from
             // the readableStream & subscription here
             if ('payload' in data.data) {
               if (data.data.done) {
                 observableSubscription.unsubscribe();
-                data.closeReadableStream();
+                closeReadableStream();
                 // the status being disconnected will be handled in the Explorer
                 // but we send a pm just in case
                 sendPostMessageToEmbed({
@@ -420,12 +418,24 @@ export async function executeOperation({
             });
           },
         });
+        if (multipartSubscriptionClient) {
+          multipartSubscriptionClient.stopListeningCallback = () => {
+            closeReadableStream();
+            observableSubscription.unsubscribe();
+          };
+        }
       } else {
         const json = await response.json();
 
+        // if we didn't get the mime type multi part response,
+        // something went wrong with this multipart subscription
+        multipartSubscriptionClient?.emit('error');
+        multipartSubscriptionClient?.emit('disconnected');
         sendPostMessageToEmbed({
           message: {
-            name: EXPLORER_QUERY_MUTATION_RESPONSE,
+            name: isMultipartSubscription
+              ? EXPLORER_SUBSCRIPTION_RESPONSE
+              : EXPLORER_QUERY_MUTATION_RESPONSE,
             // Include the same operation ID in the response message's name
             // so the Explorer knows which operation it's associated with
             operationId,
