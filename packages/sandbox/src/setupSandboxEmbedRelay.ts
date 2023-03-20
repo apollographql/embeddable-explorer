@@ -85,8 +85,9 @@ export function setupSandboxEmbedRelay({
         data.operationId
       ) {
         // Extract the operation details from the event.data object
-        const { operation, operationId, operationName, variables, headers } =
+        const { operation, variables, operationName, operationId, headers } =
           data;
+
         if (isQueryOrMutation) {
           const { endpointUrl, includeCookies } = data;
           if (!endpointUrl) {
@@ -97,13 +98,15 @@ export function setupSandboxEmbedRelay({
           executeOperation({
             endpointUrl,
             handleRequest,
-            operation,
-            operationName,
-            variables,
             headers,
             includeCookies,
             embeddedIFrameElement: embeddedSandboxIFrameElement,
             operationId,
+            operation,
+            variables,
+            fileVariables:
+              'fileVariables' in data ? data.fileVariables : undefined,
+            operationName,
             embedUrl,
             isMultipartSubscription: false,
           });
