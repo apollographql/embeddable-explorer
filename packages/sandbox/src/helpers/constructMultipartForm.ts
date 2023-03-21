@@ -1,3 +1,5 @@
+import type { JSONObject, JSONValue } from './types';
+
 export type FileVariable = {
   variableKey: string;
   files: { arrayBuffer: ArrayBuffer; fileName: string }[];
@@ -26,7 +28,7 @@ export const constructMultipartForm = async ({
   requestBody: {
     operationName?: string;
     query: string;
-    variables?: Record<string, string>;
+    variables?: JSONObject;
   };
 }) => {
   const fileVariables: {
@@ -53,7 +55,7 @@ export const constructMultipartForm = async ({
   // name is used to match them to files uploaded in the later part of the request
   // according to the spec https://github.com/jaydenseric/graphql-multipart-request-spec
   let variablesWithNullsForFiles:
-    | Record<string, string | null | null[]>
+    | Record<string, JSONValue | undefined | null | null[]>
     | undefined = requestBody.variables;
   fileVariables.forEach(
     ({ files, variableKey, isMultiFile }, fileVariableIndex) => {
