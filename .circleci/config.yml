@@ -56,6 +56,17 @@ commands:
           paths:
             - ~/.npm
 jobs:
+  bundlewatch:
+    executor: node
+    steps:
+      - checkout
+      - attach_workspace:
+          at: ~/embeddable-explorer
+      - run:
+          name: Report bundle size
+          command: npx bundlewatch
+          environment:
+            CI_BRANCH_BASE: main
   eslint:
     executor: node
     steps:
@@ -226,6 +237,10 @@ workflows:
       - typescript
       - build-latest-umd-explorer
       - build-latest-umd-sandbox
+      - bundlewatch:
+          requires:
+            - build-latest-umd-explorer
+            - build-latest-umd-sandbox
       - cdn-upload-latest-explorer:
           context:
             - embeddable-explorer-write

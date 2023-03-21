@@ -40,6 +40,24 @@
       "pre-commit": "npm run lint"
     }
   },
+  "bundlewatch": {
+    "files": [
+      {
+        "path": "packages/sandbox/dist/**/*.js",
+        "maxSize": "40kb"
+      },
+      {
+        "path": "packages/explorer/dist/**/*.js",
+        "maxSize": "40kb"
+      }
+    ],
+    "ci": {
+      "trackBranches": [
+        "main"
+      ]
+    },
+    "normalizeFilenames": "^.+?(\\.\\w+)\\.(?:js|css)$"
+  },
   "prettier": {
     "printWidth": 80,
     "semi": true,
@@ -53,6 +71,7 @@
   ],
   "devDependencies": {
     "@babel/core": "^7.18.5",
+    "bundlewatch": "^0.3.1",
     "@changesets/changelog-github": "0.4.4",
     "@changesets/cli": "2.22.0",
     "@rollup/plugin-babel": "^5.3.1",
