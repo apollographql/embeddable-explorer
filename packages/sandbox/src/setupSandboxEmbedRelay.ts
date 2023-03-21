@@ -105,8 +105,10 @@ export function setupSandboxEmbedRelay({
             embeddedIFrameElement: embeddedSandboxIFrameElement,
             operationId,
             embedUrl,
+            isMultipartSubscription: false,
           });
         } else if (isSubscription) {
+          const { httpMultipartParams } = data;
           executeSubscription({
             operation,
             operationName,
@@ -117,6 +119,10 @@ export function setupSandboxEmbedRelay({
             embedUrl,
             subscriptionUrl: data.subscriptionUrl,
             protocol: data.protocol,
+            httpMultipartParams: {
+              ...httpMultipartParams,
+              handleRequest,
+            },
           });
         }
       }
