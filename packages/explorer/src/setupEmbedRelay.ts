@@ -116,8 +116,10 @@ export function setupEmbedRelay({
             embeddedIFrameElement: embeddedExplorerIFrameElement,
             operationId,
             embedUrl,
+            isMultipartSubscription: false,
           });
         } else if (isSubscription) {
+          const { httpMultipartParams } = data;
           if (!!schema) {
             setParentSocketError({
               error: new Error(
@@ -137,6 +139,10 @@ export function setupEmbedRelay({
               embedUrl,
               subscriptionUrl: data.subscriptionUrl,
               protocol: data.protocol,
+              httpMultipartParams: {
+                ...httpMultipartParams,
+                handleRequest,
+              },
             });
           }
         }

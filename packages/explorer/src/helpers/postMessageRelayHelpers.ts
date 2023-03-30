@@ -126,7 +126,6 @@ export type OutgoingEmbedMessage =
   | {
       name: typeof SCHEMA_RESPONSE;
       schema: IntrospectionQuery | string | undefined;
-      operationId: string;
     }
   | {
       name: typeof HANDSHAKE_RESPONSE;

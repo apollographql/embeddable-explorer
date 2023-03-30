@@ -265,7 +265,7 @@ class SubscriptionClient<Protocol extends GraphQLSubscriptionLibrary> {
   }
 }
 
-function setParentSocketError({
+export function setParentSocketError({
   error,
   embeddedIFrameElement,
   embedUrl,
