@@ -290,7 +290,7 @@ export async function executeOperation({
 
         const observableSubscription = observable.subscribe({
           next(data) {
-            // if payload.done is true, we got a server error
+            // if shouldTerminate is true, we got a server error
             // we handle this in Explorer, but we need to disconnect from
             // the readableStream & subscription here
             if ('payload' in data.data) {
