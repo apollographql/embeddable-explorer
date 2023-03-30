@@ -1,4 +1,3 @@
-// URL for any embedded Explorer iframe
 export const EMBEDDABLE_EXPLORER_URL = (__testLocal__ = false) =>
   __testLocal__
     ? 'https://embed.apollo.local:3000'
@@ -22,7 +21,6 @@ export const EXPLORER_SUBSCRIPTION_TERMINATION =
   'ExplorerSubscriptionTermination';
 export const EXPLORER_SET_SOCKET_ERROR = 'ExplorerSetSocketError';
 export const EXPLORER_SET_SOCKET_STATUS = 'ExplorerSetSocketStatus';
-
 export const IFRAME_DOM_ID = (uniqueId: number) => `apollo-embed-${uniqueId}`;
 
 // Message types for authentication
@@ -35,4 +33,5 @@ export const EXPLORER_LISTENING_FOR_PARTIAL_TOKEN =
   'ExplorerListeningForPartialToken';
 export const PARTIAL_AUTHENTICATION_TOKEN_RESPONSE =
   'PartialAuthenticationTokenResponse';
+export const INTROSPECTION_QUERY_WITH_HEADERS = 'IntrospectionQueryWithHeaders';
 export const PARENT_LOGOUT_SUCCESS = 'ParentLogoutSuccess';
