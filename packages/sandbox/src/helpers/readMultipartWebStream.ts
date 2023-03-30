@@ -18,14 +18,17 @@ export interface MultipartResponse {
 // https://apollographql.quip.com/mkWRAJfuxa7L/Multipart-subscriptions-protocol-spec
 export interface MultipartSubscriptionResponse {
   data: {
-    done?: boolean;
     errors?: Array<GraphQLError>;
-    payload: ResponseData & {
-      error?: { message: string; stack?: string };
-    };
+    payload:
+      | (ResponseData & {
+          error?: { message: string; stack?: string };
+        })
+      | null;
   };
   headers?: Record<string, string> | Record<string, string>[];
   size: number;
+  // True if --graphql-- message boundary is in the response
+  shouldTerminate?: boolean;
 }
 
 export function readMultipartWebStream(response: Response, mimeType: MIMEType) {
@@ -42,6 +45,7 @@ export function readMultipartWebStream(response: Response, mimeType: MIMEType) {
   let buffer = '';
 
   const messageBoundary = `--${mimeType.parameters.get('boundary') || '-'}`;
+  const subscriptionTerminationMessageBoundary = '--graphql--';
 
   const reader = response.body.getReader();
   return {
@@ -100,6 +104,10 @@ export function readMultipartWebStream(response: Response, mimeType: MIMEType) {
                     data: JSON.parse(bodyText),
                     headers: chunkHeaders,
                     size: chunk.length,
+                    ...(chunk.indexOf(subscriptionTerminationMessageBoundary) >
+                    -1
+                      ? { shouldTerminate: true }
+                      : {}),
                   });
                 } catch (err) {
                   // const parseError = err as ServerParseError;
