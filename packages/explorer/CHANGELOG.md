@@ -1,5 +1,11 @@
 # @apollo/explorer
 
+## 3.3.0
+
+### Minor Changes
+
+- [#225](https://github.com/apollographql/embeddable-explorer/pull/225) [`c84387f`](https://github.com/apollographql/embeddable-explorer/commit/c84387f03211de9e0521037fe6a80505814758d9) Thanks [@mayakoneval](https://github.com/mayakoneval)! - File upload support for operations
+
 ## 3.2.0
 
 ### Minor Changes
