@@ -32,6 +32,7 @@ import type {
   GraphQLSubscriptionLibrary,
   HTTPMultipartClient,
 } from './subscriptionPostMessageRelayHelpers';
+import { constructMultipartForm, FileVariable } from './constructMultipartForm';
 
 export type HandleRequest = (
   endpointUrl: string,
@@ -175,14 +176,15 @@ export type IncomingEmbedMessage =
     }>
   | MessageEvent<{
       name: typeof EXPLORER_QUERY_MUTATION_REQUEST;
+      operationId: string;
       operationName?: string;
       operation: string;
-      operationId: string;
       variables?: Record<string, string>;
       headers?: Record<string, string>;
       // TODO (evan, 2023-02): We should make includeCookies non-optional in a few months to account for service workers refreshing
       includeCookies?: boolean;
       endpointUrl: string;
+      fileVariables?: FileVariable[];
     }>
   | MessageEvent<{
       name: typeof EXPLORER_SUBSCRIPTION_REQUEST;
@@ -231,42 +233,61 @@ export type IncomingEmbedMessage =
 export async function executeOperation({
   endpointUrl,
   handleRequest,
+  headers,
+  includeCookies,
+  operationId,
   operation,
   operationName,
   variables,
-  headers,
-  includeCookies,
+  fileVariables,
   embeddedIFrameElement,
-  operationId,
   embedUrl,
   isMultipartSubscription,
   multipartSubscriptionClient,
 }: {
   endpointUrl: string;
   handleRequest: HandleRequest;
-  operation: string;
-  operationId: string;
-  embeddedIFrameElement: HTMLIFrameElement;
-  operationName: string | undefined;
-  variables?: Record<string, string>;
   headers?: Record<string, string>;
   includeCookies?: boolean;
+  operationId: string;
+  operation: string;
+  operationName: string | undefined;
+  variables?: Record<string, string>;
+  fileVariables?: FileVariable[] | undefined;
+  embeddedIFrameElement: HTMLIFrameElement;
   embedUrl: string;
   isMultipartSubscription: boolean;
   multipartSubscriptionClient?: HTTPMultipartClient;
 }) {
-  return handleRequest(endpointUrl, {
-    method: 'POST',
-    headers: getHeadersWithContentType(headers),
-    body: JSON.stringify({
-      query: operation,
-      variables,
-      operationName,
-    }),
-    ...(!!includeCookies
-      ? { credentials: 'include' }
-      : { credentials: 'omit' }),
-  })
+  const requestBody = {
+    query: operation,
+    variables,
+    operationName,
+  };
+  let promise: Promise<Response>;
+  if (fileVariables && fileVariables.length > 0) {
+    const form = await constructMultipartForm({
+      fileVariables,
+      requestBody,
+    });
+
+    promise = handleRequest(endpointUrl, {
+      method: 'POST',
+      headers: headers ?? {},
+      body: form,
+      ...(includeCookies ? { credentials: 'include' } : {}),
+    });
+  } else {
+    promise = handleRequest(endpointUrl, {
+      method: 'POST',
+      headers: getHeadersWithContentType(headers),
+      body: JSON.stringify(requestBody),
+      ...(!!includeCookies
+        ? { credentials: 'include' }
+        : { credentials: 'omit' }),
+    });
+  }
+  promise
     .then(async (response) => {
       const responseHeaders: Record<string, string> = {};
       response.headers.forEach((value, key) => {

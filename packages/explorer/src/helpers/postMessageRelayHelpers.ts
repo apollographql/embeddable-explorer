@@ -30,6 +30,7 @@ import type {
   GraphQLSubscriptionLibrary,
   HTTPMultipartClient,
 } from './subscriptionPostMessageRelayHelpers';
+import { constructMultipartForm, FileVariable } from './constructMultipartForm';
 
 export type HandleRequest = (
   endpointUrl: string,
@@ -173,7 +174,8 @@ export type IncomingEmbedMessage =
       headers?: Record<string, string>;
       // TODO (evan, 2023-02): We should make includeCookies non-optional in a few months to account for service workers refreshing
       includeCookies?: boolean;
-      endpointUrl: string;
+      endpointUrl?: string;
+      fileVariables?: FileVariable[];
     }>
   | MessageEvent<{
       name: typeof EXPLORER_SUBSCRIPTION_REQUEST;
@@ -223,6 +225,7 @@ export async function executeOperation({
   embedUrl,
   isMultipartSubscription,
   multipartSubscriptionClient,
+  fileVariables,
 }: {
   endpointUrl: string;
   handleRequest: HandleRequest;
@@ -236,19 +239,41 @@ export async function executeOperation({
   embedUrl: string;
   isMultipartSubscription: boolean;
   multipartSubscriptionClient?: HTTPMultipartClient;
+  fileVariables?: FileVariable[] | undefined;
 }) {
-  return handleRequest(endpointUrl, {
-    method: 'POST',
-    headers: getHeadersWithContentType(headers),
-    body: JSON.stringify({
-      query: operation,
-      variables,
-      operationName,
-    }),
-    ...(!!includeCookies
-      ? { credentials: 'include' }
-      : { credentials: 'omit' }),
-  })
+  const requestBody = {
+    query: operation,
+    variables,
+    operationName,
+  };
+  let promise: Promise<Response>;
+  if (fileVariables && fileVariables.length > 0) {
+    const form = await constructMultipartForm({
+      fileVariables,
+      requestBody,
+    });
+
+    promise = handleRequest(endpointUrl, {
+      method: 'POST',
+      headers: headers ?? {},
+      body: form,
+      ...(includeCookies ? { credentials: 'include' } : {}),
+    });
+  } else {
+    promise = handleRequest(endpointUrl, {
+      method: 'POST',
+      headers: getHeadersWithContentType(headers),
+      body: JSON.stringify({
+        query: operation,
+        variables,
+        operationName,
+      }),
+      ...(!!includeCookies
+        ? { credentials: 'include' }
+        : { credentials: 'omit' }),
+    });
+  }
+  promise
     .then(async (response) => {
       const responseHeaders: Record<string, string> = {};
       response.headers.forEach((value, key) => {

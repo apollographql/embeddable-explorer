@@ -20,7 +20,7 @@ jobs:
           node-version: ${{ matrix.node }}
 
       - name: Install deps and build (with cache)
-        uses: bahmutov/npm-install@v1
+        run: npm ci
 
       - name: Lint
         run: yarn lint
@@ -32,7 +32,7 @@ jobs:
         run: cd packages/explorer && yarn build:cjs-esm
 
       - name: Build Sandbox UMD
-        run:  cd packages/sandbox && yarn build:umd
+        run: cd packages/sandbox && yarn build:umd
 
       - name: Build Sandbox CJS / ESM
         run: cd packages/sandbox && yarn build:umd

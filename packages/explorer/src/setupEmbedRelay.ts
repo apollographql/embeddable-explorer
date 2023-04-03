@@ -117,6 +117,8 @@ export function setupEmbedRelay({
             operationId,
             embedUrl,
             isMultipartSubscription: false,
+            fileVariables:
+              'fileVariables' in data ? data.fileVariables : undefined,
           });
         } else if (isSubscription) {
           const { httpMultipartParams } = data;
