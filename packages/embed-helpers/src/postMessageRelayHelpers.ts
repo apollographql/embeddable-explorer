@@ -183,7 +183,9 @@ export type IncomingEmbedMessage =
       headers?: Record<string, string>;
       // TODO (evan, 2023-02): We should make includeCookies non-optional in a few months to account for service workers refreshing
       includeCookies?: boolean;
-      endpointUrl: string;
+      // This is required for Sandbox, but optional for Explorer b/c we support querying with
+      // the `endpointUrl` config option still to be backwards compat
+      endpointUrl?: string;
       fileVariables?: FileVariable[];
     }>
   | MessageEvent<{
