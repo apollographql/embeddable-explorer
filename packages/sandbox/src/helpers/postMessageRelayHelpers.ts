@@ -93,11 +93,12 @@ type ExplorerResponse = ResponseData & {
 // https://apollographql.quip.com/mkWRAJfuxa7L/Multipart-subscriptions-protocol-spec
 export interface MultipartSubscriptionResponse {
   data: {
-    done?: boolean;
     errors?: Array<GraphQLError>;
-    payload: ResponseData & {
-      error?: { message: string; stack?: string };
-    };
+    payload:
+      | (ResponseData & {
+          error?: { message: string; stack?: string };
+        })
+      | null;
   };
   headers?: Record<string, string> | Record<string, string>[];
   size: number;
@@ -289,11 +290,11 @@ export async function executeOperation({
 
         const observableSubscription = observable.subscribe({
           next(data) {
-            // if payload.done is true, we got a server error
+            // if shouldTerminate is true, we got a server error
             // we handle this in Explorer, but we need to disconnect from
             // the readableStream & subscription here
             if ('payload' in data.data) {
-              if (data.data.done) {
+              if ('shouldTerminate' in data && data.shouldTerminate) {
                 observableSubscription.unsubscribe();
                 closeReadableStream();
                 // the status being disconnected will be handled in the Explorer
