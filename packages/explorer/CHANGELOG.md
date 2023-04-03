@@ -1,5 +1,11 @@
 # @apollo/explorer
 
+## 3.2.0
+
+### Minor Changes
+
+- [#231](https://github.com/apollographql/embeddable-explorer/pull/231) [`e0fe994`](https://github.com/apollographql/embeddable-explorer/commit/e0fe994e401b13bac8fab143f8496bcf0c11cc19) Thanks [@mayakoneval](https://github.com/mayakoneval)! - Update multipart subscription protocol & support multi part subscriptions in the explorer in addition to the sandbox
+
 ## 3.1.1
 
 ### Patch Changes

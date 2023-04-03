@@ -1,5 +1,15 @@
 # @apollo/sandbox
 
+## 2.2.0
+
+### Minor Changes
+
+- [#224](https://github.com/apollographql/embeddable-explorer/pull/224) [`70e9a34`](https://github.com/apollographql/embeddable-explorer/commit/70e9a34c546db5a419bda89cb8ff227d22442159) Thanks [@mayakoneval](https://github.com/mayakoneval)! - Multipart subscription support in @apollo/sandbox. This feature is feature flagged, announcement to come.
+
+### Patch Changes
+
+- [#231](https://github.com/apollographql/embeddable-explorer/pull/231) [`e0fe994`](https://github.com/apollographql/embeddable-explorer/commit/e0fe994e401b13bac8fab143f8496bcf0c11cc19) Thanks [@mayakoneval](https://github.com/mayakoneval)! - Update multipart subscription protocol & support multi part subscriptions in the explorer in addition to the sandbox
+
 ## 2.1.1
 
 ### Patch Changes
