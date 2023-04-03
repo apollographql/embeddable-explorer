@@ -67,7 +67,8 @@
   },
   "workspaces": [
     "packages/explorer",
-    "packages/sandbox"
+    "packages/sandbox",
+    "packages/explorer-helpers"
   ],
   "devDependencies": {
     "@babel/core": "^7.18.5",

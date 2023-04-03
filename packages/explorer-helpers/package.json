@@ -1,0 +1,60 @@
+{
+    "name": "@apollo/explorer-helpers",
+    "version": "0.0.0",
+    "author": "packages@apollographql.com",
+    "license": "MIT",
+    "repository": {
+      "type": "git",
+      "url": "https://github.com/apollographql/embeddable-explorer"
+    },
+    "homepage": "https://github.com/apollographql/embeddable-explorer/explorer-helpers#readme",
+    "main": "dist/index.cjs",
+    "module": "dist/index.mjs",
+    "typings": "dist/src/index.d.ts",
+    "engines": {
+      "node": ">=12.0",
+      "npm": ">=7.0"
+    },
+    "volta": {
+      "node": "16.13.0",
+      "npm": "8.3.1"
+    },
+    "scripts": {
+      "build": "npm run build:cjs-esm",
+      "build:cjs-esm": "rm -rf dist && rollup -c rollup.cjs-esm.config.js && cp src/index.cjs dist/index.cjs",
+      "lint": "eslint --ext .js,.jsx,.ts,.tsx .",
+      "size": "size-limit",
+      "analyze": "size-limit --why",
+      "typescript:check": "tsc --noEmit",
+      "prettier:check": "prettier --check .",
+      "prettier:fix": "prettier --write ."
+    },
+    "husky": {
+      "hooks": {
+        "pre-commit": "npm run lint"
+      }
+    },
+    "prettier": {
+      "printWidth": 80,
+      "semi": true,
+      "singleQuote": true,
+      "trailingComma": "es5",
+      "endOfLine": "auto"
+    },
+    "size-limit": [
+      {
+        "path": "dist/index.production.min.js",
+        "limit": "2 KB"
+      },
+      {
+        "path": "dist/index.mjs",
+        "limit": "2 KB"
+      }
+    ],
+    "dependencies": {
+      "@types/whatwg-mimetype": "^3.0.0",
+      "whatwg-mimetype": "^3.0.0",
+      "zen-observable-ts": "^1.1.0"
+    }
+  }
+  
