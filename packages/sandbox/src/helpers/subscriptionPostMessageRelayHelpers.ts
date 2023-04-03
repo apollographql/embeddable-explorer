@@ -195,7 +195,7 @@ class SubscriptionClient<Protocol extends GraphQLSubscriptionLibrary> {
   request(
     params: OperationOptions & {
       query: string;
-      variables: JSONObject | undefined;
+      variables: Record<string, string> | undefined;
       operationName: string | undefined;
       httpMultipartParams?: HTTPMultipartParams;
       embeddedIFrameElement: HTMLIFrameElement;
@@ -319,7 +319,7 @@ export function executeSubscription({
   operationId: string;
   embeddedIFrameElement: HTMLIFrameElement;
   operationName: string | undefined;
-  variables?: JSONObject;
+  variables?: Record<string, string>;
   headers?: Record<string, string>;
   embedUrl: string;
   subscriptionUrl: string;

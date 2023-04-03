@@ -170,7 +170,7 @@ export type IncomingEmbedMessage =
       operationName?: string;
       operation: string;
       operationId: string;
-      variables?: JSONObject;
+      variables?: Record<string, string>;
       headers?: Record<string, string>;
       // TODO (evan, 2023-02): We should make includeCookies non-optional in a few months to account for service workers refreshing
       includeCookies?: boolean;
@@ -181,7 +181,7 @@ export type IncomingEmbedMessage =
       name: typeof EXPLORER_SUBSCRIPTION_REQUEST;
       operationId: string;
       operation: string;
-      variables?: JSONObject;
+      variables?: Record<string, string>;
       operationName?: string;
       headers?: Record<string, string>;
       subscriptionUrl: string;
@@ -233,7 +233,7 @@ export async function executeOperation({
   operationId: string;
   embeddedIFrameElement: HTMLIFrameElement;
   operationName: string | undefined;
-  variables?: JSONObject;
+  variables?: Record<string, string>;
   headers?: Record<string, string>;
   includeCookies?: boolean;
   embedUrl: string;

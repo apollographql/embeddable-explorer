@@ -1,4 +1,4 @@
-import type { JSONObject, JSONValue } from './types';
+import type { JSONValue } from './types';
 
 export type FileVariable = {
   variableKey: string;
@@ -28,7 +28,7 @@ export const constructMultipartForm = async ({
   requestBody: {
     operationName?: string;
     query: string;
-    variables?: JSONObject;
+    variables?: Record<string, string>;
   };
 }) => {
   const fileVariables: {
