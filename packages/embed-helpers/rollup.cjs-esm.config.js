@@ -1,3 +1,5 @@
+import { createRollupConfig } from './createRollupConfig';
+
 export default [
   createRollupConfig({
     format: 'cjs',

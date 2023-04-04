@@ -92,7 +92,7 @@ type ExplorerResponse = ResponseData & {
 };
 
 // https://apollographql.quip.com/mkWRAJfuxa7L/Multipart-subscriptions-protocol-spec
-export interface MultipartSubscriptionResponse {
+interface MultipartSubscriptionResponse {
   data: {
     errors?: Array<GraphQLError>;
     payload:
