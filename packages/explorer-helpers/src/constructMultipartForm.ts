@@ -2,7 +2,7 @@ import type { JSONValue } from './types';
 
 export type FileVariable = {
   variableKey: string;
-  files: { arrayBuffer: ArrayBuffer; fileName: string }[];
+  files: File[] | undefined;
   isMultiFile: boolean;
 };
 
@@ -20,6 +20,33 @@ export const serializeFetchParameter = (p: any, label: string) => {
   return serialized;
 };
 
+const isFileVariableWithFile = (
+  fileVariable: FileVariable
+): fileVariable is FileVariable & {
+  files: NonNullable<FileVariable['files']>;
+} => {
+  return !!fileVariable.files && fileVariable.files.length > 0;
+};
+
+export type FileVariableFromTransfer = {
+  variableKey: string;
+  files: { arrayBuffer: ArrayBuffer; fileName: string }[];
+  isMultiFile: boolean;
+};
+
+export const getFileListFromTransfer = ({
+  fileVariables: inputtedFileVariables,
+}: {
+  fileVariables: FileVariableFromTransfer[];
+}) =>
+  inputtedFileVariables.map((fileVariable) => ({
+    ...fileVariable,
+    files: fileVariable.files.map(
+      ({ arrayBuffer, fileName }) =>
+        new File([new Blob([arrayBuffer])], fileName)
+    ),
+  }));
+
 export const constructMultipartForm = async ({
   fileVariables: inputtedFileVariables,
   requestBody,
@@ -35,13 +62,7 @@ export const constructMultipartForm = async ({
     variableKey: string;
     files: File[];
     isMultiFile: boolean;
-  }[] = inputtedFileVariables.map((fileVariable) => ({
-    ...fileVariable,
-    files: fileVariable.files.map(
-      ({ arrayBuffer, fileName }) =>
-        new File([new Blob([arrayBuffer])], fileName)
-    ),
-  }));
+  }[] = inputtedFileVariables.filter(isFileVariableWithFile);
 
   // the map element of a FormData maps indices to a single item array of variable names
   // as seen here https://github.com/jaydenseric/graphql-multipart-request-spec#file-list
