@@ -1,11 +1,6 @@
-import { constructMultipartForm } from './constructMultipartForm';
-
-import {
-  readMultipartWebStream,
+export { constructMultipartForm } from './constructMultipartForm';
+export { readMultipartWebStream } from './readMultipartWebStream';
+export type {
   MultipartResponse,
   MultipartSubscriptionResponse,
 } from './readMultipartWebStream';
-
-export { constructMultipartForm, readMultipartWebStream };
-
-export type { MultipartResponse, MultipartSubscriptionResponse };
