@@ -20,19 +20,19 @@ jobs:
           node-version: ${{ matrix.node }}
 
       - name: Install deps and build (with cache)
-        run: npm install
+        run: yarn install
 
       - name: Lint
-        run: npm run lint
+        run: yarn lint
 
       - name: Build Explorer UMD
-        run: cd packages/explorer && npm run build:umd
+        run: cd packages/explorer && yarn build:umd
 
       - name: Build Explorer CJS / ESM
-        run: cd packages/explorer && npm run build:cjs-esm
+        run: cd packages/explorer && yarn build:cjs-esm
 
       - name: Build Sandbox UMD
-        run: cd packages/sandbox && npm run build:umd
+        run: cd packages/sandbox && yarn build:umd
 
       - name: Build Sandbox CJS / ESM
-        run: cd packages/sandbox && npm run build:cjs-esm
+        run: cd packages/sandbox && yarn build:cjs-esm
