@@ -43,6 +43,11 @@ export interface EmbeddableSandboxOptions {
   initialState?: InitialState;
 
   /**
+   * Whether or not to run Error tracking, Google Analytics event tracking etc
+   */
+  runTelemetry?: boolean;
+
+  /**
    * optional. defaults to `return fetch(url, fetchOptions)`
    */
   handleRequest?: HandleRequest;
@@ -112,7 +117,7 @@ export class EmbeddedSandbox {
 
   injectEmbed() {
     let element: HTMLElement | null;
-    const { target } = this.options;
+    const { target, runTelemetry } = this.options;
 
     const { includeCookies, sharedHeaders } = this.options.initialState || {};
 
@@ -150,7 +155,7 @@ export class EmbeddedSandbox {
       hideCookieToggle: this.options.hideCookieToggle ?? true,
       parentSupportsSubscriptions: true,
       version: packageJSON.version,
-      runTelemetry: true,
+      runTelemetry: runTelemetry === undefined ? true : runTelemetry,
       initialRequestQueryPlan: this.options.initialRequestQueryPlan ?? false,
       shouldDefaultAutoupdateSchema:
         this.options.initialState?.pollForSchemaUpdates ?? true,
