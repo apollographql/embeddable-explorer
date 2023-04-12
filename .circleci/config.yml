@@ -39,8 +39,8 @@ commands:
       - run:
           name: Installs npm version from package.jsons engines field
           command: |
-            ENGINES_NPM_VERSION=`node -e "console.log(require('./package.json').engines.npm)"`;
-            sudo npm i -g npm@$ENGINES_NPM_VERSION;
+            VOLTA_NPM_VERSION=`node -e "console.log(require('./package.json').volta.npm)"`;
+            sudo npm i -g npm@$VOLTA_NPM_VERSION;
             npm -v;
 
       - restore_cache:

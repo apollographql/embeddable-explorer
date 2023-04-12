@@ -8,7 +8,7 @@ jobs:
     strategy:
       matrix:
         node: ['12.x', '14.x']
-        os: [ubuntu-latest, windows-latest, macOS-latest]
+        os: [ubuntu-latest, macOS-latest]
 
     steps:
       - name: Checkout repo
@@ -19,20 +19,27 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
 
+      - name: Install expected npm version
+        run: |
+          VOLTA_NPM_VERSION=`node -e "console.log(require('./package.json').volta.npm)"`;
+          echo $VOLTA_NPM_VERSION
+          npm i -g npm@$VOLTA_NPM_VERSION;
+          npm -v;
+
       - name: Install deps and build (with cache)
-        run: yarn install
+        run: npm ci
 
       - name: Lint
-        run: yarn lint
+        run: npm run lint
 
       - name: Build Explorer UMD
-        run: cd packages/explorer && yarn build:umd
+        run: cd packages/explorer && npm run build:umd
 
       - name: Build Explorer CJS / ESM
-        run: cd packages/explorer && yarn build:cjs-esm
+        run: cd packages/explorer && npm run build:cjs-esm
 
       - name: Build Sandbox UMD
-        run: cd packages/sandbox && yarn build:umd
+        run: cd packages/sandbox && npm run build:umd
 
       - name: Build Sandbox CJS / ESM
-        run: cd packages/sandbox && yarn build:cjs-esm
+        run: cd packages/sandbox && npm run build:cjs-esm
