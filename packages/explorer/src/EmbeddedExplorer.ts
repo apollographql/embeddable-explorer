@@ -47,6 +47,11 @@ export interface BaseEmbeddableExplorerOptions {
   persistExplorerState?: boolean;
 
   /**
+   * Whether or not to run Error tracking, Google Analytics event tracking etc
+   */
+  runTelemetry?: boolean;
+
+  /**
    * optional. defaults to `return fetch(url, fetchOptions)`
    */
   handleRequest?: HandleRequest;
@@ -215,7 +220,7 @@ export class EmbeddedExplorer {
   getEmbeddedExplorerURL = () => {
     const { displayOptions } = this.options.initialState || {};
 
-    const { persistExplorerState } = this.options;
+    const { persistExplorerState, runTelemetry } = this.options;
     const graphRef =
       'graphRef' in this.options ? this.options.graphRef : undefined;
     const queryParams = {
@@ -252,7 +257,7 @@ export class EmbeddedExplorer {
       shouldShowGlobalHeader: true,
       parentSupportsSubscriptions: !!graphRef,
       version: packageJSON.version,
-      runTelemetry: true,
+      runTelemetry: runTelemetry === undefined ? true : runTelemetry,
     };
 
     const queryString = Object.entries(queryParams)
