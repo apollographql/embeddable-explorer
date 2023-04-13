@@ -1,5 +1,11 @@
 # @apollo/explorer-helpers
 
+## 0.1.3
+
+### Patch Changes
+
+- [#242](https://github.com/apollographql/embeddable-explorer/pull/242) [`917141c`](https://github.com/apollographql/embeddable-explorer/commit/917141c79df26ed22e6169f0cd04d48c793582f8) Thanks [@mayakoneval](https://github.com/mayakoneval)! - actually publish the right shtuff!
+
 ## 0.1.2
 
 ### Patch Changes
