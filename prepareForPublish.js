@@ -1,5 +1,9 @@
 const fs = require('fs-extra');
-const packages = ['./packages/explorer', './packages/sandbox'];
+const packages = [
+  './packages/explorer',
+  './packages/sandbox',
+  './packages/explorer-helpers',
+];
 async function moveFiles() {
   packages.forEach(async (packageName) => {
     // remove all files except `dist` folder
