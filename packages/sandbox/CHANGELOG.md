@@ -1,5 +1,11 @@
 # @apollo/sandbox
 
+## 2.4.0
+
+### Minor Changes
+
+- [#236](https://github.com/apollographql/embeddable-explorer/pull/236) [`afe5ebd`](https://github.com/apollographql/embeddable-explorer/commit/afe5ebd4908cadae28472f157a202c216e524a3a) Thanks [@mayakoneval](https://github.com/mayakoneval)! - Allow users to pass in `runTelemetry: false` to stop telemetry from running on the embeds
+
 ## 2.3.0
 
 ### Minor Changes
