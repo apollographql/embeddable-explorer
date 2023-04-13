@@ -21,7 +21,7 @@
   },
   "scripts": {
     "build": "npm run build:cjs-esm",
-    "build:cjs-esm": "rm -rf dist && rollup -c rollup.cjs-esm.config.js && cp src/index.cjs dist/index.cjs",
+    "build:cjs-esm": "rm -rf dist && rollup -c rollup.cjs-esm.config.js && cp src/index.cjs dist/index.cjs  && node ./prepareDist.js",
     "lint": "eslint --ext .js,.jsx,.ts,.tsx .",
     "size": "size-limit",
     "analyze": "size-limit --why",
