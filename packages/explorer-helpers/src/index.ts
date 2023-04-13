@@ -1,8 +1,12 @@
-export { constructMultipartForm } from './constructMultipartForm';
+export {
+  constructMultipartForm,
+  getFileListFromTransfer,
+} from './constructMultipartForm';
 export { readMultipartWebStream } from './readMultipartWebStream';
 export type {
   FileVariable,
   FileVariableFromTransfer,
+  OperationRequestBody,
 } from './constructMultipartForm';
 export type {
   MultipartResponse,
