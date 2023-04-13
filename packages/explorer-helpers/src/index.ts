@@ -12,4 +12,4 @@ export type {
   MultipartResponse,
   MultipartSubscriptionResponse,
 } from './readMultipartWebStream';
-export type { JSONObject, JSONPrimitive, JSONValue } from './types';
+export type { JSONObject, JSONValue } from './types';
