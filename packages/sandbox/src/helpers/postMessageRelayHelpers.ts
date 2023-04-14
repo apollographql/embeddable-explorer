@@ -94,21 +94,6 @@ type ExplorerResponse = ResponseData & {
   size?: number;
 };
 
-// https://apollographql.quip.com/mkWRAJfuxa7L/Multipart-subscriptions-protocol-spec
-export interface MultipartSubscriptionResponse {
-  data: {
-    errors?: Array<GraphQLError>;
-    payload:
-      | (ResponseData & {
-          error?: { message: string; stack?: string };
-        })
-      | null;
-  };
-  headers?: Record<string, string> | Record<string, string>[];
-  size: number;
-  status?: number;
-}
-
 export type ExplorerSubscriptionResponse =
   // websocket response
   | {
@@ -117,7 +102,20 @@ export type ExplorerSubscriptionResponse =
       errors?: GraphQLError[];
     }
   // http multipart response options below
-  | MultipartSubscriptionResponse
+  // https://apollographql.quip.com/mkWRAJfuxa7L/Multipart-subscriptions-protocol-spec
+  | {
+      data: {
+        errors?: Array<GraphQLError>;
+        payload:
+          | (ResponseData & {
+              error?: { message: string; stack?: string };
+            })
+          | null;
+      };
+      headers?: Record<string, string> | Record<string, string>[];
+      size: number;
+      status?: number;
+    }
   | {
       data: null;
       // this only exists in the PM MultipartSubscriptionResponse
