@@ -65,6 +65,7 @@
     }
   },
   "dependencies": {
+    "@apollo/explorer-helpers": "^0.1.4",
     "@types/whatwg-mimetype": "^3.0.0",
     "eventemitter3": "3.1.0",
     "graphql-ws": "^5.9.0",
