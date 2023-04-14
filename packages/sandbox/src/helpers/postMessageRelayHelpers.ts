@@ -32,7 +32,7 @@ import type {
   GraphQLSubscriptionLibrary,
   HTTPMultipartClient,
 } from './subscriptionPostMessageRelayHelpers';
-import { constructMultipartForm, FileVariable } from './constructMultipartForm';
+import { constructMultipartForm, FileVariable } from '@apollo/explorer-helpers';
 
 export type HandleRequest = (
   endpointUrl: string,
@@ -266,9 +266,15 @@ export async function executeOperation({
   };
   let promise: Promise<Response>;
   if (fileVariables && fileVariables.length > 0) {
+    // the types expected by the shared constructMultipartForm expect
+    // variables to be defined or null
+    const requestBodyWithDefaultNullVariables = {
+      ...requestBody,
+      variables: requestBody.variables ?? null,
+    };
     const form = await constructMultipartForm({
       fileVariables,
-      requestBody,
+      requestBody: requestBodyWithDefaultNullVariables,
     });
 
     promise = handleRequest(endpointUrl, {
