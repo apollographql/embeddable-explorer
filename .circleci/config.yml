@@ -106,7 +106,7 @@ jobs:
       - npm-install
       - run:
           name: TypeScript
-          command: npm run build
+          command: npm run build -w @apollo/explorer-helpers && npm run build
 
   build-latest-umd-explorer:
     executor: node
