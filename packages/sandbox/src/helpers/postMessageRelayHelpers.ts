@@ -25,14 +25,17 @@ import {
   INTROSPECTION_QUERY_WITH_HEADERS,
 } from './constants';
 import MIMEType from 'whatwg-mimetype';
-import { readMultipartWebStream } from './readMultipartWebStream';
 import type { JSONObject, JSONValue } from './types';
 import type { ObjMap } from 'graphql/jsutils/ObjMap';
 import type {
   GraphQLSubscriptionLibrary,
   HTTPMultipartClient,
 } from './subscriptionPostMessageRelayHelpers';
-import { constructMultipartForm, FileVariable } from '@apollo/explorer-helpers';
+import {
+  readMultipartWebStream,
+  constructMultipartForm,
+  FileVariable,
+} from '@apollo/explorer-helpers';
 
 export type HandleRequest = (
   endpointUrl: string,
