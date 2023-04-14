@@ -108,7 +108,7 @@ const getSharedMultipartFormComponents = ({
   return { variablesWithNullsForFiles, filesToAppend, map };
 };
 
-export const constructMultipartForm = async ({
+export const constructMultipartForm = ({
   fileVariables: inputtedFileVariables,
   requestBody,
 }: {
