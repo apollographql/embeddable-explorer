@@ -40,6 +40,7 @@ type InitialState = {
 export interface EmbeddableSandboxOptions {
   target: string | HTMLElement; // HTMLElement is to accommodate people who might prefer to pass in a ref
   initialEndpoint?: string;
+  initialSubscriptionEndpoint?: string;
   initialState?: InitialState;
 
   /**
@@ -124,6 +125,7 @@ export class EmbeddedSandbox {
     const queryParams = {
       runtime: this.options.runtime,
       endpoint: this.options.initialEndpoint,
+      subscriptionEndpoint: this.options.initialSubscriptionEndpoint,
       ...(this.options.initialState &&
       'collectionId' in this.options.initialState
         ? {
