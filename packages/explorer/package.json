@@ -69,6 +69,7 @@
     }
   },
   "dependencies": {
+    "@apollo/explorer-helpers": "^0.1.4",
     "@types/whatwg-mimetype": "^3.0.0",
     "graphql-ws": "^5.9.0",
     "subscriptions-transport-ws": "^0.11.0",

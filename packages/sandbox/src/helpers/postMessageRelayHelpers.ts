@@ -25,14 +25,17 @@ import {
   INTROSPECTION_QUERY_WITH_HEADERS,
 } from './constants';
 import MIMEType from 'whatwg-mimetype';
-import { readMultipartWebStream } from './readMultipartWebStream';
 import type { JSONObject, JSONValue } from './types';
 import type { ObjMap } from 'graphql/jsutils/ObjMap';
 import type {
   GraphQLSubscriptionLibrary,
   HTTPMultipartClient,
 } from './subscriptionPostMessageRelayHelpers';
-import { constructMultipartForm, FileVariable } from './constructMultipartForm';
+import {
+  readMultipartWebStream,
+  constructMultipartForm,
+  FileVariable,
+} from '@apollo/explorer-helpers';
 
 export type HandleRequest = (
   endpointUrl: string,
@@ -91,21 +94,6 @@ type ExplorerResponse = ResponseData & {
   size?: number;
 };
 
-// https://apollographql.quip.com/mkWRAJfuxa7L/Multipart-subscriptions-protocol-spec
-export interface MultipartSubscriptionResponse {
-  data: {
-    errors?: Array<GraphQLError>;
-    payload:
-      | (ResponseData & {
-          error?: { message: string; stack?: string };
-        })
-      | null;
-  };
-  headers?: Record<string, string> | Record<string, string>[];
-  size: number;
-  status?: number;
-}
-
 export type ExplorerSubscriptionResponse =
   // websocket response
   | {
@@ -114,7 +102,20 @@ export type ExplorerSubscriptionResponse =
       errors?: GraphQLError[];
     }
   // http multipart response options below
-  | MultipartSubscriptionResponse
+  // https://apollographql.quip.com/mkWRAJfuxa7L/Multipart-subscriptions-protocol-spec
+  | {
+      data: {
+        errors?: Array<GraphQLError>;
+        payload:
+          | (ResponseData & {
+              error?: { message: string; stack?: string };
+            })
+          | null;
+      };
+      headers?: Record<string, string> | Record<string, string>[];
+      size: number;
+      status?: number;
+    }
   | {
       data: null;
       // this only exists in the PM MultipartSubscriptionResponse
@@ -266,9 +267,15 @@ export async function executeOperation({
   };
   let promise: Promise<Response>;
   if (fileVariables && fileVariables.length > 0) {
+    // the types expected by the shared constructMultipartForm expect
+    // variables to be defined or null
+    const requestBodyWithDefaultNullVariables = {
+      ...requestBody,
+      variables: requestBody.variables ?? null,
+    };
     const form = await constructMultipartForm({
       fileVariables,
-      requestBody,
+      requestBody: requestBodyWithDefaultNullVariables,
     });
 
     promise = handleRequest(endpointUrl, {
