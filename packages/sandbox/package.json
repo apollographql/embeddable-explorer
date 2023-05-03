@@ -5,9 +5,9 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/apollographql/embeddable-explorer/sandbox"
+    "url": "https://github.com/apollographql/embeddable-explorer/tree/main/packages/sandbox"
   },
-  "homepage": "https://github.com/apollographql/embeddable-explorer/sandbox#readme",
+  "homepage": "https://github.com/apollographql/embeddable-explorer/tree/main/packages/sandbox#readme",
   "main": "dist/index.cjs",
   "module": "dist/index.mjs",
   "typings": "dist/src/index.d.ts",
