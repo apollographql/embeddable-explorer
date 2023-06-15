@@ -161,6 +161,7 @@ export class EmbeddedExplorer {
     iframeElement.src = this.embeddedExplorerURL;
 
     iframeElement.id = IFRAME_DOM_ID(this.uniqueEmbedInstanceId);
+    // default to `true` (`true` and `undefined` both ok)
     if (this.options.allowDynamicStyles !== false) {
       iframeElement.setAttribute(
         'style',
