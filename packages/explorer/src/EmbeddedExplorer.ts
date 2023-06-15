@@ -72,6 +72,14 @@ export interface BaseEmbeddableExplorerOptions {
     accountId: string;
     inviteToken: string;
   };
+
+  /**
+   * optional. defaults to true.
+   * If false, the `width: 100%` and `height: 100%` are not applied to the iframe dynamically.
+   * You might pass false here if you enforce a Content Security Policy that disallows dynamic
+   * style injection.
+   */
+  allowDynamicStyles?: boolean;
 }
 
 interface EmbeddableExplorerOptionsWithSchema
@@ -153,11 +161,13 @@ export class EmbeddedExplorer {
     iframeElement.src = this.embeddedExplorerURL;
 
     iframeElement.id = IFRAME_DOM_ID(this.uniqueEmbedInstanceId);
-    iframeElement.setAttribute(
-      'style',
-      'height: 100%; width: 100%; border: none;'
-    );
-
+    // default to `true` (`true` and `undefined` both ok)
+    if (this.options.allowDynamicStyles !== false) {
+      iframeElement.setAttribute(
+        'style',
+        'height: 100%; width: 100%; border: none;'
+      );
+    }
     element?.appendChild(iframeElement);
 
     // inject the Apollo favicon if there is not one on this page
