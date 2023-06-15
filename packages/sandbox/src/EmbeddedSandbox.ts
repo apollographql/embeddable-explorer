@@ -72,6 +72,13 @@ export interface EmbeddableSandboxOptions {
    * If false, the endpoint box at the top of sandbox will be `initialEndpoint` permanently
    */
   endpointIsEditable?: boolean;
+  /**
+   * optional. defaults to true.
+   * If false, the `width: 100%` and `height: 100%` are not applied to the iframe dynamically.
+   * You might pass false here if you enforce a Content Security Policy that disallows dynamic
+   * style injection.
+   */
+  allowDynamicStyles?: boolean;
 }
 
 type InternalEmbeddableSandboxOptions = EmbeddableSandboxOptions & {
@@ -180,10 +187,12 @@ export class EmbeddedSandbox {
     )}?${queryString}`;
 
     iframeElement.id = IFRAME_DOM_ID(this.uniqueEmbedInstanceId);
-    iframeElement.setAttribute(
-      'style',
-      'height: 100%; width: 100%; border: none;'
-    );
+    if (this.options.allowDynamicStyles !== false) {
+      iframeElement.setAttribute(
+        'style',
+        'height: 100%; width: 100%; border: none;'
+      );
+    }
 
     element?.appendChild(iframeElement);
 
