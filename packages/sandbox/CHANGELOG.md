@@ -1,5 +1,11 @@
 # @apollo/sandbox
 
+## 2.5.0
+
+### Minor Changes
+
+- [#261](https://github.com/apollographql/embeddable-explorer/pull/261) [`7212121`](https://github.com/apollographql/embeddable-explorer/commit/7212121cad97028b007e974956dc951ce89d683c) Thanks [@mayakoneval](https://github.com/mayakoneval)! - Allow opting out of adding dynamic styles to the iframe rendered by Embedded Explorer / Sandbox
+
 ## 2.4.0
 
 ### Minor Changes
