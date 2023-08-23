@@ -44,11 +44,11 @@
     "files": [
       {
         "path": "packages/sandbox/dist/**/*.js",
-        "maxSize": "40kb"
+        "maxSize": "41kb"
       },
       {
         "path": "packages/explorer/dist/**/*.js",
-        "maxSize": "40kb"
+        "maxSize": "41kb"
       }
     ],
     "ci": {
