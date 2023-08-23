@@ -71,7 +71,23 @@ export function readMultipartWebStream(response: Response, mimeType: MIMEType) {
               buffer = buffer.slice(boundaryIndex + messageBoundary.length);
 
               if (message.trim()) {
-                const messageStartIndex = message.indexOf('\r\n\r\n');
+                const newLineSequence = '\r\n\r\n';
+                let messageStartIndex: number | undefined;
+                // if there are two instances of newLineSequence, this is a response with multiple parts
+                // and the first part is a heartbeat: https://www.apollographql.com/docs/router/executing-operations/subscription-multipart-protocol/
+                if (
+                  message.lastIndexOf(newLineSequence) !==
+                  message.indexOf(newLineSequence)
+                ) {
+                  const heartbeatStartIndex =
+                    message.indexOf(newLineSequence) + newLineSequence.length;
+                  messageStartIndex =
+                    message
+                      .substring(heartbeatStartIndex)
+                      .indexOf(newLineSequence) + heartbeatStartIndex;
+                } else {
+                  messageStartIndex = message.indexOf(newLineSequence);
+                }
 
                 const chunkHeaders = Object.fromEntries(
                   message
