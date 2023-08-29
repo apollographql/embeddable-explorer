@@ -72,7 +72,9 @@ export function sendPostMessageToEmbed({
 
 export type ResponseError = {
   message: string;
-  stack?: string;
+  extensions?: {
+    stack?: string;
+  }
 };
 
 export interface ResponseData {
@@ -98,7 +100,7 @@ export interface MultipartSubscriptionResponse {
     errors?: Array<GraphQLError>;
     payload:
       | (ResponseData & {
-          error?: { message: string; stack?: string };
+          error?: ResponseError;
         })
       | null;
   };
@@ -398,7 +400,7 @@ export async function executeOperation({
                 ? {
                     message: err.message,
                     ...('stack' in err && typeof err.stack === 'string'
-                      ? { stack: err.stack }
+                      ? { extensions: { stack: err.stack } }
                       : {}),
                   }
                 : undefined;
