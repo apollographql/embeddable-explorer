@@ -16,7 +16,7 @@ export const defaultHandleRequest = ({
         ? { credentials: 'omit' }
         : {}),
     }).catch((err) => {
-        err.message = `Error calling ${endpointUrl}, ${JSON.stringify(options)}`;
+        err.message = `Error calling ${endpointUrl}`;
         throw err;
     });
   return handleRequestWithCookiePref;
