@@ -16,7 +16,7 @@ import type { JSONObject } from './helpers/types';
 type InitialState = {
   displayOptions?: {
     docsPanelState?: 'open' | 'closed'; // default to 'open',
-    shouldShowGlobalHeader?: boolean; // default to `true`,
+    showGlobalHeader?: boolean; // default to `true`,
     showHeadersAndEnvVars?: boolean; // default to `false`
     theme?: 'dark' | 'light';
   };
@@ -266,7 +266,7 @@ export class EmbeddedExplorer {
       showHeadersAndEnvVars: displayOptions?.showHeadersAndEnvVars !== false,
       theme: displayOptions?.theme ?? 'dark',
       shouldShowGlobalHeader:
-        displayOptions?.shouldShowGlobalHeader == undefined ? true : false,
+        displayOptions?.showGlobalHeader == undefined ? true : false,
       parentSupportsSubscriptions: !!graphRef,
       version: packageJSON.version,
       runTelemetry: runTelemetry === undefined ? true : runTelemetry,
