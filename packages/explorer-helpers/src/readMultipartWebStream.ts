@@ -1,14 +1,14 @@
 import { Observable } from 'zen-observable-ts';
 import type { GraphQLError } from 'graphql';
 import type MIMEType from 'whatwg-mimetype';
-import type { ResponseData } from './types';
+import type { ResponseData, ResponseError } from './types';
 
 export interface MultipartResponse {
   data: ResponseData & {
     incremental?: Array<
       ResponseData & { path: NonNullable<ResponseData['path']> }
     >;
-    error?: { message: string; stack?: string };
+    error?: ResponseError;
     hasNext?: boolean;
   };
   headers?: Record<string, string> | Record<string, string>[];
@@ -21,7 +21,7 @@ export interface MultipartSubscriptionResponse {
     errors?: Array<GraphQLError>;
     payload:
       | (ResponseData & {
-          error?: { message: string; stack?: string };
+          error?: ResponseError;
         })
       | null;
   };

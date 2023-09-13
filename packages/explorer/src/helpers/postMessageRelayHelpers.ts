@@ -487,7 +487,7 @@ export async function executeOperation({
           ? {
               message: err.message,
               ...('stack' in err && typeof err.stack === 'string'
-                ? { stack: err.stack }
+                ? { extensions: { stack: err.stack } }
                 : {}),
             }
           : undefined;

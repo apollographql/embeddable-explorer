@@ -44,3 +44,10 @@ export interface ResponseData {
   errors?: Array<GraphQLError>;
   extensions?: Extensions;
 }
+
+export type ResponseError = {
+    message: string;
+    extensions?: {
+        stack?: string;
+    }
+};
