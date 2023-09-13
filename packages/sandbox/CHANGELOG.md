@@ -1,5 +1,11 @@
 # @apollo/sandbox
 
+## 2.5.1
+
+### Patch Changes
+
+- [#269](https://github.com/apollographql/embeddable-explorer/pull/269) [`1a57130`](https://github.com/apollographql/embeddable-explorer/commit/1a5713028b5510748d0ece50d8e61568772a381b) Thanks [@mayakoneval](https://github.com/mayakoneval)! - We were out of protocol for HTTP Multipart Subscriptions. I was using an older version of the draft protocol. This should update to use the real HTTP Multipart Subscription protocol: https://www.apollographql.com/docs/router/executing-operations/subscription-multipart-protocol/.
+
 ## 2.5.0
 
 ### Minor Changes

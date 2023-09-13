@@ -1,5 +1,17 @@
 # @apollo/explorer
 
+## 3.6.0
+
+### Minor Changes
+
+- [#273](https://github.com/apollographql/embeddable-explorer/pull/273) [`82579f1`](https://github.com/apollographql/embeddable-explorer/commit/82579f11e7c329ace32fad42faf2146471e172b6) Thanks [@mayakoneval](https://github.com/mayakoneval)! - Allow hiding the global header
+
+### Patch Changes
+
+- [#274](https://github.com/apollographql/embeddable-explorer/pull/274) [`a8ec2cf`](https://github.com/apollographql/embeddable-explorer/commit/a8ec2cf1edd546508e6d7dff98dc587edd348c83) Thanks [@mayakoneval](https://github.com/mayakoneval)! - make words consistent in display options
+
+* [#269](https://github.com/apollographql/embeddable-explorer/pull/269) [`1a57130`](https://github.com/apollographql/embeddable-explorer/commit/1a5713028b5510748d0ece50d8e61568772a381b) Thanks [@mayakoneval](https://github.com/mayakoneval)! - We were out of protocol for HTTP Multipart Subscriptions. I was using an older version of the draft protocol. This should update to use the real HTTP Multipart Subscription protocol: https://www.apollographql.com/docs/router/executing-operations/subscription-multipart-protocol/.
+
 ## 3.5.0
 
 ### Minor Changes
