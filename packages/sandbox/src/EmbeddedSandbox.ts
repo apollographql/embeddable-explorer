@@ -140,10 +140,7 @@ export class EmbeddedSandbox {
       runtime: this.options.runtime,
       endpoint: this.options.initialEndpoint,
       subscriptionEndpoint: this.options.initialSubscriptionEndpoint,
-      sendOperationHeadersInIntrospection:
-        this.options.sendOperationHeadersInIntrospection == undefined
-          ? true
-          : this.options.sendOperationHeadersInIntrospection,
+      sendOperationHeadersInIntrospection: sendOperationHeadersInIntrospection: this.options.sendOperationHeadersInIntrospection ?? true,
       ...(this.options.initialState &&
       'collectionId' in this.options.initialState
         ? {
