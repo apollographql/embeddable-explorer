@@ -79,6 +79,13 @@ export interface EmbeddableSandboxOptions {
    * style injection.
    */
   allowDynamicStyles?: boolean;
+  /**
+   * Defaults to true, even though our default in hosted Sandbox is false.
+   * Needed to default to true so that shipped versions particularly on Apollo Server
+   * maintain backwards compatible behavior. Pass false to exclusively pass shared headers
+   * to introspection requests.
+   */
+  sendOperationHeadersInIntrospection?: boolean;
 }
 
 type InternalEmbeddableSandboxOptions = EmbeddableSandboxOptions & {
@@ -133,6 +140,10 @@ export class EmbeddedSandbox {
       runtime: this.options.runtime,
       endpoint: this.options.initialEndpoint,
       subscriptionEndpoint: this.options.initialSubscriptionEndpoint,
+      sendOperationHeadersInIntrospection:
+        this.options.sendOperationHeadersInIntrospection == undefined
+          ? true
+          : this.options.sendOperationHeadersInIntrospection,
       ...(this.options.initialState &&
       'collectionId' in this.options.initialState
         ? {
