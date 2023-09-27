@@ -383,9 +383,9 @@ workflows:
             - embeddable-explorer-write
           requires:
             - build-npm-versioned-umd-explorer
-          # filters:
-          #   branches:
-          #     only: main
+          filters:
+            branches:
+              only: main
       - cdn-upload-latest-sandbox:
           context:
             - embeddable-sandbox-write
@@ -414,7 +414,7 @@ workflows:
             - embeddable-sandbox-write
           requires:
             - build-npm-versioned-umd-sandbox
-          # filters:
-          #   branches:
-          #     only: main
+          filters:
+            branches:
+              only: main
 
