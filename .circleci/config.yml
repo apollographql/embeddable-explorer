@@ -30,7 +30,7 @@ commands:
           name: Setup GCloud Creds
           command: |
             echo "$GCLOUD_SERVICE_KEY_EXPLORER" | base64 --ignore-garbage -d > /tmp/google-service-account-key-explorer.json
-            [ ! -z "$GCLOUD_SERVICE_KEY_EXPLORER" ] && gcloud auth activate-service-account --key-file=/tmp/google-service-account-key-explorer.json || exit 0
+            [ ! -z "$GCLOUD_SERVICE_KEY_EXPLORER" ] && gcloud auth activate-service-account --key-file=/tmp/google-service-account-key-explorer.json || exit 0;
       - restore_cache:
           keys:
             - v0-dependencies-
@@ -55,7 +55,62 @@ commands:
           key: npm-cache--{{ checksum "package-lock.json" }}--{{ checksum ".circleci/config.yml" }}
           paths:
             - ~/.npm
+
+  set-explorer-npm-env-vars:
+    steps:
+      - checkout
+      - npm-install
+      - run:
+          name: Set NPM Env Vars
+          command: |
+            touch bash.env
+            NPM_EXPLORER_VERSION=`node -e "console.log(require('./packages/explorer/package.json').version)"`;
+            NPM_MAJOR_EXPLORER_VERSION="$(echo $NPM_EXPLORER_VERSION | cut -d'.' -f1)";
+            echo "NPM_MAJOR_EXPLORER_VERSION=$(echo $NPM_MAJOR_EXPLORER_VERSION)" >> bash.env
+
+      - run: |
+          cat bash.env
+      - run: |
+          # verify; optional step
+          printenv
+      - persist_to_workspace:
+          root: ~/embeddable-explorer
+          paths:
+            - bash.env
+
+
+  set-sandbox-npm-env-vars:
+    steps:
+      - checkout
+      - npm-install
+      - run:
+          name: Set NPM Env Vars
+          command: |
+            touch bash.env
+            NPM_SANDBOX_VERSION=`node -e "console.log(require('./packages/sandbox/package.json').version)"`;
+            NPM_MAJOR_SANDBOX_VERSION="$(echo $NPM_SANDBOX_VERSION | cut -d'.' -f1)";
+            echo "NPM_MAJOR_SANDBOX_VERSION=$(echo $NPM_MAJOR_SANDBOX_VERSION)" >> bash.env
+
+      - run: |
+          cat bash.env
+      - run: |
+          # verify; optional step
+          printenv
+      - persist_to_workspace:
+          root: ~/embeddable-explorer
+          paths:
+            - bash.env
+
 jobs:
+  set-env-vars:
+    executor: node
+    steps:
+      - set-explorer-npm-env-vars
+      - set-sandbox-npm-env-vars
+      - persist_to_workspace:
+          root: ~/embeddable-explorer
+          paths:
+            - bash.env
   bundlewatch:
     executor: node
     steps:
@@ -116,14 +171,12 @@ jobs:
       - run:
           name: Build
           command: '[ -d build ] || cd packages/explorer && PUBLIC_URL=https://embeddable-explorer.cdn.apollographql.com/_latest npm run build:umd -- --no-progress'
-          environment:
-            BUILD_TO_CDN: 'true'
       - persist_to_workspace:
           root: ~/embeddable-explorer
           paths:
             - packages/explorer/dist
 
-  build-versioned-umd-explorer:
+  build-github-versioned-umd-explorer:
     executor: node
     steps:
       - checkout
@@ -131,8 +184,25 @@ jobs:
       - run:
           name: Build
           command: '[ -d build ] || cd packages/explorer && PUBLIC_URL=https://embeddable-explorer.cdn.apollographql.com/$CIRCLE_SHA1 npm run build:umd -- --no-progress'
-          environment:
-            BUILD_TO_CDN: 'true'
+      - persist_to_workspace:
+          root: ~/embeddable-explorer
+          paths:
+            - packages/explorer/dist
+
+  build-npm-versioned-umd-explorer:
+    executor: node
+    steps:
+      - checkout
+      - npm-install
+      - attach_workspace:
+          at: ~/embeddable-explorer
+      - run: |
+          cat bash.env
+          cat bash.env >> $BASH_ENV
+      - run:
+          name: Build
+          command: |
+            [ -d build ] || cd packages/explorer && PUBLIC_URL=https://embeddable-explorer.cdn.apollographql.com/v$NPM_MAJOR_EXPLORER_VERSION npm run build:umd -- --no-progress
       - persist_to_workspace:
           root: ~/embeddable-explorer
           paths:
@@ -155,7 +225,7 @@ jobs:
           command: |
             gsutil -m rsync -r ~/embeddable-explorer/packages/explorer/dist gs://embeddable-explorer/_latest
 
-  cdn-upload-versioned-explorer:
+  cdn-upload-github-versioned-explorer:
     executor: gcp-cli/google
     steps:
       - setup-explorer-gcs-creds
@@ -168,6 +238,22 @@ jobs:
           command: |
             gsutil -m rsync -r ~/embeddable-explorer/packages/explorer/dist gs://embeddable-explorer/$CIRCLE_SHA1
 
+  cdn-upload-npm-versioned-explorer:
+    executor: node
+    steps:
+      - gcp-cli/install
+      - checkout
+      - attach_workspace:
+          at: ~/embeddable-explorer
+      - run: |
+          cat bash.env
+          cat bash.env >> $BASH_ENV
+      - setup-explorer-gcs-creds
+      - run:
+          name: Upload build artifacts to CDN
+          command: |
+            gsutil -m rsync -r ~/embeddable-explorer/packages/explorer/dist gs://embeddable-explorer/v$NPM_MAJOR_EXPLORER_VERSION
+
   build-latest-umd-sandbox:
     executor: node
     steps:
@@ -176,14 +262,12 @@ jobs:
       - run:
           name: Build
           command: '([ -d build ] || cd packages/sandbox && PUBLIC_URL=https://embeddable-sandbox.cdn.apollographql.com/_latest npm run build:umd -- --no-progress)'
-          environment:
-            BUILD_TO_CDN: 'true'
       - persist_to_workspace:
           root: ~/embeddable-explorer
           paths:
             - packages/sandbox/dist
 
-  build-versioned-umd-sandbox:
+  build-github-versioned-umd-sandbox:
     executor: node
     steps:
       - checkout
@@ -191,8 +275,25 @@ jobs:
       - run:
           name: Build
           command: '[ -d build ] || cd packages/sandbox && PUBLIC_URL=https://embeddable-sandbox.cdn.apollographql.com/$CIRCLE_SHA1 npm run build:umd -- --no-progress'
-          environment:
-            BUILD_TO_CDN: 'true'
+      - persist_to_workspace:
+          root: ~/embeddable-explorer
+          paths:
+            - packages/sandbox/dist
+
+  build-npm-versioned-umd-sandbox:
+    executor: node
+    steps:
+      - checkout
+      - npm-install
+      - attach_workspace:
+          at: ~/embeddable-explorer
+      - run: |
+          cat bash.env
+          cat bash.env >> $BASH_ENV
+      - run:
+          name: Build
+          command: |
+            [ -d build ] || cd packages/sandbox && PUBLIC_URL=https://embeddable-sandbox.cdn.apollographql.com/v$NPM_MAJOR_SANDBOX_VERSION npm run build:umd -- --no-progress
       - persist_to_workspace:
           root: ~/embeddable-explorer
           paths:
@@ -215,7 +316,7 @@ jobs:
           command: |
             gsutil -m rsync -r ~/embeddable-explorer/packages/sandbox/dist gs://embeddable-sandbox/_latest
 
-  cdn-upload-versioned-sandbox:
+  cdn-upload-github-versioned-sandbox:
     executor: gcp-cli/google
     steps:
       - setup-sandbox-gcs-creds
@@ -228,6 +329,21 @@ jobs:
           command: |
             gsutil -m rsync -r ~/embeddable-explorer/packages/sandbox/dist gs://embeddable-sandbox/$CIRCLE_SHA1
 
+  cdn-upload-npm-versioned-sandbox:
+    executor: node
+    steps:
+      - gcp-cli/install
+      - checkout
+      - attach_workspace:
+          at: ~/embeddable-explorer
+      - run: |
+          cat bash.env
+          cat bash.env >> $BASH_ENV
+      - setup-sandbox-gcs-creds
+      - run:
+          name: Upload build artifacts to CDN
+          command: |
+            gsutil -m rsync -r ~/embeddable-explorer/packages/sandbox/dist gs://embeddable-sandbox/v$NPM_MAJOR_SANDBOX_VERSION
 
 workflows:
   build-test-deploy:
@@ -235,6 +351,7 @@ workflows:
       - eslint
       - prettier
       - typescript
+      - set-env-vars
       - build-latest-umd-explorer
       - build-latest-umd-sandbox
       - bundlewatch:
@@ -249,17 +366,26 @@ workflows:
           filters:
             branches:
               only: main
-      - build-versioned-umd-explorer:
+      - build-github-versioned-umd-explorer:
           requires:
             - cdn-upload-latest-explorer
-      - cdn-upload-versioned-explorer:
+      - cdn-upload-github-versioned-explorer:
           context:
             - embeddable-explorer-write
           requires:
-            - build-versioned-umd-explorer
-          filters:
-            branches:
-              only: main
+            - build-github-versioned-umd-explorer
+      - build-npm-versioned-umd-explorer:
+          requires:
+            - set-env-vars
+            - cdn-upload-github-versioned-explorer
+      - cdn-upload-npm-versioned-explorer:
+          context:
+            - embeddable-explorer-write
+          requires:
+            - build-npm-versioned-umd-explorer
+          # filters:
+          #   branches:
+          #     only: main
       - cdn-upload-latest-sandbox:
           context:
             - embeddable-sandbox-write
@@ -268,17 +394,27 @@ workflows:
           filters:
             branches:
               only: main
-      - build-versioned-umd-sandbox:
+      - build-github-versioned-umd-sandbox:
           requires:
             - cdn-upload-latest-sandbox
-      - cdn-upload-versioned-sandbox:
+      - cdn-upload-github-versioned-sandbox:
           context:
             - embeddable-sandbox-write
           requires:
-            - build-versioned-umd-sandbox
+            - build-github-versioned-umd-sandbox
           filters:
             branches:
               only: main
+      - build-npm-versioned-umd-sandbox:
+          requires:
+            - set-env-vars
+            - cdn-upload-github-versioned-sandbox
+      - cdn-upload-npm-versioned-sandbox:
+          context:
+            - embeddable-sandbox-write
+          requires:
+            - build-npm-versioned-umd-sandbox
+          # filters:
+          #   branches:
+          #     only: main
 
-      # For running simple node tests, you could optionally use the node/test job from the orb to replicate and replace the job above in fewer lines.
-      # - node/test
