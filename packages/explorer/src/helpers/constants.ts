@@ -33,5 +33,9 @@ export const EXPLORER_LISTENING_FOR_PARTIAL_TOKEN =
   'ExplorerListeningForPartialToken';
 export const PARTIAL_AUTHENTICATION_TOKEN_RESPONSE =
   'PartialAuthenticationTokenResponse';
+export const PREFLIGHT_OAUTH_REQUEST = 'PreflightOAuthRequest';
+export const PREFLIGHT_OAUTH_PROVIDER_RESPONSE =
+  'PreflightOAuthProviderResponse';
+export const PREFLIGHT_OAUTH_RESPONSE = 'PreflightOAuthResponse';
 export const INTROSPECTION_QUERY_WITH_HEADERS = 'IntrospectionQueryWithHeaders';
 export const PARENT_LOGOUT_SUCCESS = 'ParentLogoutSuccess';

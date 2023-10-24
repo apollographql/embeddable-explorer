@@ -23,6 +23,9 @@ import {
   EXPLORER_SUBSCRIPTION_TERMINATION,
   EXPLORER_LISTENING_FOR_SCHEMA,
   INTROSPECTION_QUERY_WITH_HEADERS,
+  PREFLIGHT_OAUTH_REQUEST,
+  PREFLIGHT_OAUTH_RESPONSE,
+  PREFLIGHT_OAUTH_PROVIDER_RESPONSE,
 } from './constants';
 import MIMEType from 'whatwg-mimetype';
 import { readMultipartWebStream } from './readMultipartWebStream';
@@ -168,9 +171,21 @@ export type OutgoingEmbedMessage =
     }
   | {
       name: typeof PARENT_LOGOUT_SUCCESS;
+    }
+  | {
+      name: typeof PREFLIGHT_OAUTH_RESPONSE;
+      queryParams: string;
     };
 
 export type IncomingEmbedMessage =
+  | MessageEvent<{
+      name: typeof PREFLIGHT_OAUTH_REQUEST;
+      oauthUrl: string;
+    }>
+  | MessageEvent<{
+      name: typeof PREFLIGHT_OAUTH_PROVIDER_RESPONSE;
+      queryParams: string;
+    }>
   | MessageEvent<{
       name: typeof EXPLORER_LISTENING_FOR_HANDSHAKE;
     }>
@@ -588,6 +603,23 @@ export const handleAuthenticationPostMessage = ({
   embedUrl: string;
 }) => {
   const { data } = event;
+  if (data.name === PREFLIGHT_OAUTH_REQUEST) {
+    const handleEmbedPostMessage = (event: IncomingEmbedMessage) => {
+      if (event.data.name === PREFLIGHT_OAUTH_PROVIDER_RESPONSE) {
+        window.removeEventListener('message', handleEmbedPostMessage);
+        sendPostMessageToEmbed({
+          message: {
+            name: PREFLIGHT_OAUTH_RESPONSE,
+            queryParams: event.data.queryParams,
+          },
+          embeddedIFrameElement,
+          embedUrl,
+        });
+      }
+    };
+    window.addEventListener('message', handleEmbedPostMessage);
+    window.open(data.oauthUrl, undefined, '_blank');
+  }
   // When the embed authenticates, save the partial token in local storage
   if (data.name === SET_PARTIAL_AUTHENTICATION_TOKEN_FOR_PARENT) {
     const partialEmbedApiKeysString = window.localStorage.getItem(
