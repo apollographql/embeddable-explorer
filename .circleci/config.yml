@@ -4,7 +4,7 @@ version: 2.1
 
 orbs:
   gcp-cli: circleci/gcp-cli@2.4.0
-  secops: apollo/circleci-secops-orb@2.0.0
+  secops: apollo/circleci-secops-orb@2.0.6
 
 executors:
   node:
@@ -151,7 +151,7 @@ jobs:
     steps:
       - checkout
       - npm-install
-      - run: 
+      - run:
           name: Prettier
           command: npm run prettier:check
 
@@ -427,3 +427,8 @@ workflows:
             - secops-oidc
           git-base-revision: <<#pipeline.git.base_revision>><<pipeline.git.base_revision>><</pipeline.git.base_revision >>
           git-revision: << pipeline.git.revision >>
+      - secops/semgrep:
+          context:
+            - secops-oidc
+            - github-orb
+          git-base-revision: <<#pipeline.git.base_revision>><<pipeline.git.base_revision>><</pipeline.git.base_revision >>
