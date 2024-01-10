@@ -1,5 +1,15 @@
 # @apollo/explorer
 
+## 3.7.0
+
+### Minor Changes
+
+- [#288](https://github.com/apollographql/embeddable-explorer/pull/288) [`d4ce484`](https://github.com/apollographql/embeddable-explorer/commit/d4ce48459dc9dd08cc28ee1158363a5fa06a1886) Thanks [@mayakoneval](https://github.com/mayakoneval)! - Support Explorer preflight OAuth in embeds
+
+### Patch Changes
+
+- [#275](https://github.com/apollographql/embeddable-explorer/pull/275) [`7dfce71`](https://github.com/apollographql/embeddable-explorer/commit/7dfce71264651699df2476ad45202037cec7c3ee) Thanks [@mayakoneval](https://github.com/mayakoneval)! - Oops!
+
 ## 3.6.0
 
 ### Minor Changes
