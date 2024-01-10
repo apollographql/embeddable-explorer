@@ -1,5 +1,13 @@
 # @apollo/sandbox
 
+## 2.6.0
+
+### Minor Changes
+
+- [#288](https://github.com/apollographql/embeddable-explorer/pull/288) [`d4ce484`](https://github.com/apollographql/embeddable-explorer/commit/d4ce48459dc9dd08cc28ee1158363a5fa06a1886) Thanks [@mayakoneval](https://github.com/mayakoneval)! - Support Explorer preflight OAuth in embeds
+
+* [#277](https://github.com/apollographql/embeddable-explorer/pull/277) [`5cd64d9`](https://github.com/apollographql/embeddable-explorer/commit/5cd64d9b8de3fdb1592d9468da96953c0f99008f) Thanks [@mayakoneval](https://github.com/mayakoneval)! - sendOperationHeadersInIntrospection config option, default to true
+
 ## 2.5.1
 
 ### Patch Changes
