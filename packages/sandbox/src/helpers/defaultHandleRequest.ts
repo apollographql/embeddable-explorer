@@ -15,6 +15,9 @@ export const defaultHandleRequest = ({
         legacyIncludeCookies !== undefined
         ? { credentials: 'omit' }
         : {}),
+    }).catch((err) => {
+        err.message = `Error calling ${endpointUrl}`;
+        throw err;
     });
   return handleRequestWithCookiePref;
 };
