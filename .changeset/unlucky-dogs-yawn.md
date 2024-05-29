@@ -1,5 +1,0 @@
----
-"@apollo/explorer": patch
----
-
-Oops!
