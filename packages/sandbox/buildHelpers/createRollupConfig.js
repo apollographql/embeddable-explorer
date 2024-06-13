@@ -101,7 +101,7 @@ function createCJS_ESMRollupConfig(options) {
             : '[name].development.cjs',
       }),
     },
-    external: ['use-deep-compare-effect', 'react'],
+    external: ['react'],
     plugins: [
       typescript({
         tsconfig: './tsconfig.json',
