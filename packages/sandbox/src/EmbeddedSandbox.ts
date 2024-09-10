@@ -92,6 +92,11 @@ type InternalEmbeddableSandboxOptions = EmbeddableSandboxOptions & {
   __testLocal__?: boolean;
   initialRequestQueryPlan?: boolean;
   runtime?: string;
+  /**
+   * optional. defaults to `false`.
+   * Whether or not to include the `Apollo-Connectors-Debugging: true` header in requests
+   */
+  initialRequestConnectorsDebugging?: boolean;
 };
 
 let idCounter = 0;
@@ -175,6 +180,8 @@ export class EmbeddedSandbox {
       version: packageJSON.version,
       runTelemetry: runTelemetry === undefined ? true : runTelemetry,
       initialRequestQueryPlan: this.options.initialRequestQueryPlan ?? false,
+      initialRequestConnectorsDebugging:
+        this.options.initialRequestConnectorsDebugging ?? false,
       shouldDefaultAutoupdateSchema:
         this.options.initialState?.pollForSchemaUpdates ?? true,
       endpointIsEditable: this.options.endpointIsEditable,
