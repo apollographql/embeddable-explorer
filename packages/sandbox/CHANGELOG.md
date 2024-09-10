@@ -1,5 +1,11 @@
 # @apollo/sandbox
 
+## 2.7.0
+
+### Minor Changes
+
+- [#300](https://github.com/apollographql/embeddable-explorer/pull/300) [`bbcdabf`](https://github.com/apollographql/embeddable-explorer/commit/bbcdabf19a3d05e3b9b619475676e34774dd9ea9) Thanks [@tayrrible](https://github.com/tayrrible)! - Adding support for `initialRequestConnectorsDebugging` to `EmbeddedSandbox`
+
 ## 2.6.0
 
 ### Minor Changes
