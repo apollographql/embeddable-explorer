@@ -58,8 +58,6 @@ export const constructMultipartForm = async ({
     | Record<string, JSONValue | undefined | null | null[]>
     | undefined = requestBody.variables;
 
-  let counterMap = {};
-
   fileVariables.forEach(
     ({ files, variableKey, isMultiFile }, fileVariableIndex) => {
       if (files?.length) {
