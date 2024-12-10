@@ -57,6 +57,9 @@ export const constructMultipartForm = async ({
   let variablesWithNullsForFiles:
     | Record<string, JSONValue | undefined | null | null[]>
     | undefined = requestBody.variables;
+
+  let counterMap = {};
+
   fileVariables.forEach(
     ({ files, variableKey, isMultiFile }, fileVariableIndex) => {
       if (files?.length) {
@@ -68,9 +71,7 @@ export const constructMultipartForm = async ({
         };
         Array.from(files).forEach((file) => {
           map[i] = [
-            `${
-              fileVariables.length > 1 ? `${fileVariableIndex}.` : ''
-            }variables.${variableKey}${isMultiFile ? `.${i}` : ''}`,
+            `variables.${variableKey}${isMultiFile ? `.${fileVariableIndex}` : ''}`,
           ];
           // in the request, there is expected to be a number appended that corresponds to each file
           // https://github.com/jaydenseric/graphql-multipart-request-spec#file-list
