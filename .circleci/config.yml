@@ -9,7 +9,7 @@ orbs:
 executors:
   node:
     docker:
-      - image: circleci/node:14.17.0-browsers
+      - image: circleci/node:22.14.0-browsers
     working_directory: ~/embeddable-explorer
 
 commands:
