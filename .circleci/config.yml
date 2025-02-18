@@ -158,6 +158,8 @@ jobs:
   typescript:
     executor: node
     steps:
+      - setup-explorer-gcs-creds
+      - gcp-cli/install
       - checkout
       - npm-install
       - run:
