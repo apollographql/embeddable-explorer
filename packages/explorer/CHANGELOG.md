@@ -1,5 +1,11 @@
 # @apollo/explorer
 
+## 3.7.1
+
+### Patch Changes
+
+- [#310](https://github.com/apollographql/embeddable-explorer/pull/310) [`c7a22b5`](https://github.com/apollographql/embeddable-explorer/commit/c7a22b59cd1171516cf6267c83dbe4e393375997) Thanks [@StorytellerCZ](https://github.com/StorytellerCZ)! - Allow React 19 as peer dependency
+
 ## 3.7.0
 
 ### Minor Changes
