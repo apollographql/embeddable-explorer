@@ -1,5 +1,19 @@
 # @apollo/explorer
 
+## 3.7.2
+
+### Patch Changes
+
+- [#313](https://github.com/apollographql/embeddable-explorer/pull/313) [`3e3c434`](https://github.com/apollographql/embeddable-explorer/commit/3e3c434999e686a9f82db6118bf88adf3a57dd96) Thanks [@dependabot](https://github.com/apps/dependabot)! - Bump elliptic from 6.5.4 to 6.6.1
+
+* [#322](https://github.com/apollographql/embeddable-explorer/pull/322) [`b5107f2`](https://github.com/apollographql/embeddable-explorer/commit/b5107f27a02ffe347ba7a559f89ca31ac1f20cd8) Thanks [@dependabot](https://github.com/apps/dependabot)! - Bump axios and bundlewatch
+
+- [#315](https://github.com/apollographql/embeddable-explorer/pull/315) [`2ce1938`](https://github.com/apollographql/embeddable-explorer/commit/2ce1938cd74754654a0f16ec26f1e3e165cd06bf) Thanks [@dependabot](https://github.com/apps/dependabot)! - Bump ws from 7.5.7 to 7.5.10
+
+* [#321](https://github.com/apollographql/embeddable-explorer/pull/321) [`074fe71`](https://github.com/apollographql/embeddable-explorer/commit/074fe71a15d3027ed49e591e2a67840024ecfd53) Thanks [@dependabot](https://github.com/apps/dependabot)! - Bump follow-redirects from 1.15.2 to 1.15.9
+
+- [#314](https://github.com/apollographql/embeddable-explorer/pull/314) [`e7670dd`](https://github.com/apollographql/embeddable-explorer/commit/e7670ddb976c10922e4dd79b39b390eba4342ec9) Thanks [@dependabot](https://github.com/apps/dependabot)! - Bump rollup from 2.75.6 to 2.79.2
+
 ## 3.7.1
 
 ### Patch Changes
