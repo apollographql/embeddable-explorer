@@ -5,9 +5,9 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/apollographql/embeddable-explorer/explorer"
+    "url": "https://github.com/apollographql/embeddable-explorer/tree/main/packages/explorer"
   },
-  "homepage": "https://github.com/apollographql/embeddable-explorer/explorer#readme",
+  "homepage": "https://github.com/apollographql/embeddable-explorer/tree/main/packages/explorer#readme",
   "main": "dist/index.cjs",
   "module": "dist/index.mjs",
   "typings": "dist/src/index.d.ts",
