@@ -519,9 +519,17 @@ export const handleAuthenticationPostMessage = ({
   embedUrl: string;
 }) => {
   const { data } = event;
+
+  if (event.origin !== embedUrl) {
+    return;
+  }
+
   if (data.name === PREFLIGHT_OAUTH_REQUEST) {
     const handleEmbedPostMessage = (event: IncomingEmbedMessage) => {
-      if (event.data.name === PREFLIGHT_OAUTH_PROVIDER_RESPONSE) {
+      if (
+        event.data.name === PREFLIGHT_OAUTH_PROVIDER_RESPONSE &&
+        event.origin === embedUrl
+      ) {
         window.removeEventListener('message', handleEmbedPostMessage);
         sendPostMessageToEmbed({
           message: {
