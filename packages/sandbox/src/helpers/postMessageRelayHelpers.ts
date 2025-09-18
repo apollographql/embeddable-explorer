@@ -602,7 +602,12 @@ export const handleAuthenticationPostMessage = ({
   embeddedIFrameElement: HTMLIFrameElement;
   embedUrl: string;
 }) => {
-  const { data } = event;
+  const { data, origin } = event;
+
+  if (origin !== embedUrl) {
+    return;
+  }
+
   if (data.name === PREFLIGHT_OAUTH_REQUEST) {
     const handleEmbedPostMessage = (event: IncomingEmbedMessage) => {
       if (event.data.name === PREFLIGHT_OAUTH_PROVIDER_RESPONSE) {

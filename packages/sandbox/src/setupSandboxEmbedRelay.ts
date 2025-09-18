@@ -38,7 +38,7 @@ export function setupSandboxEmbedRelay({
     // structure of. Some have a data field that is not an object
     const data = typeof event.data === 'object' ? event.data : undefined;
 
-    if (data && 'name' in data) {
+    if (data && 'name' in data && event.origin === embedUrl) {
       // When embed connects, send a handshake message
       if (data.name === EXPLORER_LISTENING_FOR_HANDSHAKE) {
         sendPostMessageToEmbed({

@@ -333,7 +333,10 @@ export function executeSubscription({
   );
 
   const checkForSubscriptionTermination = (event: MessageEvent) => {
-    if (event.data.name === EXPLORER_SUBSCRIPTION_TERMINATION) {
+    if (
+      event.data.name === EXPLORER_SUBSCRIPTION_TERMINATION &&
+      event.origin === embedUrl
+    ) {
       client.unsubscribeAll();
       window.removeEventListener('message', checkForSubscriptionTermination);
     }
