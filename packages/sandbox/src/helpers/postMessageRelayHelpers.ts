@@ -597,14 +597,16 @@ export const handleAuthenticationPostMessage = ({
   event,
   embeddedIFrameElement,
   embedUrl,
+  embedUrlOrigin,
 }: {
   event: IncomingEmbedMessage;
   embeddedIFrameElement: HTMLIFrameElement;
   embedUrl: string;
+  embedUrlOrigin: string;
 }) => {
-  const { data, origin } = event;
+  const { data } = event;
 
-  if (origin !== embedUrl) {
+  if (event.origin !== embedUrlOrigin) {
     return;
   }
 

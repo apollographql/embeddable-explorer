@@ -1,5 +1,6 @@
 import {
   EMBEDDABLE_SANDBOX_URL,
+  EMBEDDABLE_SANDBOX_URL_ORIGIN,
   EXPLORER_LISTENING_FOR_HANDSHAKE,
   EXPLORER_QUERY_MUTATION_REQUEST,
   EXPLORER_SUBSCRIPTION_REQUEST,
@@ -26,11 +27,13 @@ export function setupSandboxEmbedRelay({
   __testLocal__: boolean;
 }) {
   const embedUrl = EMBEDDABLE_SANDBOX_URL(__testLocal__);
+  const embedUrlOrigin = EMBEDDABLE_SANDBOX_URL_ORIGIN(__testLocal__);
   // Callback definition
   const onPostMessageReceived = (event: IncomingEmbedMessage) => {
     handleAuthenticationPostMessage({
       event,
       embedUrl,
+      embedUrlOrigin,
       embeddedIFrameElement: embeddedSandboxIFrameElement,
     });
 
@@ -38,7 +41,7 @@ export function setupSandboxEmbedRelay({
     // structure of. Some have a data field that is not an object
     const data = typeof event.data === 'object' ? event.data : undefined;
 
-    if (data && 'name' in data && event.origin === embedUrl) {
+    if (data && 'name' in data && event.origin === embedUrlOrigin) {
       // When embed connects, send a handshake message
       if (data.name === EXPLORER_LISTENING_FOR_HANDSHAKE) {
         sendPostMessageToEmbed({
@@ -120,6 +123,7 @@ export function setupSandboxEmbedRelay({
             embeddedIFrameElement: embeddedSandboxIFrameElement,
             operationId,
             embedUrl,
+            embedUrlOrigin,
             subscriptionUrl: data.subscriptionUrl,
             protocol: data.protocol,
             httpMultipartParams: {

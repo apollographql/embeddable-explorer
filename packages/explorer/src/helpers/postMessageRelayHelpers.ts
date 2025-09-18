@@ -518,9 +518,9 @@ export const handleAuthenticationPostMessage = ({
   embeddedIFrameElement: HTMLIFrameElement;
   embedUrl: string;
 }) => {
-  const { data, origin } = event;
+  const { data } = event;
 
-  if (origin !== embedUrl) {
+  if (event.origin !== embedUrl) {
     return;
   }
 

@@ -311,6 +311,7 @@ export function executeSubscription({
   embeddedIFrameElement,
   operationId,
   embedUrl,
+  embedUrlOrigin,
   subscriptionUrl,
   protocol,
   httpMultipartParams,
@@ -322,6 +323,7 @@ export function executeSubscription({
   variables?: Record<string, string>;
   headers?: Record<string, string>;
   embedUrl: string;
+  embedUrlOrigin: string;
   subscriptionUrl: string;
   protocol: GraphQLSubscriptionLibrary;
   httpMultipartParams: HTTPMultipartParams;
@@ -335,7 +337,7 @@ export function executeSubscription({
   const checkForSubscriptionTermination = (event: MessageEvent) => {
     if (
       event.data.name === EXPLORER_SUBSCRIPTION_TERMINATION &&
-      event.origin === embedUrl
+      event.origin === embedUrlOrigin
     ) {
       client.unsubscribeAll();
       window.removeEventListener('message', checkForSubscriptionTermination);

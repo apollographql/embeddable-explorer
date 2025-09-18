@@ -3,6 +3,11 @@ export const EMBEDDABLE_SANDBOX_URL = (__testLocal__ = false) =>
     ? 'https://embed.apollo.local:3000/sandbox/explorer'
     : 'https://sandbox.embed.apollographql.com/sandbox/explorer';
 
+export const EMBEDDABLE_SANDBOX_URL_ORIGIN = (__testLocal__ = false) =>
+  __testLocal__
+    ? 'https://embed.apollo.local:3000'
+    : 'https://sandbox.embed.apollographql.com';
+
 // Message types for Explorer state
 export const EXPLORER_LISTENING_FOR_SCHEMA = 'ExplorerListeningForSchema';
 export const EXPLORER_LISTENING_FOR_STATE = 'ExplorerListeningForState';
