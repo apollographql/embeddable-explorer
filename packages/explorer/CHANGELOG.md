@@ -1,5 +1,11 @@
 # @apollo/explorer
 
+## 3.7.3
+
+### Patch Changes
+
+- [#329](https://github.com/apollographql/embeddable-explorer/pull/329) [`8c7be6b`](https://github.com/apollographql/embeddable-explorer/commit/8c7be6b4ffcf8f76287fc01d43b210073d571fd6) Thanks [@esilverm](https://github.com/esilverm)! - fix a CSRF vulnerability that allowed attackers to pass through authenticated cookies though postMessage requests
+
 ## 3.7.2
 
 ### Patch Changes
