@@ -1,6 +1,5 @@
 import type { IntrospectionQuery } from 'graphql';
 import {
-  EMBEDDABLE_EXPLORER_URL,
   EMBEDDABLE_EXPLORER_URL_ORIGIN,
   EXPLORER_LISTENING_FOR_HANDSHAKE,
   EXPLORER_LISTENING_FOR_SCHEMA,
@@ -48,13 +47,12 @@ export function setupEmbedRelay({
   };
   __testLocal__: boolean;
 }): DisposableResource {
-  const embedUrl = EMBEDDABLE_EXPLORER_URL(__testLocal__);
   const embedUrlOrigin = EMBEDDABLE_EXPLORER_URL_ORIGIN(__testLocal__);
   // Callback definition
   const onPostMessageReceived = (event: IncomingEmbedMessage) => {
     handleAuthenticationPostMessage({
       event,
-      embedUrl,
+      embedUrlOrigin,
       embeddedIFrameElement: embeddedExplorerIFrameElement,
     });
 
@@ -74,7 +72,7 @@ export function setupEmbedRelay({
             parentHref: window.location.href,
           },
           embeddedIFrameElement: embeddedExplorerIFrameElement,
-          embedUrl,
+          embedUrlOrigin,
         });
       }
 
@@ -119,7 +117,7 @@ export function setupEmbedRelay({
             includeCookies,
             embeddedIFrameElement: embeddedExplorerIFrameElement,
             operationId,
-            embedUrl,
+            embedUrlOrigin,
             isMultipartSubscription: false,
             fileVariables:
               'fileVariables' in data ? data.fileVariables : undefined,
@@ -132,7 +130,7 @@ export function setupEmbedRelay({
                 'you cannot run subscriptions from this embed, since you are not embedding with a registered Studio graph'
               ),
               embeddedIFrameElement: embeddedExplorerIFrameElement,
-              embedUrl,
+              embedUrlOrigin,
             });
           } else {
             executeSubscription({
@@ -142,7 +140,7 @@ export function setupEmbedRelay({
               headers,
               embeddedIFrameElement: embeddedExplorerIFrameElement,
               operationId,
-              embedUrl,
+              embedUrlOrigin,
               subscriptionUrl: data.subscriptionUrl,
               protocol: data.protocol,
               httpMultipartParams: {

@@ -1,5 +1,4 @@
 import {
-  EMBEDDABLE_SANDBOX_URL,
   EMBEDDABLE_SANDBOX_URL_ORIGIN,
   EXPLORER_LISTENING_FOR_HANDSHAKE,
   EXPLORER_QUERY_MUTATION_REQUEST,
@@ -28,13 +27,11 @@ export function setupSandboxEmbedRelay({
   embeddedSandboxIFrameElement: HTMLIFrameElement;
   __testLocal__: boolean;
 }): DisposableResource {
-  const embedUrl = EMBEDDABLE_SANDBOX_URL(__testLocal__);
   const embedUrlOrigin = EMBEDDABLE_SANDBOX_URL_ORIGIN(__testLocal__);
   // Callback definition
   const onPostMessageReceived = (event: IncomingEmbedMessage) => {
     handleAuthenticationPostMessage({
       event,
-      embedUrl,
       embedUrlOrigin,
       embeddedIFrameElement: embeddedSandboxIFrameElement,
     });
@@ -52,7 +49,7 @@ export function setupSandboxEmbedRelay({
             parentHref: window.location.href,
           },
           embeddedIFrameElement: embeddedSandboxIFrameElement,
-          embedUrl,
+          embedUrlOrigin,
         });
       }
 
@@ -71,7 +68,7 @@ export function setupSandboxEmbedRelay({
             headers: introspectionRequestHeaders,
             includeCookies,
             embeddedIFrameElement: embeddedSandboxIFrameElement,
-            embedUrl,
+            embedUrlOrigin,
             handleRequest,
             operationId,
           });
@@ -112,7 +109,7 @@ export function setupSandboxEmbedRelay({
             fileVariables:
               'fileVariables' in data ? data.fileVariables : undefined,
             operationName,
-            embedUrl,
+            embedUrlOrigin,
             isMultipartSubscription: false,
           });
         } else if (isSubscription) {
@@ -124,7 +121,6 @@ export function setupSandboxEmbedRelay({
             headers,
             embeddedIFrameElement: embeddedSandboxIFrameElement,
             operationId,
-            embedUrl,
             embedUrlOrigin,
             subscriptionUrl: data.subscriptionUrl,
             protocol: data.protocol,

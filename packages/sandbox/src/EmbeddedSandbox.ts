@@ -1,4 +1,4 @@
-import { EMBEDDABLE_SANDBOX_URL, IFRAME_DOM_ID } from './helpers/constants';
+import { EMBEDDABLE_SANDBOX_URL_ORIGIN, IFRAME_DOM_ID } from './helpers/constants';
 import { defaultHandleRequest } from './helpers/defaultHandleRequest';
 import type {
   DisposableResource,
@@ -201,9 +201,9 @@ export class EmbeddedSandbox {
       element = target;
     }
     const iframeElement = document.createElement('iframe');
-    iframeElement.src = `${EMBEDDABLE_SANDBOX_URL(
+    iframeElement.src = `${EMBEDDABLE_SANDBOX_URL_ORIGIN(
       this.__testLocal__
-    )}?${queryString}`;
+    )}/sandbox/explorer?${queryString}`;
 
     iframeElement.id = IFRAME_DOM_ID(this.uniqueEmbedInstanceId);
     // default to `true` (`true` and `undefined` both ok)

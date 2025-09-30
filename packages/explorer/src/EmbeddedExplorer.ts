@@ -1,6 +1,6 @@
 import type { IntrospectionQuery } from 'graphql';
 import {
-  EMBEDDABLE_EXPLORER_URL,
+  EMBEDDABLE_EXPLORER_URL_ORIGIN,
   IFRAME_DOM_ID,
   SCHEMA_RESPONSE,
 } from './helpers/constants';
@@ -279,7 +279,7 @@ export class EmbeddedExplorer {
       .filter(([_, value]) => value !== undefined)
       .map(([key, value]) => `${key}=${value}`)
       .join('&');
-    return `${EMBEDDABLE_EXPLORER_URL(this.__testLocal__)}?${queryString}`;
+    return `${EMBEDDABLE_EXPLORER_URL_ORIGIN(this.__testLocal__)}?${queryString}`;
   };
 
   updateSchemaInEmbed({
@@ -293,7 +293,7 @@ export class EmbeddedExplorer {
         schema,
       },
       embeddedIFrameElement: this.embeddedExplorerIFrameElement,
-      embedUrl: EMBEDDABLE_EXPLORER_URL(this.__testLocal__),
+      embedUrlOrigin: EMBEDDABLE_EXPLORER_URL_ORIGIN(this.__testLocal__),
     });
   }
 }

@@ -61,13 +61,13 @@ function getHeadersWithContentType(
 export function sendPostMessageToEmbed({
   message,
   embeddedIFrameElement,
-  embedUrl,
+  embedUrlOrigin,
 }: {
   message: OutgoingEmbedMessage;
   embeddedIFrameElement: HTMLIFrameElement;
-  embedUrl: string;
+  embedUrlOrigin: string;
 }) {
-  embeddedIFrameElement?.contentWindow?.postMessage(message, embedUrl);
+  embeddedIFrameElement?.contentWindow?.postMessage(message, embedUrlOrigin);
 }
 
 export type ResponseError = {
@@ -237,7 +237,7 @@ export async function executeOperation({
   includeCookies,
   embeddedIFrameElement,
   operationId,
-  embedUrl,
+  embedUrlOrigin,
   isMultipartSubscription,
   multipartSubscriptionClient,
   fileVariables,
@@ -251,7 +251,7 @@ export async function executeOperation({
   variables?: Record<string, string>;
   headers?: Record<string, string>;
   includeCookies?: boolean;
-  embedUrl: string;
+  embedUrlOrigin: string;
   isMultipartSubscription: boolean;
   multipartSubscriptionClient?: HTTPMultipartClient;
   fileVariables?: FileVariable[] | undefined;
@@ -327,7 +327,7 @@ export async function executeOperation({
                     status: 'disconnected',
                   },
                   embeddedIFrameElement,
-                  embedUrl,
+                  embedUrlOrigin,
                 });
               }
               sendPostMessageToEmbed({
@@ -353,7 +353,7 @@ export async function executeOperation({
                   },
                 },
                 embeddedIFrameElement,
-                embedUrl,
+                embedUrlOrigin,
               });
             } else {
               sendPostMessageToEmbed({
@@ -384,7 +384,7 @@ export async function executeOperation({
                   },
                 },
                 embeddedIFrameElement,
-                embedUrl,
+                embedUrlOrigin,
               });
             }
             isFirst = false;
@@ -417,7 +417,7 @@ export async function executeOperation({
                 },
               },
               embeddedIFrameElement,
-              embedUrl,
+              embedUrlOrigin,
             });
           },
           complete() {
@@ -437,7 +437,7 @@ export async function executeOperation({
                 },
               },
               embeddedIFrameElement,
-              embedUrl,
+              embedUrlOrigin,
             });
           },
         });
@@ -470,7 +470,7 @@ export async function executeOperation({
             },
           },
           embeddedIFrameElement,
-          embedUrl,
+          embedUrlOrigin,
         });
       }
     })
@@ -504,7 +504,7 @@ export async function executeOperation({
           },
         },
         embeddedIFrameElement,
-        embedUrl,
+        embedUrlOrigin,
       });
     });
 }
@@ -512,11 +512,11 @@ export async function executeOperation({
 export const handleAuthenticationPostMessage = ({
   event,
   embeddedIFrameElement,
-  embedUrl,
+  embedUrlOrigin,
 }: {
   event: IncomingEmbedMessage;
   embeddedIFrameElement: HTMLIFrameElement;
-  embedUrl: string;
+  embedUrlOrigin: string;
 }) => {
   const { data } = event;
 
@@ -530,11 +530,10 @@ export const handleAuthenticationPostMessage = ({
             queryParams: event.data.queryParams,
           },
           embeddedIFrameElement,
-          embedUrl,
+          embedUrlOrigin,
         });
       }
     };
-    const embedUrlOrigin = new URL(embedUrl).origin;
     const disposeHandleEmbedPostMessage = addMessageListener(
       embedUrlOrigin,
       handleEmbedPostMessage
@@ -572,7 +571,7 @@ export const handleAuthenticationPostMessage = ({
     sendPostMessageToEmbed({
       message: { name: PARENT_LOGOUT_SUCCESS },
       embeddedIFrameElement,
-      embedUrl,
+      embedUrlOrigin,
     });
   }
 
@@ -593,7 +592,7 @@ export const handleAuthenticationPostMessage = ({
           partialToken: partialEmbedApiKeys[data.localStorageKey],
         },
         embeddedIFrameElement,
-        embedUrl,
+        embedUrlOrigin,
       });
     }
   }

@@ -1,6 +1,3 @@
-export const EMBEDDABLE_EXPLORER_URL = (__testLocal__ = false) =>
-  EMBEDDABLE_EXPLORER_URL_ORIGIN(__testLocal__);
-
 export const EMBEDDABLE_EXPLORER_URL_ORIGIN = (__testLocal__ = false) =>
   __testLocal__
     ? 'https://embed.apollo.local:3000'

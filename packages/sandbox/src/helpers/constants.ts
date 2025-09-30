@@ -1,6 +1,3 @@
-export const EMBEDDABLE_SANDBOX_URL = (__testLocal__ = false) =>
-  EMBEDDABLE_SANDBOX_URL_ORIGIN(__testLocal__) + '/sandbox/explorer';
-
 export const EMBEDDABLE_SANDBOX_URL_ORIGIN = (__testLocal__ = false) =>
   __testLocal__
     ? 'https://embed.apollo.local:3000'
