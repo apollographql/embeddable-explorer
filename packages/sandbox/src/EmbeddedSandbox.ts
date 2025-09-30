@@ -1,4 +1,7 @@
-import { EMBEDDABLE_SANDBOX_URL_ORIGIN, IFRAME_DOM_ID } from './helpers/constants';
+import {
+  EMBEDDABLE_SANDBOX_URL_ORIGIN,
+  IFRAME_DOM_ID,
+} from './helpers/constants';
 import { defaultHandleRequest } from './helpers/defaultHandleRequest';
 import type {
   DisposableResource,

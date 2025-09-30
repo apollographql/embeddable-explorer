@@ -279,7 +279,9 @@ export class EmbeddedExplorer {
       .filter(([_, value]) => value !== undefined)
       .map(([key, value]) => `${key}=${value}`)
       .join('&');
-    return `${EMBEDDABLE_EXPLORER_URL_ORIGIN(this.__testLocal__)}?${queryString}`;
+    return `${EMBEDDABLE_EXPLORER_URL_ORIGIN(
+      this.__testLocal__
+    )}?${queryString}`;
   };
 
   updateSchemaInEmbed({
