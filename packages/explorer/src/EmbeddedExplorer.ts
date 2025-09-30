@@ -6,6 +6,7 @@ import {
 } from './helpers/constants';
 import { defaultHandleRequest } from './helpers/defaultHandleRequest';
 import {
+  DisposableResource,
   HandleRequest,
   sendPostMessageToEmbed,
 } from './helpers/postMessageRelayHelpers';
@@ -115,7 +116,7 @@ export class EmbeddedExplorer {
   embeddedExplorerIFrameElement: HTMLIFrameElement;
   uniqueEmbedInstanceId: number;
   __testLocal__: boolean;
-  private disposable: { dispose: () => void };
+  private disposable: DisposableResource;
   constructor(options: EmbeddableExplorerOptions) {
     this.options = options as InternalEmbeddableExplorerOptions;
     this.__testLocal__ = !!this.options.__testLocal__;

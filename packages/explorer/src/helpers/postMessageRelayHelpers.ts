@@ -520,17 +520,10 @@ export const handleAuthenticationPostMessage = ({
 }) => {
   const { data } = event;
 
-  if (event.origin !== embedUrl) {
-    return;
-  }
-
   if (data.name === PREFLIGHT_OAUTH_REQUEST) {
     const handleEmbedPostMessage = (event: IncomingEmbedMessage) => {
-      if (
-        event.data.name === PREFLIGHT_OAUTH_PROVIDER_RESPONSE &&
-        event.origin === embedUrl
-      ) {
-        window.removeEventListener('message', handleEmbedPostMessage);
+      if (event.data.name === PREFLIGHT_OAUTH_PROVIDER_RESPONSE) {
+        disposeHandleEmbedPostMessage.dispose();
         sendPostMessageToEmbed({
           message: {
             name: PREFLIGHT_OAUTH_RESPONSE,
@@ -541,7 +534,11 @@ export const handleAuthenticationPostMessage = ({
         });
       }
     };
-    window.addEventListener('message', handleEmbedPostMessage);
+    const embedUrlOrigin = new URL(embedUrl).origin;
+    const disposeHandleEmbedPostMessage = addMessageListener(
+      embedUrlOrigin,
+      handleEmbedPostMessage
+    );
     window.open(data.oauthUrl, undefined, '_blank');
   }
   // When the embed authenticates, save the partial token in local storage
@@ -601,3 +598,23 @@ export const handleAuthenticationPostMessage = ({
     }
   }
 };
+
+// (Not called Disposable because TypeScript defines that.)
+export interface DisposableResource {
+  dispose: () => void;
+}
+
+export function addMessageListener(
+  embedUrlOrigin: string,
+  listener: (e: MessageEvent) => void
+): DisposableResource {
+  const wrappedListener = (e: MessageEvent) => {
+    if (e.origin === embedUrlOrigin) {
+      listener(e);
+    }
+  };
+  window.addEventListener('message', wrappedListener);
+  return {
+    dispose: () => window.removeEventListener('message', wrappedListener),
+  };
+}
