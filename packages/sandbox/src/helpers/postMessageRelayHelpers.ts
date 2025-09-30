@@ -63,13 +63,13 @@ function getHeadersWithContentType(
 export function sendPostMessageToEmbed({
   message,
   embeddedIFrameElement,
-  embedUrl,
+  embedUrlOrigin,
 }: {
   message: OutgoingEmbedMessage;
   embeddedIFrameElement: HTMLIFrameElement;
-  embedUrl: string;
+  embedUrlOrigin: string;
 }) {
-  embeddedIFrameElement?.contentWindow?.postMessage(message, embedUrl);
+  embeddedIFrameElement?.contentWindow?.postMessage(message, embedUrlOrigin);
 }
 
 export type ResponseError = {
@@ -256,7 +256,7 @@ export async function executeOperation({
   variables,
   fileVariables,
   embeddedIFrameElement,
-  embedUrl,
+  embedUrlOrigin,
   isMultipartSubscription,
   multipartSubscriptionClient,
 }: {
@@ -270,7 +270,7 @@ export async function executeOperation({
   variables?: Record<string, string>;
   fileVariables?: FileVariable[] | undefined;
   embeddedIFrameElement: HTMLIFrameElement;
-  embedUrl: string;
+  embedUrlOrigin: string;
   isMultipartSubscription: boolean;
   multipartSubscriptionClient?: HTTPMultipartClient;
 }) {
@@ -341,7 +341,7 @@ export async function executeOperation({
                     status: 'disconnected',
                   },
                   embeddedIFrameElement,
-                  embedUrl,
+                  embedUrlOrigin,
                 });
               }
               sendPostMessageToEmbed({
@@ -367,7 +367,7 @@ export async function executeOperation({
                   },
                 },
                 embeddedIFrameElement,
-                embedUrl,
+                embedUrlOrigin,
               });
             } else {
               sendPostMessageToEmbed({
@@ -398,7 +398,7 @@ export async function executeOperation({
                   },
                 },
                 embeddedIFrameElement,
-                embedUrl,
+                embedUrlOrigin,
               });
             }
             isFirst = false;
@@ -431,7 +431,7 @@ export async function executeOperation({
                 },
               },
               embeddedIFrameElement,
-              embedUrl,
+              embedUrlOrigin,
             });
           },
           complete() {
@@ -451,7 +451,7 @@ export async function executeOperation({
                 },
               },
               embeddedIFrameElement,
-              embedUrl,
+              embedUrlOrigin,
             });
           },
         });
@@ -484,7 +484,7 @@ export async function executeOperation({
             },
           },
           embeddedIFrameElement,
-          embedUrl,
+          embedUrlOrigin,
         });
       }
     })
@@ -518,7 +518,7 @@ export async function executeOperation({
           },
         },
         embeddedIFrameElement,
-        embedUrl,
+        embedUrlOrigin,
       });
     });
 }
@@ -529,7 +529,7 @@ export async function executeIntrospectionRequest({
   includeCookies,
   introspectionRequestBody,
   embeddedIFrameElement,
-  embedUrl,
+  embedUrlOrigin,
   handleRequest,
   operationId,
 }: {
@@ -538,7 +538,7 @@ export async function executeIntrospectionRequest({
   headers?: Record<string, string>;
   includeCookies?: boolean;
   introspectionRequestBody: string;
-  embedUrl: string;
+  embedUrlOrigin: string;
   handleRequest: HandleRequest;
   operationId: string;
 }) {
@@ -567,7 +567,7 @@ export async function executeIntrospectionRequest({
             operationId,
           },
           embeddedIFrameElement,
-          embedUrl,
+          embedUrlOrigin,
         });
       }
       sendPostMessageToEmbed({
@@ -577,7 +577,7 @@ export async function executeIntrospectionRequest({
           operationId,
         },
         embeddedIFrameElement,
-        embedUrl,
+        embedUrlOrigin,
       });
     })
     .catch((error) => {
@@ -588,7 +588,7 @@ export async function executeIntrospectionRequest({
           operationId,
         },
         embeddedIFrameElement,
-        embedUrl,
+        embedUrlOrigin,
       });
     });
 }
@@ -596,38 +596,32 @@ export async function executeIntrospectionRequest({
 export const handleAuthenticationPostMessage = ({
   event,
   embeddedIFrameElement,
-  embedUrl,
   embedUrlOrigin,
 }: {
   event: IncomingEmbedMessage;
   embeddedIFrameElement: HTMLIFrameElement;
-  embedUrl: string;
   embedUrlOrigin: string;
 }) => {
   const { data } = event;
 
-  if (event.origin !== embedUrlOrigin) {
-    return;
-  }
-
   if (data.name === PREFLIGHT_OAUTH_REQUEST) {
     const handleEmbedPostMessage = (event: IncomingEmbedMessage) => {
-      if (
-        event.data.name === PREFLIGHT_OAUTH_PROVIDER_RESPONSE &&
-        event.origin === embedUrlOrigin
-      ) {
-        window.removeEventListener('message', handleEmbedPostMessage);
+      if (event.data.name === PREFLIGHT_OAUTH_PROVIDER_RESPONSE) {
+        disposeHandleEmbedPostMessage.dispose();
         sendPostMessageToEmbed({
           message: {
             name: PREFLIGHT_OAUTH_RESPONSE,
             queryParams: event.data.queryParams,
           },
           embeddedIFrameElement,
-          embedUrl,
+          embedUrlOrigin,
         });
       }
     };
-    window.addEventListener('message', handleEmbedPostMessage);
+    const disposeHandleEmbedPostMessage = addMessageListener(
+      embedUrlOrigin,
+      handleEmbedPostMessage
+    );
     window.open(data.oauthUrl, undefined, '_blank');
   }
   // When the embed authenticates, save the partial token in local storage
@@ -661,7 +655,7 @@ export const handleAuthenticationPostMessage = ({
     sendPostMessageToEmbed({
       message: { name: PARENT_LOGOUT_SUCCESS },
       embeddedIFrameElement,
-      embedUrl,
+      embedUrlOrigin,
     });
   }
 
@@ -682,8 +676,28 @@ export const handleAuthenticationPostMessage = ({
           partialToken: partialEmbedApiKeys[data.localStorageKey],
         },
         embeddedIFrameElement,
-        embedUrl,
+        embedUrlOrigin,
       });
     }
   }
 };
+
+// (Not called Disposable because TypeScript defines that.)
+export interface DisposableResource {
+  dispose: () => void;
+}
+
+export function addMessageListener(
+  embedUrlOrigin: string,
+  listener: (e: MessageEvent) => void
+): DisposableResource {
+  const wrappedListener = (e: MessageEvent) => {
+    if (e.origin === embedUrlOrigin) {
+      listener(e);
+    }
+  };
+  window.addEventListener('message', wrappedListener);
+  return {
+    dispose: () => window.removeEventListener('message', wrappedListener),
+  };
+}

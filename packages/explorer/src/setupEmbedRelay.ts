@@ -1,6 +1,6 @@
 import type { IntrospectionQuery } from 'graphql';
 import {
-  EMBEDDABLE_EXPLORER_URL,
+  EMBEDDABLE_EXPLORER_URL_ORIGIN,
   EXPLORER_LISTENING_FOR_HANDSHAKE,
   EXPLORER_LISTENING_FOR_SCHEMA,
   EXPLORER_QUERY_MUTATION_REQUEST,
@@ -8,6 +8,8 @@ import {
   HANDSHAKE_RESPONSE,
 } from './helpers/constants';
 import {
+  addMessageListener,
+  DisposableResource,
   executeOperation,
   handleAuthenticationPostMessage,
   HandleRequest,
@@ -44,13 +46,13 @@ export function setupEmbedRelay({
     inviteToken: string;
   };
   __testLocal__: boolean;
-}) {
-  const embedUrl = EMBEDDABLE_EXPLORER_URL(__testLocal__);
+}): DisposableResource {
+  const embedUrlOrigin = EMBEDDABLE_EXPLORER_URL_ORIGIN(__testLocal__);
   // Callback definition
   const onPostMessageReceived = (event: IncomingEmbedMessage) => {
     handleAuthenticationPostMessage({
       event,
-      embedUrl,
+      embedUrlOrigin,
       embeddedIFrameElement: embeddedExplorerIFrameElement,
     });
 
@@ -58,7 +60,7 @@ export function setupEmbedRelay({
     // structure of. Some have a data field that is not an object
     const data = typeof event.data === 'object' ? event.data : undefined;
 
-    if (data && 'name' in data && event.origin === embedUrl) {
+    if (data && 'name' in data) {
       // When embed connects, send a handshake message
       if (data.name === EXPLORER_LISTENING_FOR_HANDSHAKE) {
         sendPostMessageToEmbed({
@@ -70,7 +72,7 @@ export function setupEmbedRelay({
             parentHref: window.location.href,
           },
           embeddedIFrameElement: embeddedExplorerIFrameElement,
-          embedUrl,
+          embedUrlOrigin,
         });
       }
 
@@ -115,7 +117,7 @@ export function setupEmbedRelay({
             includeCookies,
             embeddedIFrameElement: embeddedExplorerIFrameElement,
             operationId,
-            embedUrl,
+            embedUrlOrigin,
             isMultipartSubscription: false,
             fileVariables:
               'fileVariables' in data ? data.fileVariables : undefined,
@@ -128,7 +130,7 @@ export function setupEmbedRelay({
                 'you cannot run subscriptions from this embed, since you are not embedding with a registered Studio graph'
               ),
               embeddedIFrameElement: embeddedExplorerIFrameElement,
-              embedUrl,
+              embedUrlOrigin,
             });
           } else {
             executeSubscription({
@@ -138,7 +140,7 @@ export function setupEmbedRelay({
               headers,
               embeddedIFrameElement: embeddedExplorerIFrameElement,
               operationId,
-              embedUrl,
+              embedUrlOrigin,
               subscriptionUrl: data.subscriptionUrl,
               protocol: data.protocol,
               httpMultipartParams: {
@@ -152,8 +154,5 @@ export function setupEmbedRelay({
     }
   };
   // Execute our callback whenever window.postMessage is called
-  window.addEventListener('message', onPostMessageReceived);
-  return {
-    dispose: () => window.removeEventListener('message', onPostMessageReceived),
-  };
+  return addMessageListener(embedUrlOrigin, onPostMessageReceived);
 }

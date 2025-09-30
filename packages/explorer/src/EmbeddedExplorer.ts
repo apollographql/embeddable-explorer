@@ -1,11 +1,12 @@
 import type { IntrospectionQuery } from 'graphql';
 import {
-  EMBEDDABLE_EXPLORER_URL,
+  EMBEDDABLE_EXPLORER_URL_ORIGIN,
   IFRAME_DOM_ID,
   SCHEMA_RESPONSE,
 } from './helpers/constants';
 import { defaultHandleRequest } from './helpers/defaultHandleRequest';
 import {
+  DisposableResource,
   HandleRequest,
   sendPostMessageToEmbed,
 } from './helpers/postMessageRelayHelpers';
@@ -115,7 +116,7 @@ export class EmbeddedExplorer {
   embeddedExplorerIFrameElement: HTMLIFrameElement;
   uniqueEmbedInstanceId: number;
   __testLocal__: boolean;
-  private disposable: { dispose: () => void };
+  private disposable: DisposableResource;
   constructor(options: EmbeddableExplorerOptions) {
     this.options = options as InternalEmbeddableExplorerOptions;
     this.__testLocal__ = !!this.options.__testLocal__;
@@ -278,7 +279,9 @@ export class EmbeddedExplorer {
       .filter(([_, value]) => value !== undefined)
       .map(([key, value]) => `${key}=${value}`)
       .join('&');
-    return `${EMBEDDABLE_EXPLORER_URL(this.__testLocal__)}?${queryString}`;
+    return `${EMBEDDABLE_EXPLORER_URL_ORIGIN(
+      this.__testLocal__
+    )}?${queryString}`;
   };
 
   updateSchemaInEmbed({
@@ -292,7 +295,7 @@ export class EmbeddedExplorer {
         schema,
       },
       embeddedIFrameElement: this.embeddedExplorerIFrameElement,
-      embedUrl: EMBEDDABLE_EXPLORER_URL(this.__testLocal__),
+      embedUrlOrigin: EMBEDDABLE_EXPLORER_URL_ORIGIN(this.__testLocal__),
     });
   }
 }

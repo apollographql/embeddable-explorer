@@ -1,5 +1,4 @@
 import {
-  EMBEDDABLE_SANDBOX_URL,
   EMBEDDABLE_SANDBOX_URL_ORIGIN,
   EXPLORER_LISTENING_FOR_HANDSHAKE,
   EXPLORER_QUERY_MUTATION_REQUEST,
@@ -8,6 +7,8 @@ import {
   INTROSPECTION_QUERY_WITH_HEADERS,
 } from './helpers/constants';
 import {
+  addMessageListener,
+  DisposableResource,
   executeIntrospectionRequest,
   executeOperation,
   handleAuthenticationPostMessage,
@@ -25,14 +26,12 @@ export function setupSandboxEmbedRelay({
   handleRequest: HandleRequest;
   embeddedSandboxIFrameElement: HTMLIFrameElement;
   __testLocal__: boolean;
-}) {
-  const embedUrl = EMBEDDABLE_SANDBOX_URL(__testLocal__);
+}): DisposableResource {
   const embedUrlOrigin = EMBEDDABLE_SANDBOX_URL_ORIGIN(__testLocal__);
   // Callback definition
   const onPostMessageReceived = (event: IncomingEmbedMessage) => {
     handleAuthenticationPostMessage({
       event,
-      embedUrl,
       embedUrlOrigin,
       embeddedIFrameElement: embeddedSandboxIFrameElement,
     });
@@ -41,7 +40,7 @@ export function setupSandboxEmbedRelay({
     // structure of. Some have a data field that is not an object
     const data = typeof event.data === 'object' ? event.data : undefined;
 
-    if (data && 'name' in data && event.origin === embedUrlOrigin) {
+    if (data && 'name' in data) {
       // When embed connects, send a handshake message
       if (data.name === EXPLORER_LISTENING_FOR_HANDSHAKE) {
         sendPostMessageToEmbed({
@@ -50,7 +49,7 @@ export function setupSandboxEmbedRelay({
             parentHref: window.location.href,
           },
           embeddedIFrameElement: embeddedSandboxIFrameElement,
-          embedUrl,
+          embedUrlOrigin,
         });
       }
 
@@ -69,7 +68,7 @@ export function setupSandboxEmbedRelay({
             headers: introspectionRequestHeaders,
             includeCookies,
             embeddedIFrameElement: embeddedSandboxIFrameElement,
-            embedUrl,
+            embedUrlOrigin,
             handleRequest,
             operationId,
           });
@@ -110,7 +109,7 @@ export function setupSandboxEmbedRelay({
             fileVariables:
               'fileVariables' in data ? data.fileVariables : undefined,
             operationName,
-            embedUrl,
+            embedUrlOrigin,
             isMultipartSubscription: false,
           });
         } else if (isSubscription) {
@@ -122,7 +121,6 @@ export function setupSandboxEmbedRelay({
             headers,
             embeddedIFrameElement: embeddedSandboxIFrameElement,
             operationId,
-            embedUrl,
             embedUrlOrigin,
             subscriptionUrl: data.subscriptionUrl,
             protocol: data.protocol,
@@ -136,8 +134,5 @@ export function setupSandboxEmbedRelay({
     }
   };
   // Execute our callback whenever window.postMessage is called
-  window.addEventListener('message', onPostMessageReceived);
-  return {
-    dispose: () => window.removeEventListener('message', onPostMessageReceived),
-  };
+  return addMessageListener(embedUrlOrigin, onPostMessageReceived);
 }

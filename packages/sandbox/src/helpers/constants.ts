@@ -1,8 +1,3 @@
-export const EMBEDDABLE_SANDBOX_URL = (__testLocal__ = false) =>
-  __testLocal__
-    ? 'https://embed.apollo.local:3000/sandbox/explorer'
-    : 'https://sandbox.embed.apollographql.com/sandbox/explorer';
-
 export const EMBEDDABLE_SANDBOX_URL_ORIGIN = (__testLocal__ = false) =>
   __testLocal__
     ? 'https://embed.apollo.local:3000'

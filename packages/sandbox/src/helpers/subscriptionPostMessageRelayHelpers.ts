@@ -13,6 +13,8 @@ import {
   EXPLORER_SUBSCRIPTION_TERMINATION,
 } from './constants';
 import {
+  addMessageListener,
+  DisposableResource,
   executeOperation,
   HandleRequest,
   sendPostMessageToEmbed,
@@ -199,7 +201,7 @@ class SubscriptionClient<Protocol extends GraphQLSubscriptionLibrary> {
       operationName: string | undefined;
       httpMultipartParams?: HTTPMultipartParams;
       embeddedIFrameElement: HTMLIFrameElement;
-      embedUrl: string;
+      embedUrlOrigin: string;
       operationId: string;
     }
   ) {
@@ -219,7 +221,7 @@ class SubscriptionClient<Protocol extends GraphQLSubscriptionLibrary> {
             includeCookies: params.httpMultipartParams?.includeCookies ?? false,
             endpointUrl: this.url,
             embeddedIFrameElement: params.embeddedIFrameElement,
-            embedUrl: params.embedUrl,
+            embedUrlOrigin: params.embedUrlOrigin,
             operationId: params.operationId,
             handleRequest: params.httpMultipartParams?.handleRequest,
             isMultipartSubscription: true,
@@ -268,11 +270,11 @@ class SubscriptionClient<Protocol extends GraphQLSubscriptionLibrary> {
 function setParentSocketError({
   error,
   embeddedIFrameElement,
-  embedUrl,
+  embedUrlOrigin,
 }: {
   error: Error | undefined;
   embeddedIFrameElement: HTMLIFrameElement;
-  embedUrl: string;
+  embedUrlOrigin: string;
 }) {
   sendPostMessageToEmbed({
     message: {
@@ -280,18 +282,18 @@ function setParentSocketError({
       error,
     },
     embeddedIFrameElement,
-    embedUrl,
+    embedUrlOrigin,
   });
 }
 
 function setParentSocketStatus({
   status,
   embeddedIFrameElement,
-  embedUrl,
+  embedUrlOrigin,
 }: {
   status: SocketStatus;
   embeddedIFrameElement: HTMLIFrameElement;
-  embedUrl: string;
+  embedUrlOrigin: string;
 }) {
   sendPostMessageToEmbed({
     message: {
@@ -299,7 +301,7 @@ function setParentSocketStatus({
       status,
     },
     embeddedIFrameElement,
-    embedUrl,
+    embedUrlOrigin,
   });
 }
 
@@ -310,7 +312,6 @@ export function executeSubscription({
   headers,
   embeddedIFrameElement,
   operationId,
-  embedUrl,
   embedUrlOrigin,
   subscriptionUrl,
   protocol,
@@ -322,12 +323,11 @@ export function executeSubscription({
   operationName: string | undefined;
   variables?: Record<string, string>;
   headers?: Record<string, string>;
-  embedUrl: string;
   embedUrlOrigin: string;
   subscriptionUrl: string;
   protocol: GraphQLSubscriptionLibrary;
   httpMultipartParams: HTTPMultipartParams;
-}) {
+}): DisposableResource {
   const client = new SubscriptionClient(
     subscriptionUrl,
     headers ?? {},
@@ -335,67 +335,67 @@ export function executeSubscription({
   );
 
   const checkForSubscriptionTermination = (event: MessageEvent) => {
-    if (
-      event.data.name === EXPLORER_SUBSCRIPTION_TERMINATION &&
-      event.origin === embedUrlOrigin
-    ) {
+    if (event.data.name === EXPLORER_SUBSCRIPTION_TERMINATION) {
       client.unsubscribeAll();
-      window.removeEventListener('message', checkForSubscriptionTermination);
+      disposeEventListener.dispose();
     }
   };
 
-  window.addEventListener('message', checkForSubscriptionTermination);
+  const disposeEventListener = addMessageListener(
+    embedUrlOrigin,
+    checkForSubscriptionTermination
+  );
 
   client.onError((e: Error) =>
     setParentSocketError({
       error: JSON.parse(JSON.stringify(e)),
       embeddedIFrameElement,
-      embedUrl,
+      embedUrlOrigin,
     })
   );
   client.onConnected(() => {
     setParentSocketError({
       error: undefined,
       embeddedIFrameElement,
-      embedUrl,
+      embedUrlOrigin,
     });
     setParentSocketStatus({
       status: 'connected',
       embeddedIFrameElement,
-      embedUrl,
+      embedUrlOrigin,
     });
   });
   client.onReconnected(() => {
     setParentSocketError({
       error: undefined,
       embeddedIFrameElement,
-      embedUrl,
+      embedUrlOrigin,
     });
     setParentSocketStatus({
       status: 'connected',
       embeddedIFrameElement,
-      embedUrl,
+      embedUrlOrigin,
     });
   });
   client.onConnecting(() =>
     setParentSocketStatus({
       status: 'connecting',
       embeddedIFrameElement,
-      embedUrl,
+      embedUrlOrigin,
     })
   );
   client.onReconnecting(() =>
     setParentSocketStatus({
       status: 'connecting',
       embeddedIFrameElement,
-      embedUrl,
+      embedUrlOrigin,
     })
   );
   client.onDisconnected(() =>
     setParentSocketStatus({
       status: 'disconnected',
       embeddedIFrameElement,
-      embedUrl,
+      embedUrlOrigin,
     })
   );
 
@@ -405,7 +405,7 @@ export function executeSubscription({
       variables: variables ?? {},
       operationName,
       embeddedIFrameElement,
-      embedUrl,
+      embedUrlOrigin,
       httpMultipartParams,
       operationId,
     })
@@ -426,7 +426,7 @@ export function executeSubscription({
               response: { data: data as JSONObject },
             },
             embeddedIFrameElement,
-            embedUrl,
+            embedUrlOrigin,
           });
         },
         error: (error) => {
@@ -439,14 +439,11 @@ export function executeSubscription({
               response: { error: JSON.parse(JSON.stringify(error)) },
             },
             embeddedIFrameElement,
-            embedUrl,
+            embedUrlOrigin,
           });
         },
       }
     );
 
-  return {
-    dispose: () =>
-      window.removeEventListener('message', checkForSubscriptionTermination),
-  };
+  return disposeEventListener;
 }
