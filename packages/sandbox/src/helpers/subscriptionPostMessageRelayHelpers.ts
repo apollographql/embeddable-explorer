@@ -13,6 +13,8 @@ import {
   EXPLORER_SUBSCRIPTION_TERMINATION,
 } from './constants';
 import {
+  addMessageListener,
+  DisposableResource,
   executeOperation,
   HandleRequest,
   sendPostMessageToEmbed,
@@ -327,7 +329,7 @@ export function executeSubscription({
   subscriptionUrl: string;
   protocol: GraphQLSubscriptionLibrary;
   httpMultipartParams: HTTPMultipartParams;
-}) {
+}): DisposableResource {
   const client = new SubscriptionClient(
     subscriptionUrl,
     headers ?? {},
@@ -335,16 +337,16 @@ export function executeSubscription({
   );
 
   const checkForSubscriptionTermination = (event: MessageEvent) => {
-    if (
-      event.data.name === EXPLORER_SUBSCRIPTION_TERMINATION &&
-      event.origin === embedUrlOrigin
-    ) {
+    if (event.data.name === EXPLORER_SUBSCRIPTION_TERMINATION) {
       client.unsubscribeAll();
-      window.removeEventListener('message', checkForSubscriptionTermination);
+      disposeEventListener.dispose();
     }
   };
 
-  window.addEventListener('message', checkForSubscriptionTermination);
+  const disposeEventListener = addMessageListener(
+    embedUrlOrigin,
+    checkForSubscriptionTermination
+  );
 
   client.onError((e: Error) =>
     setParentSocketError({
@@ -445,8 +447,5 @@ export function executeSubscription({
       }
     );
 
-  return {
-    dispose: () =>
-      window.removeEventListener('message', checkForSubscriptionTermination),
-  };
+  return disposeEventListener;
 }

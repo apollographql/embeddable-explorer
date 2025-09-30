@@ -8,6 +8,8 @@ import {
   INTROSPECTION_QUERY_WITH_HEADERS,
 } from './helpers/constants';
 import {
+  addMessageListener,
+  DisposableResource,
   executeIntrospectionRequest,
   executeOperation,
   handleAuthenticationPostMessage,
@@ -25,7 +27,7 @@ export function setupSandboxEmbedRelay({
   handleRequest: HandleRequest;
   embeddedSandboxIFrameElement: HTMLIFrameElement;
   __testLocal__: boolean;
-}) {
+}): DisposableResource {
   const embedUrl = EMBEDDABLE_SANDBOX_URL(__testLocal__);
   const embedUrlOrigin = EMBEDDABLE_SANDBOX_URL_ORIGIN(__testLocal__);
   // Callback definition
@@ -41,7 +43,7 @@ export function setupSandboxEmbedRelay({
     // structure of. Some have a data field that is not an object
     const data = typeof event.data === 'object' ? event.data : undefined;
 
-    if (data && 'name' in data && event.origin === embedUrlOrigin) {
+    if (data && 'name' in data) {
       // When embed connects, send a handshake message
       if (data.name === EXPLORER_LISTENING_FOR_HANDSHAKE) {
         sendPostMessageToEmbed({
@@ -136,8 +138,5 @@ export function setupSandboxEmbedRelay({
     }
   };
   // Execute our callback whenever window.postMessage is called
-  window.addEventListener('message', onPostMessageReceived);
-  return {
-    dispose: () => window.removeEventListener('message', onPostMessageReceived),
-  };
+  return addMessageListener(embedUrlOrigin, onPostMessageReceived);
 }

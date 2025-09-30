@@ -1,6 +1,9 @@
 import { EMBEDDABLE_SANDBOX_URL, IFRAME_DOM_ID } from './helpers/constants';
 import { defaultHandleRequest } from './helpers/defaultHandleRequest';
-import type { HandleRequest } from './helpers/postMessageRelayHelpers';
+import type {
+  DisposableResource,
+  HandleRequest,
+} from './helpers/postMessageRelayHelpers';
 import { setupSandboxEmbedRelay } from './setupSandboxEmbedRelay';
 import packageJSON from '../package.json';
 import type { JSONObject } from './helpers/types';
@@ -107,7 +110,7 @@ export class EmbeddedSandbox {
   embeddedSandboxIFrameElement: HTMLIFrameElement;
   uniqueEmbedInstanceId: number;
   __testLocal__: boolean;
-  private disposable: { dispose: () => void };
+  private disposable: DisposableResource;
   constructor(options: EmbeddableSandboxOptions) {
     this.options = options as InternalEmbeddableSandboxOptions;
     this.__testLocal__ = !!this.options.__testLocal__;
