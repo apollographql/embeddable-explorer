@@ -1,5 +1,11 @@
 # @apollo/explorer
 
+## 3.7.4
+
+### Patch Changes
+
+- [#342](https://github.com/apollographql/embeddable-explorer/pull/342) [`345a0ac`](https://github.com/apollographql/embeddable-explorer/commit/345a0acdf4db1b25fc3166c3db4578ceae3054fb) Thanks [@glasser](https://github.com/glasser)! - Apply security origin check more consistently. Pass origin to postMessage instead of full URL.
+
 ## 3.7.3
 
 ### Patch Changes
