@@ -74,5 +74,8 @@
     "subscriptions-transport-ws": "^0.11.0",
     "whatwg-mimetype": "^3.0.0",
     "zen-observable-ts": "^1.1.0"
+  },
+  "devDependencies": {
+    "use-deep-compare-effect": "^1.8.1"
   }
 }
