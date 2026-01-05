@@ -13,6 +13,12 @@ import type { JSONObject } from './helpers/types';
 
 type InitialState = {
   /**
+   * optional. Set initial display options for sandbox
+   */
+  displayOptions?: {
+    docsPanelState?: 'open' | 'closed'; // default to 'open',
+  };
+  /**
    * optional. Set headers for every operation a user triggers from this Sandbox.
    * Users can check and uncheck these headers, but not edit them.
    */
@@ -145,7 +151,8 @@ export class EmbeddedSandbox {
     let element: HTMLElement | null;
     const { target, runTelemetry } = this.options;
 
-    const { includeCookies, sharedHeaders } = this.options.initialState || {};
+    const { includeCookies, sharedHeaders, displayOptions } =
+      this.options.initialState || {};
 
     const queryParams = {
       runtime: this.options.runtime,
@@ -191,6 +198,7 @@ export class EmbeddedSandbox {
       shouldDefaultAutoupdateSchema:
         this.options.initialState?.pollForSchemaUpdates ?? true,
       endpointIsEditable: this.options.endpointIsEditable,
+      docsPanelState: displayOptions?.docsPanelState ?? 'open',
     };
 
     const queryString = Object.entries(queryParams)
