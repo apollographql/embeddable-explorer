@@ -55,11 +55,6 @@ function App() {
 
 ```
 
-### Examples from the raw cdn hosted umd file
-
-- [Embedding a registered public graph](./src/examples/graphRef.html)
-- [Usage by directly passing in schema](./src/examples/manualSchema.html)
-
 ## Developing embedded Sandbox
 
 run `npm run build:umd` to build umd files where EmbeddedSandbox is exposed on window.
