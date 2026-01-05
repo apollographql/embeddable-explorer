@@ -1,13 +1,13 @@
 {
-  "name": "@apollo/sandbox",
-  "version": "2.7.3",
+  "name": "@apollo/explorer-helpers",
+  "version": "0.1.5",
   "author": "packages@apollographql.com",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/apollographql/embeddable-explorer/sandbox"
+    "url": "https://github.com/apollographql/embeddable-explorer"
   },
-  "homepage": "https://github.com/apollographql/embeddable-explorer/sandbox#readme",
+  "homepage": "https://github.com/apollographql/embeddable-explorer/explorer-helpers#readme",
   "main": "dist/index.cjs",
   "module": "dist/index.mjs",
   "typings": "dist/src/index.d.ts",
@@ -21,8 +21,7 @@
   },
   "scripts": {
     "build": "npm run build:cjs-esm",
-    "build:cjs-esm": "rm -rf dist && rollup -c buildHelpers/rollup.cjs-esm.config.js && cp src/index.cjs dist/index.cjs && cp src/react/index.cjs dist/react/index.cjs && node ./buildHelpers/prepareDist.js sandbox",
-    "build:umd": "rm -rf dist && rollup -c buildHelpers/rollup.umd.config.js",
+    "build:cjs-esm": "rm -rf dist && rollup -c rollup.cjs-esm.config.js && cp src/index.cjs dist/index.cjs  && node ./prepareDist.js",
     "lint": "eslint --ext .js,.jsx,.ts,.tsx .",
     "size": "size-limit",
     "analyze": "size-limit --why",
@@ -45,30 +44,15 @@
   "size-limit": [
     {
       "path": "dist/index.production.min.js",
-      "limit": "10 KB"
+      "limit": "2 KB"
     },
     {
       "path": "dist/index.mjs",
-      "limit": "10 KB"
+      "limit": "2 KB"
     }
   ],
-  "peerDependencies": {
-    "react": "^16.8.0 || ^17.0.0 || ^18.0.0",
-    "react-dom": "^16.8.0 || ^17.0.0 || ^18.0.0"
-  },
-  "peerDependenciesMeta": {
-    "react": {
-      "optional": true
-    },
-    "react-dom": {
-      "optional": true
-    }
-  },
   "dependencies": {
     "@types/whatwg-mimetype": "^3.0.0",
-    "eventemitter3": "3.1.0",
-    "graphql-ws": "^5.9.0",
-    "subscriptions-transport-ws": "^0.11.0",
     "whatwg-mimetype": "^3.0.0",
     "zen-observable-ts": "^1.1.0"
   }

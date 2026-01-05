@@ -43,6 +43,14 @@ function App() {
 
 }
 ...
+// style the iframe for your site
+<style>
+  iframe {
+    height: 100%;
+    width: 100%;
+    border: none;
+  }
+</style>
 <div id="embeddableSandbox" />
 
 ```

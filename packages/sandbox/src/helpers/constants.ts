@@ -1,7 +1,7 @@
-export const EMBEDDABLE_SANDBOX_URL = (__testLocal__ = false) =>
+export const EMBEDDABLE_SANDBOX_URL_ORIGIN = (__testLocal__ = false) =>
   __testLocal__
-    ? 'https://embed.apollo.local:3000/sandbox/explorer'
-    : 'https://sandbox.embed.apollographql.com/sandbox/explorer';
+    ? 'https://embed.apollo.local:3000'
+    : 'https://sandbox.embed.apollographql.com';
 
 // Message types for Explorer state
 export const EXPLORER_LISTENING_FOR_SCHEMA = 'ExplorerListeningForSchema';
@@ -34,5 +34,9 @@ export const EXPLORER_LISTENING_FOR_PARTIAL_TOKEN =
   'ExplorerListeningForPartialToken';
 export const PARTIAL_AUTHENTICATION_TOKEN_RESPONSE =
   'PartialAuthenticationTokenResponse';
+export const PREFLIGHT_OAUTH_REQUEST = 'PreflightOAuthRequest';
+export const PREFLIGHT_OAUTH_PROVIDER_RESPONSE =
+  'PreflightOAuthProviderResponse';
+export const PREFLIGHT_OAUTH_RESPONSE = 'PreflightOAuthResponse';
 export const INTROSPECTION_QUERY_WITH_HEADERS = 'IntrospectionQueryWithHeaders';
 export const PARENT_LOGOUT_SUCCESS = 'ParentLogoutSuccess';

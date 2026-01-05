@@ -74,12 +74,22 @@ me {
 
 }
 
+...
+// style the iframe for your site
+<style>
+  iframe {
+    height: 100%;
+    width: 100%;
+    border: none;
+  }
+</style>
+<div id="embeddableExplorer" />
 ```
 
 ### Examples from the raw cdn hosted umd file
 
-- [Embedding a registered public graph](./src/embeddableExplorer/examples/graphRef.html)
-- [Usage by directly passing in schema](./src/embeddableExplorer/examples/manualSchema.html)
+- [Embedding a registered public graph](./src/examples/graphRef.html)
+- [Usage by directly passing in schema](./src/examples/manualSchema.html)
 
 ## Developing embedded Explorer
 

@@ -1,5 +1,5 @@
 import {
-  EMBEDDABLE_SANDBOX_URL,
+  EMBEDDABLE_SANDBOX_URL_ORIGIN,
   EXPLORER_LISTENING_FOR_HANDSHAKE,
   EXPLORER_QUERY_MUTATION_REQUEST,
   EXPLORER_SUBSCRIPTION_REQUEST,
@@ -7,6 +7,8 @@ import {
   INTROSPECTION_QUERY_WITH_HEADERS,
 } from './helpers/constants';
 import {
+  addMessageListener,
+  DisposableResource,
   executeIntrospectionRequest,
   executeOperation,
   handleAuthenticationPostMessage,
@@ -24,13 +26,13 @@ export function setupSandboxEmbedRelay({
   handleRequest: HandleRequest;
   embeddedSandboxIFrameElement: HTMLIFrameElement;
   __testLocal__: boolean;
-}) {
-  const embedUrl = EMBEDDABLE_SANDBOX_URL(__testLocal__);
+}): DisposableResource {
+  const embedUrlOrigin = EMBEDDABLE_SANDBOX_URL_ORIGIN(__testLocal__);
   // Callback definition
   const onPostMessageReceived = (event: IncomingEmbedMessage) => {
     handleAuthenticationPostMessage({
       event,
-      embedUrl,
+      embedUrlOrigin,
       embeddedIFrameElement: embeddedSandboxIFrameElement,
     });
 
@@ -47,7 +49,7 @@ export function setupSandboxEmbedRelay({
             parentHref: window.location.href,
           },
           embeddedIFrameElement: embeddedSandboxIFrameElement,
-          embedUrl,
+          embedUrlOrigin,
         });
       }
 
@@ -55,16 +57,20 @@ export function setupSandboxEmbedRelay({
         const {
           introspectionRequestBody,
           introspectionRequestHeaders,
+          includeCookies,
           sandboxEndpointUrl,
+          operationId,
         } = data;
         if (sandboxEndpointUrl) {
           executeIntrospectionRequest({
             endpointUrl: sandboxEndpointUrl,
             introspectionRequestBody,
             headers: introspectionRequestHeaders,
+            includeCookies,
             embeddedIFrameElement: embeddedSandboxIFrameElement,
-            embedUrl,
+            embedUrlOrigin,
             handleRequest,
+            operationId,
           });
         }
       }
@@ -81,34 +87,33 @@ export function setupSandboxEmbedRelay({
         data.operationId
       ) {
         // Extract the operation details from the event.data object
-        const { operation, operationId, operationName, variables, headers } =
+        const { operation, variables, operationName, operationId, headers } =
           data;
+
         if (isQueryOrMutation) {
-          const {
-            endpointUrl,
-            // this can be deleted in Fall 2022
-            // it is just here to be backwards compatible with old
-            // studio versions (service workers)
-            sandboxEndpointUrl,
-          } = data;
-          const endpointUrlToUseInExecution = endpointUrl ?? sandboxEndpointUrl;
-          if (!endpointUrlToUseInExecution) {
+          const { endpointUrl, includeCookies } = data;
+          if (!endpointUrl) {
             throw new Error(
               'Something went wrong, we should not have gotten here. The sandbox endpoint url was not sent.'
             );
           }
           executeOperation({
-            endpointUrl: endpointUrlToUseInExecution,
+            endpointUrl,
             handleRequest,
-            operation,
-            operationName,
-            variables,
             headers,
+            includeCookies,
             embeddedIFrameElement: embeddedSandboxIFrameElement,
             operationId,
-            embedUrl,
+            operation,
+            variables,
+            fileVariables:
+              'fileVariables' in data ? data.fileVariables : undefined,
+            operationName,
+            embedUrlOrigin,
+            isMultipartSubscription: false,
           });
         } else if (isSubscription) {
+          const { httpMultipartParams } = data;
           executeSubscription({
             operation,
             operationName,
@@ -116,17 +121,18 @@ export function setupSandboxEmbedRelay({
             headers,
             embeddedIFrameElement: embeddedSandboxIFrameElement,
             operationId,
-            embedUrl,
+            embedUrlOrigin,
             subscriptionUrl: data.subscriptionUrl,
             protocol: data.protocol,
+            httpMultipartParams: {
+              ...httpMultipartParams,
+              handleRequest,
+            },
           });
         }
       }
     }
   };
   // Execute our callback whenever window.postMessage is called
-  window.addEventListener('message', onPostMessageReceived);
-  return {
-    dispose: () => window.removeEventListener('message', onPostMessageReceived),
-  };
+  return addMessageListener(embedUrlOrigin, onPostMessageReceived);
 }

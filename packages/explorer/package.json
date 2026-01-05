@@ -1,13 +1,13 @@
 {
   "name": "@apollo/explorer",
-  "version": "2.0.2",
+  "version": "3.7.4",
   "author": "packages@apollographql.com",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/apollographql/embeddable-explorer"
+    "url": "https://github.com/apollographql/embeddable-explorer/explorer"
   },
-  "homepage": "https://github.com/apollographql/embeddable-explorer#readme",
+  "homepage": "https://github.com/apollographql/embeddable-explorer/explorer#readme",
   "main": "dist/index.cjs",
   "module": "dist/index.mjs",
   "typings": "dist/src/index.d.ts",
@@ -53,8 +53,8 @@
     }
   ],
   "peerDependencies": {
-    "react": "^16.8.0 || ^17.0.0 || ^18.0.0",
-    "react-dom": "^16.8.0 || ^17.0.0 || ^18.0.0",
+    "react": "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0",
+    "react-dom": "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0",
     "use-deep-compare-effect": "^1.8.1"
   },
   "peerDependenciesMeta": {

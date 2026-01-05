@@ -1,11 +1,12 @@
 import type { IntrospectionQuery } from 'graphql';
 import {
-  EMBEDDABLE_EXPLORER_URL,
+  EMBEDDABLE_EXPLORER_URL_ORIGIN,
   IFRAME_DOM_ID,
   SCHEMA_RESPONSE,
 } from './helpers/constants';
 import { defaultHandleRequest } from './helpers/defaultHandleRequest';
 import {
+  DisposableResource,
   HandleRequest,
   sendPostMessageToEmbed,
 } from './helpers/postMessageRelayHelpers';
@@ -13,32 +14,74 @@ import { setupEmbedRelay } from './setupEmbedRelay';
 import packageJSON from '../package.json';
 import type { JSONObject } from './helpers/types';
 
+type InitialState = {
+  displayOptions?: {
+    docsPanelState?: 'open' | 'closed'; // default to 'open',
+    showGlobalHeader?: boolean; // default to `true`,
+    showHeadersAndEnvVars?: boolean; // default to `false`
+    theme?: 'dark' | 'light';
+  };
+} & (
+  | /**
+   * Pass collectionId, operationId to embed the document, headers, variables associated
+   * with this operation id if you have access to the operation via your collections.
+   */
+  {
+      collectionId: string;
+      operationId: string;
+    }
+  | {
+      document?: string;
+      variables?: JSONObject;
+      headers?: Record<string, string>;
+
+      collectionId?: never;
+      operationId?: never;
+    }
+);
 export interface BaseEmbeddableExplorerOptions {
   target: string | HTMLElement; // HTMLElement is to accomodate people who might prefer to pass in a ref
 
-  initialState?: {
-    document?: string;
-    variables?: JSONObject;
-    headers?: Record<string, string>;
-    displayOptions: {
-      docsPanelState?: 'open' | 'closed'; // default to 'open',
-      showHeadersAndEnvVars?: boolean; // default to `false`
-      theme?: 'dark' | 'light';
-    };
-  };
-  persistExplorerState?: boolean; // defaults to 'false'
+  initialState?: InitialState;
+  /**
+   * defaults to 'false'
+   */
+  persistExplorerState?: boolean;
 
-  // optional. defaults to `return fetch(url, fetchOptions)`
+  /**
+   * Whether or not to run Error tracking, Google Analytics event tracking etc
+   */
+  runTelemetry?: boolean;
+
+  /**
+   * optional. defaults to `return fetch(url, fetchOptions)`
+   */
   handleRequest?: HandleRequest;
-  // defaults to false. If you pass `handleRequest` that will override this.
+  /**
+   * If this is passed, its value will take precedence over your variant's default `includeCookies` value.
+   * If you pass `handleRequest`, that will override this value and its behavior.
+   *
+   * @deprecated Use the connection setting on your variant in Studio to choose whether or not to include cookies
+   */
   includeCookies?: boolean;
-  // If this object has values for `inviteToken` and `accountId`,
-  // any users who can see your embeddable Explorer are automatically
-  // invited to the account your graph is under with the role specified by the `inviteToken`.
+
+  /**
+   * If this object has values for `inviteToken` and `accountId`,
+   * any users who can see your embeddable Explorer are automatically
+   * invited to the account your graph is under with the role specified by the `inviteToken`.
+   */
   autoInviteOptions?: {
     accountId: string;
     inviteToken: string;
   };
+
+  /**
+   * optional. defaults to true.
+   * If false, the `width: 100%` and `height: 100%` are not applied to the iframe dynamically.
+   * You might pass false here if you enforce a Content Security Policy that disallows dynamic
+   * style injection.
+   */
+  allowDynamicStyles?: boolean;
 }
 
 interface EmbeddableExplorerOptionsWithSchema
@@ -61,6 +104,7 @@ export type EmbeddableExplorerOptions =
 
 type InternalEmbeddableExplorerOptions = EmbeddableExplorerOptions & {
   __testLocal__?: boolean;
+  runtime?: string;
 };
 
 let idCounter = 0;
@@ -72,14 +116,16 @@ export class EmbeddedExplorer {
   embeddedExplorerIFrameElement: HTMLIFrameElement;
   uniqueEmbedInstanceId: number;
   __testLocal__: boolean;
-  private disposable: { dispose: () => void };
+  private disposable: DisposableResource;
   constructor(options: EmbeddableExplorerOptions) {
     this.options = options as InternalEmbeddableExplorerOptions;
     this.__testLocal__ = !!this.options.__testLocal__;
     this.validateOptions();
     this.handleRequest =
       this.options.handleRequest ??
-      defaultHandleRequest({ includeCookies: !!this.options.includeCookies });
+      defaultHandleRequest({
+        legacyIncludeCookies: this.options.includeCookies,
+      });
     this.uniqueEmbedInstanceId = idCounter++;
     this.embeddedExplorerURL = this.getEmbeddedExplorerURL();
     this.embeddedExplorerIFrameElement = this.injectEmbed();
@@ -117,11 +163,13 @@ export class EmbeddedExplorer {
     iframeElement.src = this.embeddedExplorerURL;
 
     iframeElement.id = IFRAME_DOM_ID(this.uniqueEmbedInstanceId);
-    iframeElement.setAttribute(
-      'style',
-      'height: 100%; width: 100%; border: none;'
-    );
-
+    // default to `true` (`true` and `undefined` both ok)
+    if (this.options.allowDynamicStyles !== false) {
+      iframeElement.setAttribute(
+        'style',
+        'height: 100%; width: 100%; border: none;'
+      );
+    }
     element?.appendChild(iframeElement);
 
     // inject the Apollo favicon if there is not one on this page
@@ -156,6 +204,12 @@ export class EmbeddedExplorer {
       throw new Error('"target" is required');
     }
 
+    if (this.options.includeCookies !== undefined) {
+      console.warn(
+        'Passing `includeCookies` is deprecated. Remove `includeCookies` from your config, and use the setting for your variant on Studio to set whether or not to include cookies.'
+      );
+    }
+
     if ('endpointUrl' in this.options && 'graphRef' in this.options) {
       // we can't throw here for backwards compat reasons. Folks on the cdn _latest bundle
       // will still be passing this
@@ -176,35 +230,58 @@ export class EmbeddedExplorer {
   }
 
   getEmbeddedExplorerURL = () => {
-    const { document, variables, headers, displayOptions } =
-      this.options.initialState || {};
-    const { persistExplorerState } = this.options;
+    const { displayOptions } = this.options.initialState || {};
+
+    const { persistExplorerState, runTelemetry } = this.options;
     const graphRef =
       'graphRef' in this.options ? this.options.graphRef : undefined;
     const queryParams = {
+      runtime: this.options.runtime,
       graphRef,
-      defaultDocument: document ? encodeURIComponent(document) : undefined,
-      defaultVariables: variables
-        ? encodeURIComponent(JSON.stringify(variables, null, 2))
-        : undefined,
-      defaultHeaders: headers
-        ? encodeURIComponent(JSON.stringify(headers))
-        : undefined,
+      ...(this.options.initialState &&
+      'collectionId' in this.options.initialState
+        ? {
+            defaultCollectionEntryId: this.options.initialState.operationId,
+            defaultCollectionId: this.options.initialState.collectionId,
+          }
+        : {}),
+      ...(this.options.initialState && 'document' in this.options.initialState
+        ? {
+            defaultDocument: this.options.initialState.document
+              ? encodeURIComponent(this.options.initialState.document)
+              : undefined,
+            defaultVariables: this.options.initialState.variables
+              ? encodeURIComponent(
+                  JSON.stringify(this.options.initialState.variables, null, 2)
+                )
+              : undefined,
+            defaultHeaders: this.options.initialState.headers
+              ? encodeURIComponent(
+                  JSON.stringify(this.options.initialState.headers)
+                )
+              : undefined,
+          }
+        : {}),
       shouldPersistState: !!persistExplorerState,
       docsPanelState: displayOptions?.docsPanelState ?? 'open',
       showHeadersAndEnvVars: displayOptions?.showHeadersAndEnvVars !== false,
       theme: displayOptions?.theme ?? 'dark',
-      shouldShowGlobalHeader: true,
+      shouldShowGlobalHeader:
+        displayOptions?.showGlobalHeader === undefined
+          ? true
+          : displayOptions.showGlobalHeader,
       parentSupportsSubscriptions: !!graphRef,
       version: packageJSON.version,
-      runTelemetry: true,
+      runTelemetry: runTelemetry === undefined ? true : runTelemetry,
     };
 
     const queryString = Object.entries(queryParams)
       .filter(([_, value]) => value !== undefined)
       .map(([key, value]) => `${key}=${value}`)
       .join('&');
-    return `${EMBEDDABLE_EXPLORER_URL(this.__testLocal__)}?${queryString}`;
+    return `${EMBEDDABLE_EXPLORER_URL_ORIGIN(
+      this.__testLocal__
+    )}?${queryString}`;
   };
 
   updateSchemaInEmbed({
@@ -218,7 +295,7 @@ export class EmbeddedExplorer {
         schema,
       },
       embeddedIFrameElement: this.embeddedExplorerIFrameElement,
-      embedUrl: EMBEDDABLE_EXPLORER_URL(this.__testLocal__),
+      embedUrlOrigin: EMBEDDABLE_EXPLORER_URL_ORIGIN(this.__testLocal__),
     });
   }
 }

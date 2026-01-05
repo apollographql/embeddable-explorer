@@ -1,37 +1,108 @@
-import type { IntrospectionQuery } from 'graphql';
 import {
-  EMBEDDABLE_SANDBOX_URL,
+  EMBEDDABLE_SANDBOX_URL_ORIGIN,
   IFRAME_DOM_ID,
-  SCHEMA_RESPONSE,
 } from './helpers/constants';
 import { defaultHandleRequest } from './helpers/defaultHandleRequest';
-import {
+import type {
+  DisposableResource,
   HandleRequest,
-  sendPostMessageToEmbed,
 } from './helpers/postMessageRelayHelpers';
 import { setupSandboxEmbedRelay } from './setupSandboxEmbedRelay';
 import packageJSON from '../package.json';
 import type { JSONObject } from './helpers/types';
 
+type InitialState = {
+  /**
+   * optional. Set headers for every operation a user triggers from this Sandbox.
+   * Users can check and uncheck these headers, but not edit them.
+   */
+  sharedHeaders?: Record<string, string>;
+  /**
+   * optional. defaults to false
+   */
+  includeCookies?: boolean;
+  /**
+   * defaults to true. If false, sandbox will not poll your endpoint for your schema.
+   * */
+  pollForSchemaUpdates?: boolean;
+} & (
+  | /**
+   * Pass collectionId, operationId to embed the document, headers, variables associated
+   * with this operation id if you have access to the operation via your collections.
+   */
+  {
+      collectionId: string;
+      operationId: string;
+    }
+  | {
+      document?: string;
+      variables?: JSONObject;
+      headers?: Record<string, string>;
+
+      collectionId?: never;
+      operationId?: never;
+    }
+);
 export interface EmbeddableSandboxOptions {
   target: string | HTMLElement; // HTMLElement is to accommodate people who might prefer to pass in a ref
   initialEndpoint?: string;
+  initialSubscriptionEndpoint?: string;
+  initialState?: InitialState;
 
-  initialState?: {
-    document?: string;
-    variables?: JSONObject;
-    headers?: Record<string, string>;
-  };
+  /**
+   * Whether or not to run Error tracking, Google Analytics event tracking etc
+   */
+  runTelemetry?: boolean;
 
-  // optional. defaults to `return fetch(url, fetchOptions)`
+  /**
+   * optional. defaults to `return fetch(url, fetchOptions)`
+   */
   handleRequest?: HandleRequest;
-  // defaults to false. If you pass `handleRequest` that will override this.
+
+  /**
+   * optional. If this is passed, its value will take precedence over your sandbox connection settings `includeCookies` value.
+   * If you pass `handleRequest`, that will override this value and its behavior.
+   *
+   * @deprecated Use `initialState.includeCookies` instead
+   */
   includeCookies?: boolean;
+
+  /**
+   * optional. defaults to `true`.
+   * Set this to `false` if you want individual users to be able to choose whether
+   * to include cookies in their request from their connection settings.
+   */
+  hideCookieToggle?: boolean;
+  /**
+   * optional. defaults to true.
+   * If false, the endpoint box at the top of sandbox will be `initialEndpoint` permanently
+   */
+  endpointIsEditable?: boolean;
+  /**
+   * optional. defaults to true.
+   * If false, the `width: 100%` and `height: 100%` are not applied to the iframe dynamically.
+   * You might pass false here if you enforce a Content Security Policy that disallows dynamic
+   * style injection.
+   */
+  allowDynamicStyles?: boolean;
+  /**
+   * Defaults to true, even though our default in hosted Sandbox is false.
+   * Needed to default to true so that shipped versions particularly on Apollo Server
+   * maintain backwards compatible behavior. Pass false to exclusively pass shared headers
+   * to introspection requests.
+   */
+  sendOperationHeadersInIntrospection?: boolean;
 }
 
 type InternalEmbeddableSandboxOptions = EmbeddableSandboxOptions & {
   __testLocal__?: boolean;
   initialRequestQueryPlan?: boolean;
+  runtime?: string;
+  /**
+   * optional. defaults to `false`.
+   * Whether or not to include the `Apollo-Connectors-Debugging: true` header in requests
+   */
+  initialRequestConnectorsDebugging?: boolean;
 };
 
 let idCounter = 0;
@@ -42,14 +113,16 @@ export class EmbeddedSandbox {
   embeddedSandboxIFrameElement: HTMLIFrameElement;
   uniqueEmbedInstanceId: number;
   __testLocal__: boolean;
-  private disposable: { dispose: () => void };
+  private disposable: DisposableResource;
   constructor(options: EmbeddableSandboxOptions) {
     this.options = options as InternalEmbeddableSandboxOptions;
     this.__testLocal__ = !!this.options.__testLocal__;
     this.validateOptions();
     this.handleRequest =
       this.options.handleRequest ??
-      defaultHandleRequest({ includeCookies: !!this.options.includeCookies });
+      defaultHandleRequest({
+        legacyIncludeCookies: this.options.includeCookies,
+      });
     this.uniqueEmbedInstanceId = idCounter++;
     this.embeddedSandboxIFrameElement = this.injectEmbed();
     this.disposable = setupSandboxEmbedRelay({
@@ -70,29 +143,54 @@ export class EmbeddedSandbox {
 
   injectEmbed() {
     let element: HTMLElement | null;
-    const { target } = this.options;
+    const { target, runTelemetry } = this.options;
 
-    const {
-      document: initialDocument,
-      variables,
-      headers,
-    } = this.options.initialState || {};
+    const { includeCookies, sharedHeaders } = this.options.initialState || {};
 
     const queryParams = {
+      runtime: this.options.runtime,
       endpoint: this.options.initialEndpoint,
-      defaultDocument: initialDocument
-        ? encodeURIComponent(initialDocument)
+      subscriptionEndpoint: this.options.initialSubscriptionEndpoint,
+      sendOperationHeadersInIntrospection:
+        this.options.sendOperationHeadersInIntrospection ?? true,
+      ...(this.options.initialState &&
+      'collectionId' in this.options.initialState
+        ? {
+            defaultCollectionEntryId: this.options.initialState.operationId,
+            defaultCollectionId: this.options.initialState.collectionId,
+          }
+        : {}),
+      ...(this.options.initialState && 'document' in this.options.initialState
+        ? {
+            defaultDocument: this.options.initialState.document
+              ? encodeURIComponent(this.options.initialState.document)
+              : undefined,
+            defaultVariables: this.options.initialState.variables
+              ? encodeURIComponent(
+                  JSON.stringify(this.options.initialState.variables, null, 2)
+                )
+              : undefined,
+            defaultHeaders: this.options.initialState.headers
+              ? encodeURIComponent(
+                  JSON.stringify(this.options.initialState.headers)
+                )
+              : undefined,
+          }
+        : {}),
+      sharedHeaders: sharedHeaders
+        ? encodeURIComponent(JSON.stringify(sharedHeaders))
         : undefined,
-      defaultVariables: variables
-        ? encodeURIComponent(JSON.stringify(variables, null, 2))
-        : undefined,
-      defaultHeaders: headers
-        ? encodeURIComponent(JSON.stringify(headers))
-        : undefined,
+      defaultIncludeCookies: includeCookies,
+      hideCookieToggle: this.options.hideCookieToggle ?? true,
       parentSupportsSubscriptions: true,
       version: packageJSON.version,
-      runTelemetry: true,
+      runTelemetry: runTelemetry === undefined ? true : runTelemetry,
       initialRequestQueryPlan: this.options.initialRequestQueryPlan ?? false,
+      initialRequestConnectorsDebugging:
+        this.options.initialRequestConnectorsDebugging ?? false,
+      shouldDefaultAutoupdateSchema:
+        this.options.initialState?.pollForSchemaUpdates ?? true,
+      endpointIsEditable: this.options.endpointIsEditable,
     };
 
     const queryString = Object.entries(queryParams)
@@ -106,15 +204,18 @@ export class EmbeddedSandbox {
       element = target;
     }
     const iframeElement = document.createElement('iframe');
-    iframeElement.src = `${EMBEDDABLE_SANDBOX_URL(
+    iframeElement.src = `${EMBEDDABLE_SANDBOX_URL_ORIGIN(
       this.__testLocal__
-    )}?${queryString}`;
+    )}/sandbox/explorer?${queryString}`;
 
     iframeElement.id = IFRAME_DOM_ID(this.uniqueEmbedInstanceId);
-    iframeElement.setAttribute(
-      'style',
-      'height: 100%; width: 100%; border: none;'
-    );
+    // default to `true` (`true` and `undefined` both ok)
+    if (this.options.allowDynamicStyles !== false) {
+      iframeElement.setAttribute(
+        'style',
+        'height: 100%; width: 100%; border: none;'
+      );
+    }
 
     element?.appendChild(iframeElement);
 
@@ -149,20 +250,21 @@ export class EmbeddedSandbox {
     if (!this.options.target) {
       throw new Error('"target" is required');
     }
-  }
 
-  updateSchemaInEmbed({
-    schema,
-  }: {
-    schema?: string | IntrospectionQuery | undefined;
-  }) {
-    sendPostMessageToEmbed({
-      message: {
-        name: SCHEMA_RESPONSE,
-        schema,
-      },
-      embeddedIFrameElement: this.embeddedSandboxIFrameElement,
-      embedUrl: EMBEDDABLE_SANDBOX_URL(this.__testLocal__),
-    });
+    if (this.options.includeCookies !== undefined) {
+      console.warn(
+        'Passing `includeCookies` is deprecated. If you would like to set a default includeCookies value, please use `initialState.includeCookies` instead.'
+      );
+    }
+
+    if (
+      this.options.includeCookies !== undefined &&
+      (this.options.hideCookieToggle !== undefined ||
+        this.options.initialState?.includeCookies !== undefined)
+    ) {
+      throw new Error(
+        'Passing `includeCookies` is deprecated and will override your sandbox connection settings configuration.'
+      );
+    }
   }
 }

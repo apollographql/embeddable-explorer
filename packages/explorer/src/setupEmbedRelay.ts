@@ -1,6 +1,6 @@
 import type { IntrospectionQuery } from 'graphql';
 import {
-  EMBEDDABLE_EXPLORER_URL,
+  EMBEDDABLE_EXPLORER_URL_ORIGIN,
   EXPLORER_LISTENING_FOR_HANDSHAKE,
   EXPLORER_LISTENING_FOR_SCHEMA,
   EXPLORER_QUERY_MUTATION_REQUEST,
@@ -8,6 +8,8 @@ import {
   HANDSHAKE_RESPONSE,
 } from './helpers/constants';
 import {
+  addMessageListener,
+  DisposableResource,
   executeOperation,
   handleAuthenticationPostMessage,
   HandleRequest,
@@ -44,13 +46,13 @@ export function setupEmbedRelay({
     inviteToken: string;
   };
   __testLocal__: boolean;
-}) {
-  const embedUrl = EMBEDDABLE_EXPLORER_URL(__testLocal__);
+}): DisposableResource {
+  const embedUrlOrigin = EMBEDDABLE_EXPLORER_URL_ORIGIN(__testLocal__);
   // Callback definition
   const onPostMessageReceived = (event: IncomingEmbedMessage) => {
     handleAuthenticationPostMessage({
       event,
-      embedUrl,
+      embedUrlOrigin,
       embeddedIFrameElement: embeddedExplorerIFrameElement,
     });
 
@@ -70,7 +72,7 @@ export function setupEmbedRelay({
             parentHref: window.location.href,
           },
           embeddedIFrameElement: embeddedExplorerIFrameElement,
-          embedUrl,
+          embedUrlOrigin,
         });
       }
 
@@ -95,6 +97,7 @@ export function setupEmbedRelay({
           data;
 
         if (isQueryOrMutation) {
+          const { includeCookies } = data;
           // we support the old way of using the embed when we didn't require folks to have
           // studio graphs, which is to pass in an endpoint manually. However, we use the
           // endpoint sent to us from studio if there is no endpoint passed in manually
@@ -111,18 +114,23 @@ export function setupEmbedRelay({
             operationName,
             variables,
             headers,
+            includeCookies,
             embeddedIFrameElement: embeddedExplorerIFrameElement,
             operationId,
-            embedUrl,
+            embedUrlOrigin,
+            isMultipartSubscription: false,
+            fileVariables:
+              'fileVariables' in data ? data.fileVariables : undefined,
           });
         } else if (isSubscription) {
+          const { httpMultipartParams } = data;
           if (!!schema) {
             setParentSocketError({
               error: new Error(
                 'you cannot run subscriptions from this embed, since you are not embedding with a registered Studio graph'
               ),
               embeddedIFrameElement: embeddedExplorerIFrameElement,
-              embedUrl,
+              embedUrlOrigin,
             });
           } else {
             executeSubscription({
@@ -132,9 +140,13 @@ export function setupEmbedRelay({
               headers,
               embeddedIFrameElement: embeddedExplorerIFrameElement,
               operationId,
-              embedUrl,
+              embedUrlOrigin,
               subscriptionUrl: data.subscriptionUrl,
               protocol: data.protocol,
+              httpMultipartParams: {
+                ...httpMultipartParams,
+                handleRequest,
+              },
             });
           }
         }
@@ -142,8 +154,5 @@ export function setupEmbedRelay({
     }
   };
   // Execute our callback whenever window.postMessage is called
-  window.addEventListener('message', onPostMessageReceived);
-  return {
-    dispose: () => window.removeEventListener('message', onPostMessageReceived),
-  };
+  return addMessageListener(embedUrlOrigin, onPostMessageReceived);
 }

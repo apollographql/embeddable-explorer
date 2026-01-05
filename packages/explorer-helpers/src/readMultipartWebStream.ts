@@ -1,7 +1,7 @@
 import { Observable } from 'zen-observable-ts';
 import type { GraphQLError } from 'graphql';
 import type MIMEType from 'whatwg-mimetype';
-import type { ResponseData } from './postMessageRelayHelpers';
+import type { ResponseData } from './types';
 
 export interface MultipartResponse {
   data: ResponseData & {
