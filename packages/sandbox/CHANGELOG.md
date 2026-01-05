@@ -1,5 +1,11 @@
 # @apollo/sandbox
 
+## 2.7.4
+
+### Patch Changes
+
+- [`b985f6233cb86b7933373dacc156e95e2489f9fc`](https://github.com/apollographql/embeddable-explorer/commit/b985f6233cb86b7933373dacc156e95e2489f9fc) Thanks [@Jephuff](https://github.com/Jephuff)! - Add react 19 to peer dependencies
+
 ## 2.7.3
 
 ### Patch Changes
