@@ -41,6 +41,10 @@ export type HandleRequest = (
   endpointUrl: string,
   options: Omit<RequestInit, 'headers'> & { headers: Record<string, string> }
 ) => Promise<Response>;
+export type ModifyHeaders = (
+  endpointUrl: string,
+  headers: Record<string, string> | undefined
+) => Promise<Record<string, string> | undefined>;
 
 export type SocketStatus = 'disconnected' | 'connecting' | 'connected';
 

@@ -14,22 +14,25 @@ import {
   handleAuthenticationPostMessage,
   HandleRequest,
   IncomingEmbedMessage,
+  ModifyHeaders,
   sendPostMessageToEmbed,
 } from './helpers/postMessageRelayHelpers';
 import { executeSubscription } from './helpers/subscriptionPostMessageRelayHelpers';
 
 export function setupSandboxEmbedRelay({
   handleRequest,
+  modifyHeaders,
   embeddedSandboxIFrameElement,
   __testLocal__,
 }: {
   handleRequest: HandleRequest;
+  modifyHeaders?: ModifyHeaders;
   embeddedSandboxIFrameElement: HTMLIFrameElement;
   __testLocal__: boolean;
 }): DisposableResource {
   const embedUrlOrigin = EMBEDDABLE_SANDBOX_URL_ORIGIN(__testLocal__);
   // Callback definition
-  const onPostMessageReceived = (event: IncomingEmbedMessage) => {
+  const onPostMessageReceived = async (event: IncomingEmbedMessage) => {
     handleAuthenticationPostMessage({
       event,
       embedUrlOrigin,
@@ -87,7 +90,7 @@ export function setupSandboxEmbedRelay({
         data.operationId
       ) {
         // Extract the operation details from the event.data object
-        const { operation, variables, operationName, operationId, headers } =
+        const { operation, variables, operationName, operationId, headers: originalHeaders } =
           data;
 
         if (isQueryOrMutation) {
@@ -97,6 +100,10 @@ export function setupSandboxEmbedRelay({
               'Something went wrong, we should not have gotten here. The sandbox endpoint url was not sent.'
             );
           }
+          // If the user has provided a function to modify headers, call it
+          const headers = modifyHeaders
+            ? await modifyHeaders(endpointUrl, originalHeaders)
+            : originalHeaders;
           executeOperation({
             endpointUrl,
             handleRequest,
@@ -114,6 +121,10 @@ export function setupSandboxEmbedRelay({
           });
         } else if (isSubscription) {
           const { httpMultipartParams } = data;
+          // If the user has provided a function to modify headers, call it
+          const headers = modifyHeaders
+            ? await modifyHeaders(data.subscriptionUrl, originalHeaders)
+            : originalHeaders;
           executeSubscription({
             operation,
             operationName,
