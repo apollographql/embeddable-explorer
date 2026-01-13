@@ -6,6 +6,7 @@ import { defaultHandleRequest } from './helpers/defaultHandleRequest';
 import type {
   DisposableResource,
   HandleRequest,
+  ModifyHeaders,
 } from './helpers/postMessageRelayHelpers';
 import { setupSandboxEmbedRelay } from './setupSandboxEmbedRelay';
 import packageJSON from '../package.json';
@@ -58,6 +59,11 @@ export interface EmbeddableSandboxOptions {
    * optional. defaults to `return fetch(url, fetchOptions)`
    */
   handleRequest?: HandleRequest;
+
+  /**
+    * optional. Function that accepts the original headers and returns the modified headers.
+    */
+  modifyHeaders?: ModifyHeaders;
 
   /**
    * optional. If this is passed, its value will take precedence over your sandbox connection settings `includeCookies` value.
@@ -128,6 +134,7 @@ export class EmbeddedSandbox {
     this.disposable = setupSandboxEmbedRelay({
       embeddedSandboxIFrameElement: this.embeddedSandboxIFrameElement,
       handleRequest: this.handleRequest,
+      modifyHeaders: this.options.modifyHeaders,
       __testLocal__: !!this.__testLocal__,
     });
   }
